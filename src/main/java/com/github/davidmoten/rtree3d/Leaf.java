@@ -5,9 +5,8 @@ import static com.google.common.base.Optional.of;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import rx.Subscriber;
-import rx.functions.Func1;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.rtree3d.geometry.Geometry;
@@ -40,19 +39,15 @@ final class Leaf<T, S extends Geometry> implements Node<T, S> {
     }
 
     @Override
-    public void search(Func1<? super Geometry, Boolean> condition,
-            Subscriber<? super Entry<T, S>> subscriber) {
+    public void search(Function<? super Geometry, Boolean> condition,
+            Consumer<? super Entry<T, S>> consumer) {
 
-        if (!condition.call(this.geometry().mbb()))
+        if (!condition.apply(this.geometry().mbb()))
             return;
 
         for (final Entry<T, S> entry : entries) {
-            if (subscriber.isUnsubscribed())
-                return;
-            else {
-                if (condition.call(entry.geometry()))
-                    subscriber.onNext(entry);
-            }
+            if (condition.apply(entry.geometry()))
+                consumer.accept(entry);
         }
     }
 
@@ -83,7 +78,7 @@ final class Leaf<T, S extends Geometry> implements Node<T, S> {
     @Override
     public NodeAndEntries<T, S> delete(Entry<? extends T, ? extends S> entry, boolean all) {
         if (!entries.contains(entry)) {
-            return new NodeAndEntries<T, S>(of(this), Collections.<Entry<T, S>> emptyList(), 0);
+            return new NodeAndEntries<T, S>(java.util.Optional.of(this), Collections.<Entry<T, S>> emptyList(), 0);
         } else {
             final List<Entry<T, S>> entries2 = new ArrayList<Entry<T, S>>(entries);
             entries2.remove(entry);
@@ -94,10 +89,10 @@ final class Leaf<T, S extends Geometry> implements Node<T, S> {
 
             if (entries2.size() >= context.minChildren()) {
                 Leaf<T, S> node = new Leaf<T, S>(entries2, context);
-                return new NodeAndEntries<T, S>(of(node), Collections.<Entry<T, S>> emptyList(),
+                return new NodeAndEntries<T, S>(java.util.Optional.of(node), Collections.<Entry<T, S>> emptyList(),
                         numDeleted);
             } else {
-                return new NodeAndEntries<T, S>(Optional.<Node<T, S>> absent(), entries2,
+                return new NodeAndEntries<T, S>(java.util.Optional.<Node<T, S>>empty(), entries2,
                         numDeleted);
             }
         }

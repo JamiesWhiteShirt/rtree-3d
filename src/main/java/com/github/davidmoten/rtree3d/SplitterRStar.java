@@ -13,8 +13,6 @@ import com.github.davidmoten.rtree3d.geometry.ListPair;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
-import rx.functions.Func1;
-
 public final class SplitterRStar implements Splitter {
 
     private final Comparator<ListPair<?>> comparator;
@@ -48,7 +46,7 @@ public final class SplitterRStar implements Splitter {
         return Collections.min(pairs, comparator);
     }
 
-    private static enum SortType {
+    private enum SortType {
         X_LOWER, X_UPPER, Y_LOWER, Y_UPPER, Z_LOWER, Z_UPPER;
     }
 
@@ -57,12 +55,7 @@ public final class SplitterRStar implements Splitter {
 
     private static <T extends HasGeometry> Comparator<SortType> marginSumComparator(
             final Map<SortType, List<ListPair<T>>> map) {
-        return Comparators.toComparator(new Func1<SortType, Double>() {
-            @Override
-            public Double call(SortType sortType) {
-                return (double) marginValueSum(map.get(sortType));
-            }
-        });
+        return Comparators.toComparator(sortType -> (double) marginValueSum(map.get(sortType)));
     }
 
     private static <T extends HasGeometry> float marginValueSum(List<ListPair<T>> list) {
@@ -91,52 +84,16 @@ public final class SplitterRStar implements Splitter {
         return list;
     }
 
-    private static Comparator<HasGeometry> INCREASING_X_LOWER = new Comparator<HasGeometry>() {
+    private static Comparator<HasGeometry> INCREASING_X_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().x1(), n2.geometry().mbb().x1());
 
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().x1()).compareTo(n2.geometry().mbb().x1());
-        }
-    };
+    private static Comparator<HasGeometry> INCREASING_X_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().x2(), n2.geometry().mbb().x2());
 
-    private static Comparator<HasGeometry> INCREASING_X_UPPER = new Comparator<HasGeometry>() {
+    private static Comparator<HasGeometry> INCREASING_Y_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().y1(), n2.geometry().mbb().y1());
 
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().x2()).compareTo(n2.geometry().mbb().x2());
-        }
-    };
+    private static Comparator<HasGeometry> INCREASING_Y_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().y2(), n2.geometry().mbb().y2());
 
-    private static Comparator<HasGeometry> INCREASING_Y_LOWER = new Comparator<HasGeometry>() {
+    private static Comparator<HasGeometry> INCREASING_Z_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().z1(), n2.geometry().mbb().z1());
 
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().y1()).compareTo(n2.geometry().mbb().y1());
-        }
-    };
-
-    private static Comparator<HasGeometry> INCREASING_Y_UPPER = new Comparator<HasGeometry>() {
-
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().y2()).compareTo(n2.geometry().mbb().y2());
-        }
-    };
-
-    private static Comparator<HasGeometry> INCREASING_Z_LOWER = new Comparator<HasGeometry>() {
-
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().z1()).compareTo(n2.geometry().mbb().z1());
-        }
-    };
-
-    private static Comparator<HasGeometry> INCREASING_Z_UPPER = new Comparator<HasGeometry>() {
-
-        @Override
-        public int compare(HasGeometry n1, HasGeometry n2) {
-            return ((Float) n1.geometry().mbb().z2()).compareTo(n2.geometry().mbb().z2());
-        }
-    };
+    private static Comparator<HasGeometry> INCREASING_Z_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().z2(), n2.geometry().mbb().z2());
 
 }

@@ -1,8 +1,9 @@
 package com.github.davidmoten.rtree3d;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import java.util.Optional;
 
 /**
  * Configures an RTree prior to instantiation of an {@link RTree}.
@@ -43,7 +44,7 @@ public final class Context {
     }
 
     public Context(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
-        this(minChildren, maxChildren, selector, splitter, Optional.<Box> absent());
+        this(minChildren, maxChildren, selector, splitter, Optional.empty());
     }
 
     public int maxChildren() {

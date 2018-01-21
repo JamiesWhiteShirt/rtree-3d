@@ -1,9 +1,9 @@
 package com.github.davidmoten.rtree3d;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.github.davidmoten.rtree3d.geometry.Geometry;
-import com.google.common.base.Optional;
 
 /**
  * Used for tracking deletions through recursive calls.
@@ -31,7 +31,7 @@ class NodeAndEntries<T, S extends Geometry> {
      *            count of the number of entries removed
      */
     NodeAndEntries(Optional<? extends Node<T, S>> node, List<Entry<T, S>> entries,
-            int countDeleted) {
+                   int countDeleted) {
         this.node = node;
         this.entries = entries;
         this.count = countDeleted;

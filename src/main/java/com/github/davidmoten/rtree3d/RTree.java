@@ -1,22 +1,14 @@
 package com.github.davidmoten.rtree3d;
 
-import static com.github.davidmoten.rtree3d.geometry.Geometries.box;
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.of;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.rtree3d.geometry.Geometry;
 import com.github.davidmoten.rtree3d.geometry.Point;
-import com.github.davidmoten.rx.operators.OperatorBoundedPriorityQueue;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
-import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.Func2;
 
 /**
  * Immutable in-memory 2D R-Tree with configurable splitter heuristic.
@@ -71,7 +63,7 @@ public final class RTree<T, S extends Geometry> {
      *            options for the R-tree
      */
     private RTree(Node<T, S> root, int size, Context context) {
-        this(of(root), size, context);
+        this(Optional.of(root), size, context);
     }
 
     /**
@@ -81,7 +73,7 @@ public final class RTree<T, S extends Geometry> {
      *            specifies parameters and behaviour for the R-tree
      */
     private RTree(Context context) {
-        this(Optional.<Node<T, S>> absent(), 0, context);
+        this(Optional.empty(), 0, context);
     }
 
     /**
@@ -212,12 +204,12 @@ public final class RTree<T, S extends Geometry> {
          * quadratic split and R*-tree split.
          */
         private static final double DEFAULT_FILLING_FACTOR = 0.4;
-        private Optional<Integer> maxChildren = absent();
-        private Optional<Integer> minChildren = absent();
+        private Optional<Integer> maxChildren = Optional.empty();
+        private Optional<Integer> minChildren = Optional.empty();
         private Splitter splitter = new SplitterQuadratic();
         private Selector selector = new SelectorMinimalVolumeIncrease();
         private boolean star = false;
-        private Optional<Box> bounds = Optional.absent();
+        private Optional<Box> bounds = Optional.empty();
 
         private Builder() {
         }
@@ -233,7 +225,7 @@ public final class RTree<T, S extends Geometry> {
          * @return builder
          */
         public Builder minChildren(int minChildren) {
-            this.minChildren = of(minChildren);
+            this.minChildren = Optional.of(minChildren);
             return this;
         }
 
@@ -245,12 +237,12 @@ public final class RTree<T, S extends Geometry> {
          * @return builder
          */
         public Builder maxChildren(int maxChildren) {
-            this.maxChildren = of(maxChildren);
+            this.maxChildren = Optional.of(maxChildren);
             return this;
         }
 
         public Builder bounds(Box bounds) {
-            this.bounds = of(bounds);
+            this.bounds = Optional.of(bounds);
             return this;
         }
 
@@ -304,19 +296,19 @@ public final class RTree<T, S extends Geometry> {
         public <T, S extends Geometry> RTree<T, S> create() {
             if (!maxChildren.isPresent())
                 if (star)
-                    maxChildren = of(MAX_CHILDREN_DEFAULT_STAR);
+                    maxChildren = Optional.of(MAX_CHILDREN_DEFAULT_STAR);
                 else
-                    maxChildren = of(MAX_CHILDREN_DEFAULT_GUTTMAN);
+                    maxChildren = Optional.of(MAX_CHILDREN_DEFAULT_GUTTMAN);
             if (!minChildren.isPresent())
-                minChildren = of((int) Math.round(maxChildren.get() * DEFAULT_FILLING_FACTOR));
-            return new RTree<T, S>(
+                minChildren = Optional.of((int) Math.round(maxChildren.get() * DEFAULT_FILLING_FACTOR));
+            return new RTree<>(
                     new Context(minChildren.get(), maxChildren.get(), selector, splitter, bounds));
         }
 
     }
 
     public static <T, S extends Geometry> RTree<T, S> create(Node<T, S> node, Context context) {
-        return new RTree<T, S>(node, countEntries(node), context);
+        return new RTree<>(node, countEntries(node), context);
     }
 
     /**
@@ -369,44 +361,6 @@ public final class RTree<T, S extends Geometry> {
         for (Entry<T, S> entry : entries)
             tree = tree.add(entry);
         return tree;
-    }
-
-    /**
-     * Returns the Observable sequence of trees created by progressively adding
-     * entries.
-     * 
-     * @param entries
-     *            the entries to add
-     * @return a sequence of trees
-     */
-    public Observable<RTree<T, S>> add(Observable<Entry<T, S>> entries) {
-        return entries.scan(this, new Func2<RTree<T, S>, Entry<T, S>, RTree<T, S>>() {
-
-            @Override
-            public RTree<T, S> call(RTree<T, S> tree, Entry<T, S> entry) {
-                return tree.add(entry);
-            }
-        });
-    }
-
-    /**
-     * Returns the Observable sequence of trees created by progressively
-     * deleting entries.
-     * 
-     * @param entries
-     *            the entries to add
-     * @param all
-     *            if true delete all matching otherwise just first matching
-     * @return a sequence of trees
-     */
-    public Observable<RTree<T, S>> delete(Observable<Entry<T, S>> entries, final boolean all) {
-        return entries.scan(this, new Func2<RTree<T, S>, Entry<T, S>, RTree<T, S>>() {
-
-            @Override
-            public RTree<T, S> call(RTree<T, S> tree, Entry<T, S> entry) {
-                return tree.delete(entry, all);
-            }
-        });
     }
 
     /**
@@ -500,7 +454,7 @@ public final class RTree<T, S extends Geometry> {
             if (nodeAndEntries.node().isPresent() && nodeAndEntries.node().get() == root.get())
                 return this;
             else
-                return new RTree<T, S>(nodeAndEntries.node(),
+                return new RTree<>(nodeAndEntries.node(),
                         size - nodeAndEntries.countDeleted() - nodeAndEntries.entriesToAdd().size(),
                         context).add(nodeAndEntries.entriesToAdd());
         } else
@@ -523,30 +477,6 @@ public final class RTree<T, S extends Geometry> {
     }
 
     /**
-     * <p>
-     * Returns an Observable sequence of {@link Entry} that satisfy the given
-     * condition. Note that this method is well-behaved only if:
-     * </p>
-     * 
-     * <code>condition(g) is true for {@link Geometry} g implies condition(r) is true for the minimum bounding rectangles of the ancestor nodes</code>
-     * 
-     * <p>
-     * <code>distance(g) &lt; sD</code> is an example of such a condition.
-     * </p>
-     * 
-     * @param condition
-     *            return Entries whose geometry satisfies the given condition
-     * @return sequence of matching entries
-     */
-    @VisibleForTesting
-    Observable<Entry<T, S>> search(Func1<? super Geometry, Boolean> condition) {
-        if (root.isPresent())
-            return Observable.create(new OnSubscribeSearch<T, S>(root.get(), condition));
-        else
-            return Observable.empty();
-    }
-
-    /**
      * Returns a predicate function that indicates if {@link Geometry}
      * intersects with a given rectangle.
      * 
@@ -554,232 +484,35 @@ public final class RTree<T, S extends Geometry> {
      *            the rectangle to check intersection with
      * @return whether the geometry and the rectangle intersect
      */
-    public static Func1<Geometry, Boolean> intersects(final Box r) {
-        return new Func1<Geometry, Boolean>() {
-            @Override
-            public Boolean call(Geometry g) {
-                return g.intersects(r);
-            }
-        };
+    public static Function<Geometry, Boolean> intersects(final Box r) {
+        return g -> g.intersects(r);
     }
 
     /**
      * Returns the always true predicate. See {@link RTree#entries()} for
      * example use.
      */
-    private static final Func1<Geometry, Boolean> ALWAYS_TRUE = new Func1<Geometry, Boolean>() {
-        @Override
-        public Boolean call(Geometry rectangle) {
-            return true;
+    private static final Function<Geometry, Boolean> ALWAYS_TRUE = rectangle -> true;
+
+    public List<Entry<T, S>> search(Box box) {
+        return search(intersects(box));
+    }
+
+    public List<Entry<T, S>> search(Function<Geometry, Boolean> condition) {
+        List<Entry<T, S>> entries = new ArrayList<>();
+        if (root.isPresent()) {
+            root.get().search(condition, entries::add);
         }
-    };
-
-    /**
-     * Returns an {@link Observable} sequence of all {@link Entry}s in the
-     * R-tree whose minimum bounding rectangle intersects with the given
-     * rectangle.
-     * 
-     * @param r
-     *            rectangle to check intersection with the entry mbr
-     * @return entries that intersect with the rectangle r
-     */
-    public Observable<Entry<T, S>> search(final Box r) {
-        return search(intersects(r));
+        return entries;
     }
 
-    /**
-     * Returns an {@link Observable} sequence of all {@link Entry}s in the
-     * R-tree whose minimum bounding rectangle intersects with the given point.
-     * 
-     * @param p
-     *            point to check intersection with the entry mbr
-     * @return entries that intersect with the point p
-     */
-    public Observable<Entry<T, S>> search(final Point p) {
-        return search(p.mbb());
-    }
-
-    /**
-     * Returns an {@link Observable} sequence of all {@link Entry}s in the
-     * R-tree whose minimum bounding rectangles are strictly less than
-     * maxDistance from the given rectangle.
-     * 
-     * @param r
-     *            rectangle to measure distance from
-     * @param maxDistance
-     *            entries returned must be within this distance from rectangle r
-     * @return the sequence of matching entries
-     */
-    public Observable<Entry<T, S>> search(final Box r, final double maxDistance) {
-        return search(new Func1<Geometry, Boolean>() {
-            @Override
-            public Boolean call(Geometry g) {
-                return g.distance(r) < maxDistance;
-            }
-        });
-    }
-
-    /**
-     * Returns the intersections with the the given (arbitrary) geometry using
-     * an intersection function to filter the search results returned from a
-     * search of the mbr of <code>g</code>.
-     * 
-     * @param <R>
-     *            type of geometry being searched for intersection with
-     * @param g
-     *            geometry being searched for intersection with
-     * @param intersects
-     *            function to determine if the two geometries intersect
-     * @return a sequence of entries that intersect with g
-     */
-    public <R extends Geometry> Observable<Entry<T, S>> search(final R g,
-            final Func2<? super S, ? super R, Boolean> intersects) {
-        return search(g.mbb()).filter(new Func1<Entry<T, S>, Boolean>() {
-            @Override
-            public Boolean call(Entry<T, S> entry) {
-                return intersects.call(entry.geometry(), g);
-            }
-        });
-    }
-
-    /**
-     * Returns all entries strictly less than <code>maxDistance</code> from the
-     * given geometry. Because the geometry may be of an arbitrary type it is
-     * necessary to also pass a distance function.
-     * 
-     * @param <R>
-     *            type of the geometry being searched for
-     * @param g
-     *            geometry to search for entries within maxDistance of
-     * @param maxDistance
-     *            strict max distance that entries must be from g
-     * @param distance
-     *            function to calculate the distance between geometries of type
-     *            S and R.
-     * @return entries strictly less than maxDistance from g
-     */
-    public <R extends Geometry> Observable<Entry<T, S>> search(final R g, final double maxDistance,
-            final Func2<? super S, ? super R, Double> distance) {
-        return search(new Func1<Geometry, Boolean>() {
-            @Override
-            public Boolean call(Geometry entry) {
-                // just use the mbr initially
-                return entry.distance(g.mbb()) < maxDistance;
-            }
-        })
-                // refine with distance function
-                .filter(new Func1<Entry<T, S>, Boolean>() {
-                    @Override
-                    public Boolean call(Entry<T, S> entry) {
-                        return distance.call(entry.geometry(), g) < maxDistance;
-                    }
-                });
-    }
-
-    /**
-     * Returns an {@link Observable} sequence of all {@link Entry}s in the
-     * R-tree whose minimum bounding rectangles are within maxDistance from the
-     * given point.
-     * 
-     * @param p
-     *            point to measure distance from
-     * @param maxDistance
-     *            entries returned must be within this distance from point p
-     * @return the sequence of matching entries
-     */
-    public Observable<Entry<T, S>> search(final Point p, final double maxDistance) {
-        return search(p.mbb(), maxDistance);
-    }
-
-    /**
-     * Returns the nearest k entries (k=maxCount) to the given rectangle where
-     * the entries are strictly less than a given maximum distance from the
-     * rectangle.
-     * 
-     * @param r
-     *            rectangle
-     * @param maxDistance
-     *            max distance of returned entries from the rectangle
-     * @param maxCount
-     *            max number of entries to return
-     * @return nearest entries to maxCount, in ascending order of distance
-     */
-    public Observable<Entry<T, S>> nearest(final Box r, final double maxDistance, int maxCount) {
-        return search(r, maxDistance).lift(new OperatorBoundedPriorityQueue<Entry<T, S>>(maxCount,
-                Comparators.<T, S> ascendingDistance(r)));
-    }
-
-    /**
-     * Returns the nearest k entries (k=maxCount) to the given point where the
-     * entries are strictly less than a given maximum distance from the point.
-     * 
-     * @param p
-     *            point
-     * @param maxDistance
-     *            max distance of returned entries from the point
-     * @param maxCount
-     *            max number of entries to return
-     * @return nearest entries to maxCount, in ascending order of distance
-     */
-    public Observable<Entry<T, S>> nearest(final Point p, final double maxDistance, int maxCount) {
-        return nearest(p.mbb(), maxDistance, maxCount);
-    }
-
-    /**
-     * Returns all entries in the tree as an {@link Observable} sequence.
-     * 
-     * @return all entries in the R-tree
-     */
-    public Observable<Entry<T, S>> entries() {
+    public List<Entry<T, S>> entries() {
         return search(ALWAYS_TRUE);
     }
 
-    /**
-     * Returns a {@link Visualizer} for an image of given width and height and
-     * restricted to the given view of the coordinates. The points in the view
-     * are scaled to match the aspect ratio defined by the width and height.
-     * 
-     * @param width
-     *            of the image in pixels
-     * @param height
-     *            of the image in pixels
-     * @param view
-     *            using the coordinate system of the entries
-     * @return visualizer
-     */
-    @SuppressWarnings("unchecked")
-    public Visualizer visualize(int width, int height, Box view) {
-        return new Visualizer((RTree<?, Geometry>) this, width, height, view);
-    }
-
-    /**
-     * Returns a {@link Visualizer} for an image of given width and height and
-     * restricted to the the smallest view that fully contains the coordinates.
-     * The points in the view are scaled to match the aspect ratio defined by
-     * the width and height.
-     * 
-     * @param width
-     *            of the image in pixels
-     * @param height
-     *            of the image in pixels
-     * @return visualizer
-     */
-    public Visualizer visualize(int width, int height) {
-        return visualize(width, height, calculateMaxView(this));
-    }
-
     private Box calculateMaxView(RTree<T, S> tree) {
-        return tree.entries().reduce(Optional.<Box> absent(),
-                new Func2<Optional<Box>, Entry<T, S>, Optional<Box>>() {
-
-                    @Override
-                    public Optional<Box> call(Optional<Box> r, Entry<T, S> entry) {
-                        if (r.isPresent())
-                            return of(r.get().add(entry.geometry().mbb()));
-                        else
-                            return of(entry.geometry().mbb());
-                    }
-                }).toBlocking().single().or(box(0, 0, 0, 0, 0, 0));
+        return tree.entries().stream().map(Entry::geometry).map(Geometry::mbb).reduce(Box::add)
+                .orElse(Box.create(0, 0, 0, 0, 0, 0));
     }
 
     Optional<? extends Node<T, S>> root() {
@@ -787,14 +520,14 @@ public final class RTree<T, S extends Geometry> {
     }
 
     /**
-     * If the RTree has no entries returns {@link Optional#absent} otherwise
+     * If the RTree has no entries returns {@link Optional#empty()} otherwise
      * returns the minimum bounding rectangle of all entries in the RTree.
      * 
      * @return minimum bounding rectangle of all entries in RTree
      */
     public Optional<Box> mbr() {
         if (!root.isPresent())
-            return Optional.absent();
+            return Optional.empty();
         else
             return Optional.of(root.get().geometry().mbb());
     }

@@ -15,7 +15,7 @@ public class Utilities {
     static List<Entry<Object, Box>> entries1000() {
         List<Entry<Object, Box>> list = new ArrayList<Entry<Object, Box>>();
         BufferedReader br = new BufferedReader(new InputStreamReader(
-                BenchmarksRTree.class.getResourceAsStream("/1000.txt")));
+                Utilities.class.getResourceAsStream("/1000.txt")));
         String line;
         try {
             while ((line = br.readLine()) != null) {
