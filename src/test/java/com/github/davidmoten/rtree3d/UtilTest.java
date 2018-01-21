@@ -6,16 +6,10 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import com.github.davidmoten.junit.Asserts;
 import com.github.davidmoten.rtree3d.geometry.Box;
 
 public class UtilTest {
 
-    @Test
-    public void coverPrivateConstructor() {
-        Asserts.assertIsUtilityClass(Util.class);
-    }
-    
     @Test
     public void testMbrWithNegativeValues() {
         Box r = Box.create(-2, -2, 0, -1, -1, 1);
