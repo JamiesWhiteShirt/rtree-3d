@@ -23,20 +23,20 @@ public class RTreeTest {
 
     @Test
     public void testInstantiation() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         assertTrue(tree.getEntries().isEmpty());
     }
 
     @Test
     public void testSearchEmptyTree() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         assertTrue(tree.search(r(1)).isEmpty());
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testSearchOnOneItem() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         Entry<Object> entry = e(1);
         tree = tree.add(entry);
         assertEquals(Collections.singletonList(entry), tree.search(r(1)));
@@ -44,7 +44,7 @@ public class RTreeTest {
 
     @Test
     public void testTreeWithOneItemIsNotEmpty() {
-        RTree<Object> tree = RTree.create().add(e(1));
+        RTree<Object> tree = RTree.create(new ContextBuilder().build()).add(e(1));
         assertFalse(tree.isEmpty());
     }
 
@@ -73,21 +73,21 @@ public class RTreeTest {
     @Test
     public void testSearchOfPoint() {
         Object value = new Object();
-        RTree<Object> tree = RTree.create().add(value, point(1, 1));
+        RTree<Object> tree = RTree.create(new ContextBuilder().build()).add(value, point(1, 1));
         List<Entry<Object>> list = tree.search(RTree.intersects(point(1, 1)));
         assertEquals(1, list.size());
         assertEquals(value, list.get(0).getValue());
     }
 
     static List<Entry<Object>> createRandomEntries(long n) {
-        List<Entry<Object>> list = new ArrayList<Entry<Object>>();
+        List<Entry<Object>> list = new ArrayList<>();
         for (long i = 0; i < n; i++)
             list.add(randomEntry());
         return list;
     }
 
     static RTree<Object> createRandomRTree(long n) {
-        RTree<Object> tree = RTree.maxChildren(4).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build());
         for (long i = 0; i < n; i++) {
             Entry<Object> entry = randomEntry();
             tree = tree.add(entry);
@@ -101,7 +101,7 @@ public class RTreeTest {
 
     @Test
     public void testDeleteWithGeometry() {
-        RTree<Object> tree = RTree.maxChildren(4).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build());
         Entry<Object> entry = e(1);
         Entry<Object> entry2 = e2(1);
         tree = tree.add(entry).add(entry2);
@@ -113,7 +113,7 @@ public class RTreeTest {
 
     @Test
     public void testDepthWith0() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         tree = tree.add(createRandomEntries(5));
         List<Entry<Object>> entries = tree.getEntries();
         RTree<Object> deletedTree = tree.delete(entries, true);
@@ -122,13 +122,13 @@ public class RTreeTest {
 
     @Test
     public void testContext() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         assertNotNull(tree.getContext());
     }
 
     @Test
     public void testIterableDeletion() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         Entry<Object> entry1 = e(1);
         Entry<Object> entry2 = e(2);
         Entry<Object> entry3 = e(3);
@@ -145,7 +145,7 @@ public class RTreeTest {
 
     @Test
     public void testFullDeletion() {
-        RTree<Object> tree = RTree.maxChildren(4).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build());
         Entry<Object> entry = e(1);
         tree = tree.add(entry).add(entry);
         tree = tree.delete(entry, true);
@@ -154,7 +154,7 @@ public class RTreeTest {
 
     @Test
     public void testPartialDeletion() {
-        RTree<Object> tree = RTree.maxChildren(4).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build());
         Entry<Object> entry = e(1);
         tree = tree.add(entry).add(entry);
         tree = tree.delete(entry, false);
@@ -234,23 +234,23 @@ public class RTreeTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testDeleteOfEntryThatDoesNotExistFromTreeOfOneEntry() {
-        RTree<Object> tree = RTree.create().add(e(1));
+        RTree<Object> tree = RTree.create(new ContextBuilder().build()).add(e(1));
         tree = tree.delete(e(2));
         assertEquals(Lists.newArrayList(e(1)), tree.getEntries());
     }
 
     @Test
     public void testDeleteFromEmptyTree() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         tree = tree.delete(e(2));
         assertEquals(0, tree.getEntries().size());
     }
 
     @Test
     public void testBuilder1() {
-        RTree<Object> tree = RTree.minChildren(1).maxChildren(4)
+        RTree<Object> tree = RTree.create(new ContextBuilder().minChildren(1).maxChildren(4)
                 .selector(new SelectorMinimalVolumeIncrease()).splitter(new SplitterQuadratic())
-                .create();
+                .build());
         testBuiltTree(tree);
     }
 
@@ -262,23 +262,25 @@ public class RTreeTest {
 
     @Test
     public void testBuilder2() {
-        RTree<Object> tree = RTree.selector(new SelectorMinimalVolumeIncrease())
-                .minChildren(1).maxChildren(4).splitter(new SplitterQuadratic()).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder()
+                .selector(new SelectorMinimalVolumeIncrease())
+                .minChildren(1).maxChildren(4).splitter(new SplitterQuadratic()).build());
         testBuiltTree(tree);
     }
 
     @Test
     public void testBuilder3() {
-        RTree<Object> tree = RTree.maxChildren(4)
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4)
                 .selector(new SelectorMinimalVolumeIncrease()).minChildren(1)
-                .splitter(new SplitterQuadratic()).create();
+                .splitter(new SplitterQuadratic()).build());
         testBuiltTree(tree);
     }
 
     @Test
     public void testBuilder4() {
-        RTree<Object> tree = RTree.splitter(new SplitterQuadratic()).maxChildren(4)
-                .selector(new SelectorMinimalVolumeIncrease()).minChildren(1).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder()
+                .splitter(new SplitterQuadratic()).maxChildren(4)
+                .selector(new SelectorMinimalVolumeIncrease()).minChildren(1).build());
         testBuiltTree(tree);
     }
 
@@ -290,7 +292,7 @@ public class RTreeTest {
     }
 
     private static RTree<Object> create(int maxChildren, int n) {
-        RTree<Object> tree = RTree.maxChildren(maxChildren).create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(maxChildren).build());
         for (int i = 1; i <= n; i++)
             tree = tree.add(e(i));
         return tree;
@@ -305,14 +307,14 @@ public class RTreeTest {
     @Test
     public void testDeleteOneFromOne() {
         Entry<Object> e1 = e(1);
-        RTree<Object> tree = RTree.maxChildren(4).create().add(e1).delete(e1);
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build()).add(e1).delete(e1);
         assertEquals(0, tree.getEntries().size());
     }
 
     @Test
     public void testDeleteOneFromTreeWithDepthGreaterThanOne() {
         Entry<Object> e1 = e(1);
-        RTree<Object> tree = RTree.maxChildren(4).create().add(e1).add(e(2))
+        RTree<Object> tree = RTree.create(new ContextBuilder().maxChildren(4).build()).add(e1).add(e(2))
                 .add(e(3)).add(e(4)).add(e(5)).add(e(6)).add(e(7)).add(e(8)).add(e(9)).add(e(10))
                 .delete(e1);
         assertEquals(9, tree.getEntries().size());
@@ -341,7 +343,7 @@ public class RTreeTest {
     @Test
     public void testDeleteOnlyDeleteOneIfThereAreMoreThanMaxChildren() {
         Entry<Object> e1 = e(1);
-        int count = RTree.maxChildren(4).create().add(e1).add(e1).add(e1).add(e1).add(e1).delete(e1)
+        int count = RTree.create(new ContextBuilder().maxChildren(4).build()).add(e1).add(e1).add(e1).add(e1).add(e1).delete(e1)
                 .search(e1.getBox()).size();
         assertEquals(4, count);
     }
@@ -349,7 +351,7 @@ public class RTreeTest {
     @Test
     public void testDeleteAllIfThereAreMoreThanMaxChildren() {
         Entry<Object> e1 = e(1);
-        int count = RTree.maxChildren(4).create().add(e1).add(e1).add(e1).add(e1).add(e1)
+        int count = RTree.create(new ContextBuilder().maxChildren(4).build()).add(e1).add(e1).add(e1).add(e1).add(e1)
                 .delete(e1, true).search(e1.getBox()).size();
         assertEquals(0, count);
     }
@@ -358,13 +360,13 @@ public class RTreeTest {
     public void testDeleteItemThatIsNotPresentDoesNothing() {
         Entry<Object> e1 = e(1);
         Entry<Object> e2 = e(2);
-        RTree<Object> tree = RTree.create().add(e1);
+        RTree<Object> tree = RTree.create(new ContextBuilder().build()).add(e1);
         assertTrue(tree == tree.delete(e2));
     }
 
     @Test
     public void testExampleOnReadMe() {
-        RTree<String> tree = RTree.maxChildren(5).create();
+        RTree<String> tree = RTree.create(new ContextBuilder().maxChildren(5).build());
         tree = tree.add(entry("DAVE", point(10, 20))).add(entry("FRED", point(12, 25)))
                 .add(entry("MARY", point(97, 125)));
     }
@@ -391,7 +393,7 @@ public class RTreeTest {
         Box[] points = { point(59, 91), point(86, 14), point(36, 60),
                 point(57, 36), point(14, 37) };
 
-        RTree<Integer> tree = RTree.create();
+        RTree<Integer> tree = RTree.create(new ContextBuilder().build());
         for (int i = 0; i < points.length; i++) {
             Box point = points[i];
             System.out.println("point(" + point.x1() + "," + point.y1() + "), value=" + (i + 1));
@@ -409,7 +411,7 @@ public class RTreeTest {
         Box[] points = { point(28, 19), point(29, 4), point(10, 63),
                 point(34, 85), point(62, 45) };
 
-        RTree<Integer> tree = RTree.create();
+        RTree<Integer> tree = RTree.create(new ContextBuilder().build());
         for (int i = 0; i < points.length; i++) {
             Box point = points[i];
             System.out.println("point(" + point.x1() + "," + point.y1() + "), value=" + (i + 1));
@@ -424,8 +426,8 @@ public class RTreeTest {
     @Test
     public void testStarTreeReturnsSameAsStandardRTree() {
 
-        RTree<Integer> tree1 = RTree.create();
-        RTree<Integer> tree2 = RTree.star().create();
+        RTree<Integer> tree1 = RTree.create(new ContextBuilder().build());
+        RTree<Integer> tree2 = RTree.create(new ContextBuilder().star().build());
 
         Box[] testRects = { box(0, 0, 0, 0), box(0, 0, 100, 100), box(0, 0, 10, 10),
                 box(0, 0, 50, 51), box(1, 0, 50, 69),
@@ -459,21 +461,21 @@ public class RTreeTest {
 
     @Test
     public void calculateDepthOfEmptyTree() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         assertEquals(0, tree.calculateDepth());
     }
 
     @Test
     public void calculateAsStringOfEmptyTree() {
-        RTree<Object> tree = RTree.create();
+        RTree<Object> tree = RTree.create(new ContextBuilder().build());
         assertEquals("", tree.asString());
     }
 
     @Test
     public void testForMeiZhao() {
         for (int minChildren = 1; minChildren <= 2; minChildren++) {
-            RTree<Integer> tree = RTree.maxChildren(3).minChildren(minChildren)
-                    .<Integer> create().add(1, point(1, 9)).add(2, point(2, 10))
+            RTree<Integer> tree = RTree.<Integer>create(new ContextBuilder().maxChildren(3).minChildren(minChildren)
+                    .build()).add(1, point(1, 9)).add(2, point(2, 10))
                     .add(3, point(4, 8)).add(4, point(6, 7)).add(5, point(9, 10))
                     .add(6, point(7, 5)).add(7, point(5, 6)).add(8, point(4, 3)).add(9, point(3, 2))
                     .add(10, point(9, 1)).add(11, point(10, 4)).add(12, point(6, 2))
@@ -484,12 +486,12 @@ public class RTreeTest {
 
     @Test
     public void testRTreeRootMbbWhenRTreeEmpty() {
-        assertTrue(RTree.create().getMbb() == null);
+        assertTrue(RTree.create(new ContextBuilder().build()).getMbb() == null);
     }
 
     @Test
     public void testRTreeRootMbrWhenRTreeNonEmpty() {
-        Box r = RTree.<Integer> create().add(1, point(1, 1)).add(2, point(2, 2)).getMbb();
+        Box r = RTree.<Integer> create(new ContextBuilder().build()).add(1, point(1, 1)).add(2, point(2, 2)).getMbb();
         assertTrue(r != null);
         assertEquals(Box.create(1, 1, 0, 2, 2, 0), r);
     }
