@@ -2,6 +2,7 @@ package com.github.davidmoten.rtree3d;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Utility functions asociated with {@link Comparator}s, especially for use with
@@ -33,28 +34,17 @@ public final class Comparators {
      * @return the total of the volumes of overlap of the geometries in the list
      *         with the box r
      */
-    public static Comparator<HasBox> overlapVolumeComparator(
-            final Box r, final List<? extends HasBox> list) {
+    public static Comparator<Box> overlapVolumeComparator(
+            final Box r, final List<Box> list) {
         return Comparator.comparing(Functions.overlapVolume(r, list));
     }
 
-    public static Comparator<HasBox> volumeIncreaseComparator(
+    public static Comparator<Box> volumeIncreaseComparator(
             final Box r) {
         return Comparator.comparing(Functions.volumeIncrease(r));
     }
 
-    public static Comparator<HasBox> volumeComparator(final Box r) {
-        return Comparator.comparingInt(g -> g.getBox().add(r).getVolume());
-    }
-
-    public static <T> Comparator<T> compose(final Comparator<T>... comparators) {
-        return (t1, t2) -> {
-            for (Comparator<T> comparator : comparators) {
-                int value = comparator.compare(t1, t2);
-                if (value != 0)
-                    return value;
-            }
-            return 0;
-        };
+    public static Comparator<Box> volumeComparator(final Box r) {
+        return Comparator.comparingInt(g -> g.add(r).getVolume());
     }
 }

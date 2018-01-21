@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -300,7 +301,7 @@ public class RTreeTest {
     @Test(expected = RuntimeException.class)
     public void testSplitterRStarThrowsExceptionOnEmptyList() {
         SplitterRStar spl = new SplitterRStar();
-        spl.split(Collections.emptyList(), 4);
+        spl.split(Collections.emptyList(), 4, Function.identity());
     }
 
     @Test

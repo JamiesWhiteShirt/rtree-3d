@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 
@@ -14,7 +15,7 @@ final class Branch<T> implements Node<T> {
     private final Box box;
 
     Branch(List<? extends Node<T>> children) {
-        this(children, Util.mbb(children));
+        this(children, Util.mbb(children.stream().map(Node::getBox).collect(Collectors.toList())));
     }
     
     Branch(List<? extends Node<T>> children, Box box) {
@@ -67,7 +68,7 @@ final class Branch<T> implements Node<T> {
             return Collections.singletonList(new Branch<>(children2));
         else {
             Groups<? extends Node<T>> pair = configuration.getSplitter().split(children2,
-                    configuration.getMinChildren());
+                    configuration.getMinChildren(), Node::getBox);
             return makeNonLeaves(pair);
         }
     }

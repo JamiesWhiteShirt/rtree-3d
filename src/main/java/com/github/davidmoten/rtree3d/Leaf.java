@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 final class Leaf<T> implements Node<T> {
 
@@ -12,7 +13,7 @@ final class Leaf<T> implements Node<T> {
     private final Box box;
 
     Leaf(List<Entry<T>> entries) {
-        this(entries, Util.mbb(entries));
+        this(entries, Util.mbb(entries.stream().map(Entry::getBox).collect(Collectors.toList())));
     }
     
     Leaf(List<Entry<T>> entries, Box box) {
@@ -57,7 +58,7 @@ final class Leaf<T> implements Node<T> {
         if (entries2.size() <= configuration.getMaxChildren())
             return Collections.singletonList(new Leaf<>(entries2));
         else {
-            Groups<Entry<T>> pair = configuration.getSplitter().split(entries2, configuration.getMinChildren());
+            Groups<Entry<T>> pair = configuration.getSplitter().split(entries2, configuration.getMinChildren(), Entry::getBox);
             return makeLeaves(pair);
         }
     }

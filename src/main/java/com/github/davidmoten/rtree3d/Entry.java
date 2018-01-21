@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
  * @param <T>
  *            the type of Entry
  */
-public final class Entry<T> implements HasBox {
+public final class Entry<T> {
     private final T value;
     private final Box box;
 
@@ -51,7 +51,6 @@ public final class Entry<T> implements HasBox {
         return value;
     }
 
-    @Override
     public Box getBox() {
         return box;
     }

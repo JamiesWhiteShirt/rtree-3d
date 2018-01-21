@@ -1,6 +1,7 @@
 package com.github.davidmoten.rtree3d;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface Splitter {
 
@@ -13,7 +14,9 @@ public interface Splitter {
      *            list of items to split
      * @param minSize
      *            min size of each list
+     * @param keyAccessor
+     *            function to access keys
      * @return two lists
      */
-    <T extends HasBox> Groups<T> split(List<T> entries, int minSize);
+    <T> Groups<T> split(List<T> entries, int minSize, Function<T, Box> keyAccessor);
 }

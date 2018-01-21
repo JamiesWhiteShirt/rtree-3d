@@ -11,8 +11,8 @@ public class UtilTest {
     @Test
     public void testMbrWithNegativeValues() {
         Box r = Box.create(-2, -2, 0, -1, -1, 1);
-        Box mbr = Util.mbb(Collections.singleton(new HasBoxDummy(r)));
-        assertEquals(r,mbr);
+        Box mbr = Util.mbb(Collections.singleton(r));
+        assertEquals(r, mbr);
         System.out.println(r);
     }
 

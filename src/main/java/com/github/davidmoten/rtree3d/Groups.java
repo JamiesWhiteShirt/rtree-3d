@@ -7,7 +7,7 @@ package com.github.davidmoten.rtree3d;
  * @param <T>
  *            list type
  */
-public final class Groups<T extends HasBox> {
+public final class Groups<T> {
     private final Group<T> group1;
     private final Group<T> group2;
     // these non-final variable mean that this class is not thread-safe

@@ -1,10 +1,10 @@
 package com.github.davidmoten.rtree3d;
 
-import static com.github.davidmoten.rtree3d.Comparators.compose;
 import static com.github.davidmoten.rtree3d.Comparators.volumeComparator;
 import static com.github.davidmoten.rtree3d.Comparators.volumeIncreaseComparator;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -16,6 +16,7 @@ public final class SelectorMinimalVolumeIncrease implements Selector {
     @SuppressWarnings("unchecked")
     @Override
     public <T> Node<T> select(Box box, List<? extends Node<T>> nodes) {
-        return Collections.min(nodes, compose(volumeIncreaseComparator(box), volumeComparator(box)));
+        Comparator<Box> boxComparator = volumeIncreaseComparator(box).thenComparing(volumeComparator(box));
+        return Collections.min(nodes, Comparator.comparing(Node::getBox, boxComparator));
     }
 }

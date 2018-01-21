@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-interface Node<T> extends HasBox {
+interface Node<T> {
 
     List<Node<T>> add(Entry<? extends T> entry, Configuration configuration);
 
@@ -16,5 +16,7 @@ interface Node<T> extends HasBox {
     int countEntries();
 
     int calculateDepth();
+
+    Box getBox();
 
 }

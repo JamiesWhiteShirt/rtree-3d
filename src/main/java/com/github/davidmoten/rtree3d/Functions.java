@@ -15,22 +15,20 @@ public final class Functions {
 
     public static Function<Groups<?>, Integer> overlapListPair = pair -> pair.getGroup1().getBox().intersectionVolume(pair.getGroup2().getBox());
 
-    public static Function<HasBox, Integer> overlapVolume(final Box r,
-            final List<? extends HasBox> list) {
+    public static Function<Box, Integer> overlapVolume(final Box r,
+            final List<Box> list) {
         return g -> {
-            Box gPlusR = g.getBox().add(r);
+            Box gPlusR = g.add(r);
             int m = 0;
-            for (HasBox other : list) {
-                if (other != g) {
-                    m += gPlusR.intersectionVolume(other.getBox());
-                }
+            for (Box other : list) {
+                m += gPlusR.intersectionVolume(other);
             }
             return m;
         };
     }
 
-    public static <T extends HasBox> Function<T, Integer> volumeIncrease(final Box r) {
-        return g -> g.getBox().add(r).getVolume() - g.getBox().getVolume();
+    public static Function<Box, Integer> volumeIncrease(final Box r) {
+        return g -> g.add(r).getVolume() - g.getVolume();
     }
 
 }

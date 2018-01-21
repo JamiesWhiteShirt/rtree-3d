@@ -20,24 +20,12 @@ public final class Util {
      * Returns the minimum bounding box of a number of items. Benchmarks
      * below indicate that when the number of items is &gt;1 this method is more
      * performant than one using {@link Box#add(Box)}.
-     * 
-     * <pre>
-     * Benchmark                             Mode  Samples         Score  Score error  Units
-     * c.g.d.r.BenchmarksMbr.mbrList1       thrpt       10  48450492.301   436127.960  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrList2       thrpt       10  46658242.728   987901.581  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrList3       thrpt       10  40357809.306   937827.660  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrList4       thrpt       10  35930532.557   605535.237  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrOldList1    thrpt       10  55848118.198  1342997.309  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrOldList2    thrpt       10  25171873.903   395127.918  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrOldList3    thrpt       10  19222116.139   246965.178  ops/s
-     * c.g.d.r.BenchmarksMbr.mbrOldList4    thrpt       10  14891862.638   198765.157  ops/s
-     * </pre>
-     * 
+     *
      * @param items
      *            items to bound
      * @return the minimum bounding box containings items
      */
-    public static Box mbb(Collection<? extends HasBox> items) {
+    public static Box mbb(Collection<Box> items) {
         Preconditions.checkArgument(!items.isEmpty());
         int minX1 = Integer.MAX_VALUE;
         int minY1 = Integer.MAX_VALUE;
@@ -45,8 +33,7 @@ public final class Util {
         int maxX2 = -Integer.MAX_VALUE;
         int maxY2 = -Integer.MAX_VALUE;
         int maxZ2 = -Integer.MAX_VALUE;
-        for (final HasBox item : items) {
-            Box r = item.getBox();
+        for (final Box r : items) {
             if (r.x1() < minX1)
                 minX1 = r.x1();
             if (r.y1() < minY1)
@@ -64,20 +51,20 @@ public final class Util {
     }
 
     static <T> List<T> add(List<T> list, T element) {
-        final ArrayList<T> result = new ArrayList<T>(list.size() + 2);
+        final ArrayList<T> result = new ArrayList<>(list.size() + 2);
         result.addAll(list);
         result.add(element);
         return result;
     }
 
     static <T> List<T> remove(List<? extends T> list, List<? extends T> elements) {
-        final ArrayList<T> result = new ArrayList<T>(list);
+        final ArrayList<T> result = new ArrayList<>(list);
         result.removeAll(elements);
         return result;
     }
 
     static <T> List<? extends T> replace(List<? extends T> list, T element, List<T> replacements) {
-        List<T> list2 = new ArrayList<T>(list.size() + replacements.size());
+        List<T> list2 = new ArrayList<>(list.size() + replacements.size());
         for (T node : list)
             if (node != element)
                 list2.add(node);
