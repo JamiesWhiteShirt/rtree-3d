@@ -483,15 +483,14 @@ public class RTreeTest {
 
     @Test
     public void testRTreeRootMbrWhenRTreeEmpty() {
-        assertFalse(RTree.create().mbr().isPresent());
+        assertTrue(RTree.create().mbr() == null);
     }
 
     @Test
     public void testRTreeRootMbrWhenRTreeNonEmpty() {
-        Optional<Box> r = RTree.<Integer> create().add(1, point(1, 1)).add(2, point(2, 2))
-                .mbr();
-        assertTrue(r.isPresent());
-        assertEquals(Box.create(1, 1, 0, 2, 2, 0), r.get());
+        Box r = RTree.<Integer> create().add(1, point(1, 1)).add(2, point(2, 2)).mbr();
+        assertTrue(r != null);
+        assertEquals(Box.create(1, 1, 0, 2, 2, 0), r);
     }
 
     private static Box point(double x, double y) {

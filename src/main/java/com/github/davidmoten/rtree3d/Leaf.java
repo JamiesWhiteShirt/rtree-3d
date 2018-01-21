@@ -71,7 +71,7 @@ final class Leaf<T> implements Node<T> {
     @Override
     public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context) {
         if (!entries.contains(entry)) {
-            return new NodeAndEntries<>(Optional.of(this), Collections.emptyList(), 0);
+            return new NodeAndEntries<>(this, Collections.emptyList(), 0);
         } else {
             final List<Entry<T>> entries2 = new ArrayList<>(entries);
             entries2.remove(entry);
@@ -82,11 +82,9 @@ final class Leaf<T> implements Node<T> {
 
             if (entries2.size() >= context.minChildren()) {
                 Leaf<T> node = new Leaf<>(entries2);
-                return new NodeAndEntries<>(Optional.of(node), Collections.emptyList(),
-                        numDeleted);
+                return new NodeAndEntries<>(node, Collections.emptyList(), numDeleted);
             } else {
-                return new NodeAndEntries<>(Optional.empty(), entries2,
-                        numDeleted);
+                return new NodeAndEntries<>(null, entries2, numDeleted);
             }
         }
     }

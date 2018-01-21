@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
  */
 public final class RTree<T> {
 
-    private final Optional<? extends Node<T>> root;
+    private final Node<T> root;
     private final Context context;
 
     /**
@@ -41,25 +41,15 @@ public final class RTree<T> {
      * 
      * @param root
      *            the root node of the tree if present
-     * @param context
-     *            options for the R-tree
-     */
-    private RTree(Optional<? extends Node<T>> root, int size, Context context) {
-        this.root = root;
-        this.size = size;
-        this.context = context;
-    }
-
-    /**
-     * 0 Constructor.
-     * 
-     * @param root
-     *            the root node of the R-tree
+     * @param size
+     *            known size of the tree
      * @param context
      *            options for the R-tree
      */
     private RTree(Node<T> root, int size, Context context) {
-        this(Optional.of(root), size, context);
+        this.root = root;
+        this.size = size;
+        this.context = context;
     }
 
     /**
@@ -69,7 +59,7 @@ public final class RTree<T> {
      *            specifies parameters and behaviour for the R-tree
      */
     private RTree(Context context) {
-        this(Optional.empty(), 0, context);
+        this(null, 0, context);
     }
 
     /**
@@ -78,8 +68,6 @@ public final class RTree<T> {
      * 
      * @param <T>
      *            the value type of the entries in the tree
-     * @param <S>
-     *            the geometry type of the entries in the tree
      * @return a new RTree instance
      */
     public static <T> RTree<T> create() {
@@ -97,11 +85,8 @@ public final class RTree<T> {
         return calculateDepth(root);
     }
 
-    private static <T> int calculateDepth(Optional<? extends Node<T>> root) {
-        if (!root.isPresent())
-            return 0;
-        else
-            return calculateDepth(root.get(), 0);
+    private static <T> int calculateDepth(Node<T> root) {
+        return root != null ? calculateDepth(root, 0) : 0;
     }
 
     private static <T> int calculateDepth(Node<T> node, int depth) {
@@ -124,10 +109,7 @@ public final class RTree<T> {
     }
 
     public int countEntries() {
-        if (root.isPresent())
-            return countEntries(root.get());
-        else
-            return 0;
+        return root != null ? countEntries(root) : 0;
     }
 
     /**
@@ -285,8 +267,6 @@ public final class RTree<T> {
          * 
          * @param <T>
          *            value type
-         * @param <S>
-         *            geometry type
          * @return RTree
          */
         public <T> RTree<T> create() {
@@ -316,8 +296,8 @@ public final class RTree<T> {
      */
     @SuppressWarnings("unchecked")
     public RTree<T> add(Entry<? extends T> entry) {
-        if (root.isPresent()) {
-            List<Node<T>> nodes = root.get().add(entry, context);
+        if (root != null) {
+            List<Node<T>> nodes = root.add(entry, context);
             Node<T> node;
             if (nodes.size() == 1)
                 node = nodes.get(0);
@@ -445,9 +425,9 @@ public final class RTree<T> {
      *         entry
      */
     public RTree<T> delete(Entry<? extends T> entry, boolean all) {
-        if (root.isPresent()) {
-            NodeAndEntries<T> nodeAndEntries = root.get().delete(entry, all, context);
-            if (nodeAndEntries.node().isPresent() && nodeAndEntries.node().get() == root.get())
+        if (root != null) {
+            NodeAndEntries<T> nodeAndEntries = root.delete(entry, all, context);
+            if (nodeAndEntries.node() == root)
                 return this;
             else
                 return new RTree<>(nodeAndEntries.node(),
@@ -473,7 +453,7 @@ public final class RTree<T> {
     }
 
     /**
-     * Returns a predicate function that indicates if {@link Geometry}
+     * Returns a predicate function that indicates if {@link Box}
      * intersects with a given rectangle.
      * 
      * @param r
@@ -496,8 +476,8 @@ public final class RTree<T> {
 
     public List<Entry<T>> search(Function<Box, Boolean> condition) {
         List<Entry<T>> entries = new ArrayList<>();
-        if (root.isPresent()) {
-            root.get().search(condition, entries::add);
+        if (root != null) {
+            root.search(condition, entries::add);
         }
         return entries;
     }
@@ -506,7 +486,7 @@ public final class RTree<T> {
         return search(ALWAYS_TRUE);
     }
 
-    Optional<? extends Node<T>> root() {
+    Node<T> root() {
         return root;
     }
 
@@ -516,8 +496,8 @@ public final class RTree<T> {
      * 
      * @return minimum bounding rectangle of all entries in RTree
      */
-    public Optional<Box> mbr() {
-        return root.map(HasBox::getBox);
+    public Box mbr() {
+        return root != null ? root.getBox() : null;
     }
 
     /**
@@ -569,7 +549,7 @@ public final class RTree<T> {
     }
 
     public String asString(int maxDepth) {
-        return root.map(node -> asString(node, "", 1, maxDepth)).orElse("");
+        return root != null ? asString(root, "", 1, maxDepth) : "";
     }
 
     private String asString(Node<T> node, String margin, int depth, int maxDepth) {

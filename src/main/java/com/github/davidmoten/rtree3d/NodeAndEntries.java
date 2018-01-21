@@ -11,7 +11,7 @@ import java.util.Optional;
  */
 class NodeAndEntries<T> {
 
-    private final Optional<? extends Node<T>> node;
+    private final Node<T> node;
     private final List<Entry<T>> entries;
     private final int count;
 
@@ -28,14 +28,14 @@ class NodeAndEntries<T> {
      * @param countDeleted
      *            count of the number of entries removed
      */
-    NodeAndEntries(Optional<? extends Node<T>> node, List<Entry<T>> entries,
+    NodeAndEntries(Node<T> node, List<Entry<T>> entries,
                    int countDeleted) {
         this.node = node;
         this.entries = entries;
         this.count = countDeleted;
     }
 
-    Optional<? extends Node<T>> node() {
+    Node<T> node() {
         return node;
     }
 

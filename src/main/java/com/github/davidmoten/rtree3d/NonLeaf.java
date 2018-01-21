@@ -3,7 +3,6 @@ package com.github.davidmoten.rtree3d;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -91,11 +90,11 @@ final class NonLeaf<T> implements Node<T> {
         for (final Node<T> child : children) {
             if (entry.getBox().intersects(child.getBox())) {
                 final NodeAndEntries<T> result = child.delete(entry, all, context);
-                if (result.node().isPresent()) {
-                    if (result.node().get() != child) {
+                if (result.node() != null) {
+                    if (result.node() != child) {
                         // deletion occurred and child is above minChildren so
                         // we update it
-                        addTheseNodes.add(result.node().get());
+                        addTheseNodes.add(result.node());
                         removeTheseNodes.add(child);
                         addTheseEntries.addAll(result.entriesToAdd());
                         countDeleted += result.countDeleted();
@@ -115,16 +114,16 @@ final class NonLeaf<T> implements Node<T> {
             }
         }
         if (removeTheseNodes.isEmpty())
-            return new NodeAndEntries<>(Optional.of(this), Collections.emptyList(), 0);
+            return new NodeAndEntries<>(this, Collections.emptyList(), 0);
         else {
             List<Node<T>> nodes = Util.remove(children, removeTheseNodes);
             nodes.addAll(addTheseNodes);
             if (nodes.size() == 0)
-                return new NodeAndEntries<>(Optional.empty(), addTheseEntries,
+                return new NodeAndEntries<>(null, addTheseEntries,
                         countDeleted);
             else {
                 NonLeaf<T> node = new NonLeaf<>(nodes);
-                return new NodeAndEntries<>(Optional.of(node), addTheseEntries, countDeleted);
+                return new NodeAndEntries<>(node, addTheseEntries, countDeleted);
             }
         }
     }
