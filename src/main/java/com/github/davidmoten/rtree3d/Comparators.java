@@ -20,21 +20,21 @@ public final class Comparators {
     public static Comparator<Groups<?>> overlapListPairComparator = Comparator.comparing(Functions.overlapListPair);
 
     /**
-     * Compares the sum of the areas of two ListPairs.
+     * Compares the sum of the volumes of two ListPairs.
      */
     public static final Comparator<Groups<?>> volumePairComparator = Comparator.comparingInt(Groups::getVolumeSum);
 
     /**
      * Returns a {@link Comparator} that is a normal Double comparator for the
-     * total of the areas of overlap of the members of the list with the
-     * rectangle r.
+     * total of the volumes of overlap of the members of the list with the
+     * box r.
      * 
      * @param r
-     *            rectangle
+     *            box
      * @param list
-     *            geometries to compare with the rectangle
-     * @return the total of the areas of overlap of the geometries in the list
-     *         with the rectangle r
+     *            geometries to compare with the box
+     * @return the total of the volumes of overlap of the geometries in the list
+     *         with the box r
      */
     public static Comparator<HasBox> overlapVolumeComparator(
             final Box r, final List<? extends HasBox> list) {

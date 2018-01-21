@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Uses minimal area increase to select a node from a list.
+ * Uses minimal volume increase to select a node from a list.
  *
  */
 public final class SelectorMinimalVolumeIncrease implements Selector {

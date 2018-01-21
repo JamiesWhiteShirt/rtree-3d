@@ -230,11 +230,11 @@ public final class RTree<T> {
 
     /**
      * Returns a predicate function that indicates if {@link Box}
-     * intersects with a given rectangle.
+     * intersects with a given box.
      * 
      * @param r
-     *            the rectangle to check intersection with
-     * @return whether the geometry and the rectangle intersect
+     *            the box to check intersection with
+     * @return whether the geometry and the box intersect
      */
     public static Predicate<Box> intersects(final Box r) {
         return g -> g.intersects(r);
@@ -244,7 +244,7 @@ public final class RTree<T> {
      * Returns the always true predicate. See {@link RTree#getEntries()} for
      * example use.
      */
-    private static final Predicate<Box> ALWAYS_TRUE = rectangle -> true;
+    private static final Predicate<Box> ALWAYS_TRUE = box -> true;
 
     public List<Entry<T>> search(Box box) {
         return search(intersects(box));
@@ -268,7 +268,7 @@ public final class RTree<T> {
 
     /**
      * If the RTree has no entries returns {@link Optional#empty()} otherwise
-     * returns the minimum bounding rectangle of all entries in the RTree.
+     * returns the minimum bounding box of all entries in the RTree.
      * 
      * @return minimum bounding box of all entries in RTree
      */
@@ -308,12 +308,12 @@ public final class RTree<T> {
      * Returns a human readable form of the RTree. Here's an example:
      * 
      * <pre>
-     * mbb=Rectangle [x1=10.0, y1=4.0, x2=62.0, y2=85.0]
-     *   mbb=Rectangle [x1=28.0, y1=4.0, x2=34.0, y2=85.0]
+     * mbb=Box [x1=10.0, y1=4.0, x2=62.0, y2=85.0]
+     *   mbb=Box [x1=28.0, y1=4.0, x2=34.0, y2=85.0]
      *     entry=Entry [value=2, geometry=Point [x=29.0, y=4.0]]
      *     entry=Entry [value=1, geometry=Point [x=28.0, y=19.0]]
      *     entry=Entry [value=4, geometry=Point [x=34.0, y=85.0]]
-     *   mbb=Rectangle [x1=10.0, y1=45.0, x2=62.0, y2=63.0]
+     *   mbb=Box [x1=10.0, y1=45.0, x2=62.0, y2=63.0]
      *     entry=Entry [value=5, geometry=Point [x=62.0, y=45.0]]
      *     entry=Entry [value=3, geometry=Point [x=10.0, y=63.0]]
      * </pre>
