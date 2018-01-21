@@ -10,16 +10,16 @@ import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.google.common.base.Preconditions;
 
-final class NonLeaf<T> implements Node<T> {
+final class Branch<T> implements Node<T> {
 
     private final List<? extends Node<T>> children;
     private final Box box;
 
-    NonLeaf(List<? extends Node<T>> children) {
+    Branch(List<? extends Node<T>> children) {
         this(children, Util.mbr(children));
     }
     
-    NonLeaf(List<? extends Node<T>> children, Box box) {
+    Branch(List<? extends Node<T>> children, Box box) {
         Preconditions.checkArgument(!children.isEmpty());
         this.children = children;
         this.box = box;
@@ -43,8 +43,17 @@ final class NonLeaf<T> implements Node<T> {
     }
 
     @Override
-    public int count() {
-        return children.size();
+    public int countEntries() {
+        int count = 0;
+        for (Node<T> child : children) {
+            count += child.countEntries();
+        }
+        return count;
+    }
+
+    @Override
+    public int calculateDepth() {
+        return children.get(0).calculateDepth() + 1;
     }
 
     List<? extends Node<T>> children() {
@@ -57,7 +66,7 @@ final class NonLeaf<T> implements Node<T> {
         List<Node<T>> list = child.add(entry, context);
         List<? extends Node<T>> children2 = Util.replace(children, child, list);
         if (children2.size() <= context.maxChildren())
-            return Collections.singletonList(new NonLeaf<>(children2));
+            return Collections.singletonList(new Branch<>(children2));
         else {
             Groups<? extends Node<T>> pair = context.splitter().split(children2,
                     context.minChildren());
@@ -67,8 +76,8 @@ final class NonLeaf<T> implements Node<T> {
 
     private List<Node<T>> makeNonLeaves(Groups<? extends Node<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
-        list.add(new NonLeaf<>(pair.group1().entries()));
-        list.add(new NonLeaf<>(pair.group2().entries()));
+        list.add(new Branch<>(pair.group1().entries()));
+        list.add(new Branch<>(pair.group2().entries()));
         return list;
     }
 
@@ -122,7 +131,7 @@ final class NonLeaf<T> implements Node<T> {
                 return new NodeAndEntries<>(null, addTheseEntries,
                         countDeleted);
             else {
-                NonLeaf<T> node = new NonLeaf<>(nodes);
+                Branch<T> node = new Branch<>(nodes);
                 return new NodeAndEntries<>(node, addTheseEntries, countDeleted);
             }
         }

@@ -82,34 +82,11 @@ public final class RTree<T> {
      * @return depth of the R-tree
      */
     public int calculateDepth() {
-        return calculateDepth(root);
-    }
-
-    private static <T> int calculateDepth(Node<T> root) {
-        return root != null ? calculateDepth(root, 0) : 0;
-    }
-
-    private static <T> int calculateDepth(Node<T> node, int depth) {
-        if (node instanceof Leaf)
-            return depth + 1;
-        else
-            return calculateDepth(((NonLeaf<T>) node).children().get(0), depth + 1);
-    }
-
-    private static <T> int countEntries(Node<T> node) {
-        if (node instanceof Leaf)
-            return node.count();
-        else {
-            int count = 0;
-            for (Node<T> child : ((NonLeaf<T>) node).children()) {
-                count += countEntries(child);
-            }
-            return count;
-        }
+        return root != null ? root.calculateDepth() : 0;
     }
 
     public int countEntries() {
-        return root != null ? countEntries(root) : 0;
+        return root != null ? root.countEntries() : 0;
     }
 
     /**
@@ -284,7 +261,7 @@ public final class RTree<T> {
     }
 
     public static <T> RTree<T> create(Node<T> node, Context context) {
-        return new RTree<>(node, countEntries(node), context);
+        return new RTree<>(node, node != null ? node.countEntries() : 0, context);
     }
 
     /**
@@ -302,7 +279,7 @@ public final class RTree<T> {
             if (nodes.size() == 1)
                 node = nodes.get(0);
             else {
-                node = new NonLeaf<>(nodes);
+                node = new Branch<>(nodes);
             }
             return new RTree<>(node, size + 1, context);
         } else
@@ -557,12 +534,12 @@ public final class RTree<T> {
             return "";
         final String marginIncrement = "  ";
         StringBuilder s = new StringBuilder();
-        if (node instanceof NonLeaf) {
+        if (node instanceof Branch) {
             s.append(margin);
             s.append("mbr=");
             s.append(node.getBox());
             s.append('\n');
-            NonLeaf<T> n = (NonLeaf<T>) node;
+            Branch<T> n = (Branch<T>) node;
             for (Node<T> child : n.children()) {
                 s.append(asString(child, margin + marginIncrement, depth + 1, maxDepth));
             }

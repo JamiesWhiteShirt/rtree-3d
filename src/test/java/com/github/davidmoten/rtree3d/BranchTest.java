@@ -4,11 +4,11 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-public class NonLeafTest {
+public class BranchTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNonLeafPrecondition() {
-        new NonLeaf<>(Collections.emptyList(), null);
+        new Branch<>(Collections.emptyList(), null);
     }
     
 }

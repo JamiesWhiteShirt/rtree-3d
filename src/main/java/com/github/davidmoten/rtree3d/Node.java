@@ -15,6 +15,8 @@ interface Node<T> extends HasBox {
     void search(Function<Box, Boolean> condition,
             Consumer<? super Entry<T>> consumer);
 
-    int count();
+    int countEntries();
+
+    int calculateDepth();
 
 }

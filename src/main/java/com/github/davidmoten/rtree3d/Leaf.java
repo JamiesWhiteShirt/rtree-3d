@@ -45,8 +45,13 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public int count() {
+    public int countEntries() {
         return entries.size();
+    }
+
+    @Override
+    public int calculateDepth() {
+        return 1;
     }
 
     @Override
