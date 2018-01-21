@@ -5,7 +5,7 @@ import com.github.davidmoten.rtree3d.Util;
 
 import java.util.List;
 
-public class Group<T extends HasBox> {
+public final class Group<T extends HasBox> {
     private final List<T> entries;
     private final Box box;
 

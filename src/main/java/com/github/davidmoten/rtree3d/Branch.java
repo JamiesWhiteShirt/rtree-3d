@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.rtree3d.geometry.Groups;
@@ -31,10 +31,10 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public void search(Function<Box, Boolean> criterion,
+    public void search(Predicate<Box> criterion,
             Consumer<? super Entry<T>> consumer) {
 
-        if (!criterion.apply(box))
+        if (!criterion.test(box))
             return;
 
         for (final Node<T> child : children) {

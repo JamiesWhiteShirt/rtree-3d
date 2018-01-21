@@ -3,7 +3,7 @@ package com.github.davidmoten.rtree3d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
 import com.google.common.collect.Lists;
@@ -431,7 +431,7 @@ public final class RTree<T> {
      *            the rectangle to check intersection with
      * @return whether the geometry and the rectangle intersect
      */
-    public static Function<Box, Boolean> intersects(final Box r) {
+    public static Predicate<Box> intersects(final Box r) {
         return g -> g.intersects(r);
     }
 
@@ -439,13 +439,13 @@ public final class RTree<T> {
      * Returns the always true predicate. See {@link RTree#getEntries()} for
      * example use.
      */
-    private static final Function<Box, Boolean> ALWAYS_TRUE = rectangle -> true;
+    private static final Predicate<Box> ALWAYS_TRUE = rectangle -> true;
 
     public List<Entry<T>> search(Box box) {
         return search(intersects(box));
     }
 
-    public List<Entry<T>> search(Function<Box, Boolean> condition) {
+    public List<Entry<T>> search(Predicate<Box> condition) {
         List<Entry<T>> entries = new ArrayList<>();
         if (root != null) {
             root.search(condition, entries::add);

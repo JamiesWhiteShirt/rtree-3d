@@ -4,7 +4,7 @@ import com.github.davidmoten.rtree3d.geometry.Box;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 interface Node<T> extends HasBox {
 
@@ -12,7 +12,7 @@ interface Node<T> extends HasBox {
 
     NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context);
 
-    void search(Function<Box, Boolean> condition,
+    void search(Predicate<Box> condition,
             Consumer<? super Entry<T>> consumer);
 
     int countEntries();
