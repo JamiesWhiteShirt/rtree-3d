@@ -35,11 +35,11 @@ class NodeAndEntries<T> {
         this.count = countDeleted;
     }
 
-    Node<T> node() {
+    Node<T> getNode() {
         return node;
     }
 
-    List<Entry<T>> entriesToAdd() {
+    List<Entry<T>> getEntriesToAdd() {
         return entries;
     }
 

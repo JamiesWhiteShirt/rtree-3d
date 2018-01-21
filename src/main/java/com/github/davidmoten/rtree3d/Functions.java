@@ -16,7 +16,7 @@ public final class Functions {
         // prevent instantiation
     }
 
-    public static Function<Groups<?>, Double> overlapListPair = pair -> (double) pair.group1().box().intersectionVolume(pair.group2().box());
+    public static Function<Groups<?>, Double> overlapListPair = pair -> (double) pair.getGroup1().getBox().intersectionVolume(pair.getGroup2().getBox());
 
     public static Function<HasBox, Double> overlapVolume(final Box r,
             final List<? extends HasBox> list) {

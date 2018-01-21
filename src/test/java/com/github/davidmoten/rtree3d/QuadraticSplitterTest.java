@@ -51,7 +51,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r2 = r(2);
         final List<HasBoxDummy> list = Collections.singletonList(r1);
         final List<HasBoxDummy> group = Collections.singletonList(r2);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
         assertEquals(r1, r);
     }
 
@@ -62,7 +62,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(10);
         final List<HasBoxDummy> list = Collections.singletonList(r1);
         final List<HasBoxDummy> group = Arrays.asList(r2, r3);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
         assertEquals(r1, r);
     }
 
@@ -73,7 +73,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(10);
         final List<HasBoxDummy> list = Arrays.asList(r1, r2);
         final List<HasBoxDummy> group = Collections.singletonList(r3);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
         assertEquals(r2, r);
     }
 
@@ -85,8 +85,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(100);
         final HasBoxDummy r4 = r(101);
         final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4), 2);
-        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().entries()));
-        assertEquals(Sets.newHashSet(r3, r4), Sets.newHashSet(pair.group2().entries()));
+        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.getGroup1().getEntries()));
+        assertEquals(Sets.newHashSet(r3, r4), Sets.newHashSet(pair.getGroup2().getEntries()));
     }
 
     @Test
@@ -98,8 +98,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r4 = r(101);
         final HasBoxDummy r5 = r(103);
         final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5), 2);
-        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().entries()));
-        assertEquals(Sets.newHashSet(r3, r4, r5), Sets.newHashSet(pair.group2().entries()));
+        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.getGroup1().getEntries()));
+        assertEquals(Sets.newHashSet(r3, r4, r5), Sets.newHashSet(pair.getGroup2().getEntries()));
     }
 
     @Test
@@ -112,8 +112,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r5 = r(103);
         final HasBoxDummy r6 = r(104);
         final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5, r6), 3);
-        assertEquals(Sets.newHashSet(r1, r2, r3), Sets.newHashSet(pair.group1().entries()));
-        assertEquals(Sets.newHashSet(r4, r5, r6), Sets.newHashSet(pair.group2().entries()));
+        assertEquals(Sets.newHashSet(r1, r2, r3), Sets.newHashSet(pair.getGroup1().getEntries()));
+        assertEquals(Sets.newHashSet(r4, r5, r6), Sets.newHashSet(pair.getGroup2().getEntries()));
     }
 
     @Test(expected = RuntimeException.class)

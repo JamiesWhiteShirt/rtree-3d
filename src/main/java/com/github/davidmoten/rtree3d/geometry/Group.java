@@ -10,7 +10,7 @@ public class Group<T extends HasBox> {
     private final Box box;
 
     public static <T extends HasBox> Group<T> of(List<T> entries) {
-        return new Group<>(entries, Util.mbr(entries));
+        return new Group<>(entries, Util.mbb(entries));
     }
 
     public Group(List<T> entries, Box box) {
@@ -18,11 +18,11 @@ public class Group<T extends HasBox> {
         this.box = box;
     }
 
-    public List<T> entries() {
+    public List<T> getEntries() {
         return entries;
     }
 
-    public Box box() {
+    public Box getBox() {
         return box;
     }
 }

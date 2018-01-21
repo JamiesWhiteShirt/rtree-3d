@@ -2,7 +2,6 @@ package com.github.davidmoten.rtree3d;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.rtree3d.geometry.Groups;
@@ -23,7 +22,7 @@ public final class Comparators {
     /**
      * Compares the sum of the areas of two ListPairs.
      */
-    public static final Comparator<Groups<?>> volumePairComparator = (p1, p2) -> Float.compare(p1.volumeSum(), p2.volumeSum());
+    public static final Comparator<Groups<?>> volumePairComparator = (p1, p2) -> Float.compare(p1.getVolumeSum(), p2.getVolumeSum());
 
     /**
      * Returns a {@link Comparator} that is a normal Double comparator for the

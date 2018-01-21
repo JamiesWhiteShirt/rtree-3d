@@ -164,7 +164,6 @@ public final class RTree<T> {
         private Splitter splitter = new SplitterQuadratic();
         private Selector selector = new SelectorMinimalVolumeIncrease();
         private boolean star = false;
-        private Optional<Box> bounds = Optional.empty();
 
         private Builder() {
         }
@@ -193,11 +192,6 @@ public final class RTree<T> {
          */
         public Builder maxChildren(int maxChildren) {
             this.maxChildren = Optional.of(maxChildren);
-            return this;
-        }
-
-        public Builder bounds(Box bounds) {
-            this.bounds = Optional.of(bounds);
             return this;
         }
 
@@ -255,7 +249,7 @@ public final class RTree<T> {
             if (!minChildren.isPresent())
                 minChildren = Optional.of((int) Math.round(maxChildren.get() * DEFAULT_FILLING_FACTOR));
             return new RTree<>(
-                    new Context(minChildren.get(), maxChildren.get(), selector, splitter, bounds));
+                    new Context(minChildren.get(), maxChildren.get(), selector, splitter));
         }
 
     }
@@ -293,12 +287,12 @@ public final class RTree<T> {
      * 
      * @param value
      *            the value of the {@link Entry} to be added
-     * @param geometry
-     *            the geometry of the {@link Entry} to be added
+     * @param box
+     *            the box of the {@link Entry} to be added
      * @return a new immutable R-tree including the new entry
      */
-    public RTree<T> add(T value, Box geometry) {
-        return add(Entry.entry(value, geometry));
+    public RTree<T> add(T value, Box box) {
+        return add(Entry.entry(value, box));
     }
 
     /**
@@ -404,12 +398,12 @@ public final class RTree<T> {
     public RTree<T> delete(Entry<? extends T> entry, boolean all) {
         if (root != null) {
             NodeAndEntries<T> nodeAndEntries = root.delete(entry, all, context);
-            if (nodeAndEntries.node() == root)
+            if (nodeAndEntries.getNode() == root)
                 return this;
             else
-                return new RTree<>(nodeAndEntries.node(),
-                        size - nodeAndEntries.countDeleted() - nodeAndEntries.entriesToAdd().size(),
-                        context).add(nodeAndEntries.entriesToAdd());
+                return new RTree<>(nodeAndEntries.getNode(),
+                        size - nodeAndEntries.countDeleted() - nodeAndEntries.getEntriesToAdd().size(),
+                        context).add(nodeAndEntries.getEntriesToAdd());
         } else
             return this;
     }
@@ -442,7 +436,7 @@ public final class RTree<T> {
     }
 
     /**
-     * Returns the always true predicate. See {@link RTree#entries()} for
+     * Returns the always true predicate. See {@link RTree#getEntries()} for
      * example use.
      */
     private static final Function<Box, Boolean> ALWAYS_TRUE = rectangle -> true;
@@ -459,11 +453,11 @@ public final class RTree<T> {
         return entries;
     }
 
-    public List<Entry<T>> entries() {
+    public List<Entry<T>> getEntries() {
         return search(ALWAYS_TRUE);
     }
 
-    Node<T> root() {
+    Node<T> getRoot() {
         return root;
     }
 
@@ -471,9 +465,9 @@ public final class RTree<T> {
      * If the RTree has no entries returns {@link Optional#empty()} otherwise
      * returns the minimum bounding rectangle of all entries in the RTree.
      * 
-     * @return minimum bounding rectangle of all entries in RTree
+     * @return minimum bounding box of all entries in RTree
      */
-    public Box mbr() {
+    public Box getMbb() {
         return root != null ? root.getBox() : null;
     }
 
@@ -501,7 +495,7 @@ public final class RTree<T> {
      * 
      * @return the configuration of the RTree prior to instantiation
      */
-    public Context context() {
+    public Context getContext() {
         return context;
     }
 
@@ -509,12 +503,12 @@ public final class RTree<T> {
      * Returns a human readable form of the RTree. Here's an example:
      * 
      * <pre>
-     * mbr=Rectangle [x1=10.0, y1=4.0, x2=62.0, y2=85.0]
-     *   mbr=Rectangle [x1=28.0, y1=4.0, x2=34.0, y2=85.0]
+     * mbb=Rectangle [x1=10.0, y1=4.0, x2=62.0, y2=85.0]
+     *   mbb=Rectangle [x1=28.0, y1=4.0, x2=34.0, y2=85.0]
      *     entry=Entry [value=2, geometry=Point [x=29.0, y=4.0]]
      *     entry=Entry [value=1, geometry=Point [x=28.0, y=19.0]]
      *     entry=Entry [value=4, geometry=Point [x=34.0, y=85.0]]
-     *   mbr=Rectangle [x1=10.0, y1=45.0, x2=62.0, y2=63.0]
+     *   mbb=Rectangle [x1=10.0, y1=45.0, x2=62.0, y2=63.0]
      *     entry=Entry [value=5, geometry=Point [x=62.0, y=45.0]]
      *     entry=Entry [value=3, geometry=Point [x=10.0, y=63.0]]
      * </pre>
@@ -536,7 +530,7 @@ public final class RTree<T> {
         StringBuilder s = new StringBuilder();
         if (node instanceof Branch) {
             s.append(margin);
-            s.append("mbr=");
+            s.append("mbb=");
             s.append(node.getBox());
             s.append('\n');
             Branch<T> n = (Branch<T>) node;
@@ -546,10 +540,10 @@ public final class RTree<T> {
         } else {
             Leaf<T> leaf = (Leaf<T>) node;
             s.append(margin);
-            s.append("mbr=");
+            s.append("mbb=");
             s.append(leaf.getBox());
             s.append('\n');
-            for (Entry<T> entry : leaf.entries()) {
+            for (Entry<T> entry : leaf.getEntries()) {
                 s.append(margin);
                 s.append(marginIncrement);
                 s.append("entry=");

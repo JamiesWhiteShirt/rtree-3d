@@ -18,7 +18,7 @@ public final class Util {
     }
 
     /**
-     * Returns the minimum bounding rectangle of a number of items. Benchmarks
+     * Returns the minimum bounding box of a number of items. Benchmarks
      * below indicate that when the number of items is &gt;1 this method is more
      * performant than one using {@link Box#add(Box)}.
      * 
@@ -36,9 +36,9 @@ public final class Util {
      * 
      * @param items
      *            items to bound
-     * @return the minimum bounding rectangle containings items
+     * @return the minimum bounding box containings items
      */
-    public static Box mbr(Collection<? extends HasBox> items) {
+    public static Box mbb(Collection<? extends HasBox> items) {
         Preconditions.checkArgument(!items.isEmpty());
         float minX1 = Float.MAX_VALUE;
         float minY1 = Float.MAX_VALUE;

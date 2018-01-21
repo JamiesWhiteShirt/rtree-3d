@@ -23,7 +23,7 @@ public class RTreeTest {
     @Test
     public void testInstantiation() {
         RTree<Object> tree = RTree.create();
-        assertTrue(tree.entries().isEmpty());
+        assertTrue(tree.getEntries().isEmpty());
     }
 
     @Test
@@ -59,13 +59,13 @@ public class RTreeTest {
             long diff = System.currentTimeMillis() - t;
             System.out.println("inserts/second = " + ((double) n / diff * 1000));
         }
-        assertEquals(n, tree.entries().size());
+        assertEquals(n, tree.getEntries().size());
 
         long t = System.currentTimeMillis();
         Entry<Object> entry = tree.search(box(0, 0, 500, 500)).get(0);
         long diff = System.currentTimeMillis() - t;
         System.out.println("found " + entry);
-        System.out.println("time to get nearest with " + n + " entries=" + diff);
+        System.out.println("time to get nearest with " + n + " getEntries=" + diff);
 
     }
 
@@ -75,7 +75,7 @@ public class RTreeTest {
         RTree<Object> tree = RTree.create().add(value, point(1, 1));
         List<Entry<Object>> list = tree.search(RTree.intersects(point(1, 1)));
         assertEquals(1, list.size());
-        assertEquals(value, list.get(0).value());
+        assertEquals(value, list.get(0).getValue());
     }
 
     static List<Entry<Object>> createRandomEntries(long n) {
@@ -105,8 +105,8 @@ public class RTreeTest {
         Entry<Object> entry2 = e2(1);
         tree = tree.add(entry).add(entry2);
 
-        tree = tree.delete(entry.value(), entry.getBox(), true);
-        List<Entry<Object>> entries = tree.entries();
+        tree = tree.delete(entry.getValue(), entry.getBox(), true);
+        List<Entry<Object>> entries = tree.getEntries();
         assertTrue(entries.contains(entry2) && !entries.contains(entry));
     }
 
@@ -114,7 +114,7 @@ public class RTreeTest {
     public void testDepthWith0() {
         RTree<Object> tree = RTree.create();
         tree = tree.add(createRandomEntries(5));
-        List<Entry<Object>> entries = tree.entries();
+        List<Entry<Object>> entries = tree.getEntries();
         RTree<Object> deletedTree = tree.delete(entries, true);
         assertTrue(deletedTree.isEmpty());
     }
@@ -122,7 +122,7 @@ public class RTreeTest {
     @Test
     public void testContext() {
         RTree<Object> tree = RTree.create();
-        assertNotNull(tree.context());
+        assertNotNull(tree.getContext());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class RTreeTest {
         list.add(entry1);
         list.add(entry3);
         RTree<Object> deletedTree = tree.delete(list);
-        List<Entry<Object>> entries = deletedTree.entries();
+        List<Entry<Object>> entries = deletedTree.getEntries();
         assertTrue(
                 entries.contains(entry2) && !entries.contains(entry1) && !entries.contains(entry3));
     }
@@ -157,8 +157,8 @@ public class RTreeTest {
         Entry<Object> entry = e(1);
         tree = tree.add(entry).add(entry);
         tree = tree.delete(entry, false);
-        List<Entry<Object>> entries = tree.entries();
-        int countEntries = tree.entries().size();
+        List<Entry<Object>> entries = tree.getEntries();
+        int countEntries = tree.getEntries().size();
         assertTrue(countEntries == 1);
         assertTrue(entries.get(0).equals(entry));
     }
@@ -227,7 +227,7 @@ public class RTreeTest {
         // node children are now 1,2 and 3
         assertEquals(3, tree.calculateDepth());
         assertEquals(Sets.newHashSet(e(1), e(2), e(3), e(4), e(5), e(6), e(7), e(8)),
-                Sets.newHashSet(tree.entries()));
+                Sets.newHashSet(tree.getEntries()));
     }
 
     @SuppressWarnings("unchecked")
@@ -235,14 +235,14 @@ public class RTreeTest {
     public void testDeleteOfEntryThatDoesNotExistFromTreeOfOneEntry() {
         RTree<Object> tree = RTree.create().add(e(1));
         tree = tree.delete(e(2));
-        assertEquals(Lists.newArrayList(e(1)), tree.entries());
+        assertEquals(Lists.newArrayList(e(1)), tree.getEntries());
     }
 
     @Test
     public void testDeleteFromEmptyTree() {
         RTree<Object> tree = RTree.create();
         tree = tree.delete(e(2));
-        assertEquals(0, tree.entries().size());
+        assertEquals(0, tree.getEntries().size());
     }
 
     @Test
@@ -256,7 +256,7 @@ public class RTreeTest {
     @Test
     public void testDeletionOfEntryThatDoesNotExistFromNonLeaf() {
         RTree<Object> tree = create(3, 100).delete(e(1000));
-        assertEquals(100, tree.entries().size());
+        assertEquals(100, tree.getEntries().size());
     }
 
     @Test
@@ -285,7 +285,7 @@ public class RTreeTest {
         for (int i = 1; i <= 1000; i++) {
             tree = tree.add(i, point(i, i));
         }
-        assertEquals(1000, tree.entries().size());
+        assertEquals(1000, tree.getEntries().size());
     }
 
     private static RTree<Object> create(int maxChildren, int n) {
@@ -305,7 +305,7 @@ public class RTreeTest {
     public void testDeleteOneFromOne() {
         Entry<Object> e1 = e(1);
         RTree<Object> tree = RTree.maxChildren(4).create().add(e1).delete(e1);
-        assertEquals(0, tree.entries().size());
+        assertEquals(0, tree.getEntries().size());
     }
 
     @Test
@@ -314,26 +314,26 @@ public class RTreeTest {
         RTree<Object> tree = RTree.maxChildren(4).create().add(e1).add(e(2))
                 .add(e(3)).add(e(4)).add(e(5)).add(e(6)).add(e(7)).add(e(8)).add(e(9)).add(e(10))
                 .delete(e1);
-        assertEquals(9, tree.entries().size());
-        assertFalse(tree.entries().contains(e1));
+        assertEquals(9, tree.getEntries().size());
+        assertFalse(tree.getEntries().contains(e1));
     }
 
     @Test
     public void testDeleteOneFromLargeTreeThenDeleteAllAndEnsureEmpty() {
         int n = 10000;
         RTree<Object> tree = createRandomRTree(n).add(e(1)).add(e(2)).delete(e(1));
-        assertEquals(n + 1, tree.entries().size());
-        assertFalse(tree.entries().contains(e(1)));
-        assertTrue(tree.entries().contains(e(2)));
+        assertEquals(n + 1, tree.getEntries().size());
+        assertFalse(tree.getEntries().contains(e(1)));
+        assertTrue(tree.getEntries().contains(e(2)));
         n++;
         assertEquals(n, tree.size());
 
-        for (Entry<Object> entry : tree.entries()) {
+        for (Entry<Object> entry : tree.getEntries()) {
             tree = tree.delete(entry);
             n--;
             assertEquals(n, tree.size());
         }
-        assertEquals(0, tree.entries().size());
+        assertEquals(0, tree.getEntries().size());
         assertTrue(tree.isEmpty());
     }
 
@@ -373,7 +373,7 @@ public class RTreeTest {
         @SuppressWarnings("unchecked")
         RTree<Object> tree = create(3, 0);
         tree = tree.add(123, point(1, 2));
-        assertEquals(1, tree.entries().size());
+        assertEquals(1, tree.getEntries().size());
     }
 
     @Test
@@ -381,7 +381,7 @@ public class RTreeTest {
         @SuppressWarnings("unchecked")
         RTree<Object> tree = create(3, 0);
         tree = tree.add(123, point(1, 2)).delete(123, point(1, 2));
-        assertEquals(0, tree.entries().size());
+        assertEquals(0, tree.getEntries().size());
     }
 
     @Test
@@ -398,7 +398,7 @@ public class RTreeTest {
         }
         System.out.println(tree.asString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.search(r).stream().map(Entry::value).collect(Collectors.toSet());
+        Set<Integer> set = tree.search(r).stream().map(Entry::getValue).collect(Collectors.toSet());
         assertEquals(new HashSet<>(asList(3, 5)), set);
     }
 
@@ -416,7 +416,7 @@ public class RTreeTest {
         }
         System.out.println(tree.asString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.search(r).stream().map(Entry::value).collect(Collectors.toSet());
+        Set<Integer> set = tree.search(r).stream().map(Entry::getValue).collect(Collectors.toSet());
         assertEquals(new HashSet<>(Collections.singletonList(1)), set);
     }
 
@@ -440,9 +440,9 @@ public class RTreeTest {
 
         for (Box r : testRects) {
             Set<Integer> res1 = tree1.search(r)
-                    .stream().map(Entry::value).collect(Collectors.toSet());
+                    .stream().map(Entry::getValue).collect(Collectors.toSet());
             Set<Integer> res2 = tree2.search(r)
-                    .stream().map(Entry::value).collect(Collectors.toSet());
+                    .stream().map(Entry::getValue).collect(Collectors.toSet());
             // System.out.println("searchRect= rectangle(" + r.x1() + "," +
             // r.y1() + "," + r.x2() + "," + r.y2()+ ")");
             // System.out.println("res1.size=" + res1.size() + ",res2.size=" +
@@ -482,13 +482,13 @@ public class RTreeTest {
     }
 
     @Test
-    public void testRTreeRootMbrWhenRTreeEmpty() {
-        assertTrue(RTree.create().mbr() == null);
+    public void testRTreeRootMbbWhenRTreeEmpty() {
+        assertTrue(RTree.create().getMbb() == null);
     }
 
     @Test
     public void testRTreeRootMbrWhenRTreeNonEmpty() {
-        Box r = RTree.<Integer> create().add(1, point(1, 1)).add(2, point(2, 2)).mbr();
+        Box r = RTree.<Integer> create().add(1, point(1, 1)).add(2, point(2, 2)).getMbb();
         assertTrue(r != null);
         assertEquals(Box.create(1, 1, 0, 2, 2, 0), r);
     }

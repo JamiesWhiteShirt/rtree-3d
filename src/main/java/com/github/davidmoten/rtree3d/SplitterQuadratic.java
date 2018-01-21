@@ -38,7 +38,7 @@ public final class SplitterQuadratic implements Splitter {
 
         final int minGroupSize = items.size() / 2;
 
-        // now add the remainder to the groups using least mbr area increase
+        // now add the remainder to the groups using least mbb area increase
         // except in the case where minimumSize would be contradicted
         while (remaining.size() > 0) {
             assignRemaining(group1, group2, remaining, minGroupSize);
@@ -48,8 +48,8 @@ public final class SplitterQuadratic implements Splitter {
 
     private <T extends HasBox> void assignRemaining(final List<T> group1,
             final List<T> group2, final List<T> remaining, final int minGroupSize) {
-        final Box mbr1 = Util.mbr(group1);
-        final Box mbr2 = Util.mbr(group2);
+        final Box mbr1 = Util.mbb(group1);
+        final Box mbr2 = Util.mbb(group2);
         final T item1 = getBestCandidateForGroup(remaining, group1, mbr1);
         final T item2 = getBestCandidateForGroup(remaining, group2, mbr2);
         final boolean volume1LessThanVolume2 = item1.getBox().add(mbr1).volume() <= item2

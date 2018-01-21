@@ -16,7 +16,7 @@ final class Branch<T> implements Node<T> {
     private final Box box;
 
     Branch(List<? extends Node<T>> children) {
-        this(children, Util.mbr(children));
+        this(children, Util.mbb(children));
     }
     
     Branch(List<? extends Node<T>> children, Box box) {
@@ -62,22 +62,22 @@ final class Branch<T> implements Node<T> {
 
     @Override
     public List<Node<T>> add(Entry<? extends T> entry, Context context) {
-        final Node<T> child = context.selector().select(entry.getBox(), children);
+        final Node<T> child = context.getSelector().select(entry.getBox(), children);
         List<Node<T>> list = child.add(entry, context);
         List<? extends Node<T>> children2 = Util.replace(children, child, list);
-        if (children2.size() <= context.maxChildren())
+        if (children2.size() <= context.getMaxChildren())
             return Collections.singletonList(new Branch<>(children2));
         else {
-            Groups<? extends Node<T>> pair = context.splitter().split(children2,
-                    context.minChildren());
+            Groups<? extends Node<T>> pair = context.getSplitter().split(children2,
+                    context.getMinChildren());
             return makeNonLeaves(pair);
         }
     }
 
     private List<Node<T>> makeNonLeaves(Groups<? extends Node<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
-        list.add(new Branch<>(pair.group1().entries()));
-        list.add(new Branch<>(pair.group2().entries()));
+        list.add(new Branch<>(pair.getGroup1().getEntries()));
+        list.add(new Branch<>(pair.getGroup2().getEntries()));
         return list;
     }
 
@@ -99,13 +99,13 @@ final class Branch<T> implements Node<T> {
         for (final Node<T> child : children) {
             if (entry.getBox().intersects(child.getBox())) {
                 final NodeAndEntries<T> result = child.delete(entry, all, context);
-                if (result.node() != null) {
-                    if (result.node() != child) {
+                if (result.getNode() != null) {
+                    if (result.getNode() != child) {
                         // deletion occurred and child is above minChildren so
                         // we update it
-                        addTheseNodes.add(result.node());
+                        addTheseNodes.add(result.getNode());
                         removeTheseNodes.add(child);
-                        addTheseEntries.addAll(result.entriesToAdd());
+                        addTheseEntries.addAll(result.getEntriesToAdd());
                         countDeleted += result.countDeleted();
                         if (!all)
                             break;
@@ -115,7 +115,7 @@ final class Branch<T> implements Node<T> {
                     // deletion occurred and brought child below minChildren
                     // so we redistribute its entries
                     removeTheseNodes.add(child);
-                    addTheseEntries.addAll(result.entriesToAdd());
+                    addTheseEntries.addAll(result.getEntriesToAdd());
                     countDeleted += result.countDeleted();
                     if (!all)
                         break;

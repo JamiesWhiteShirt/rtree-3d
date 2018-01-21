@@ -50,7 +50,7 @@ public final class Entry<T> implements HasBox {
      * 
      * @return the entry value
      */
-    public T value() {
+    public T getValue() {
         return value;
     }
 
@@ -61,7 +61,7 @@ public final class Entry<T> implements HasBox {
 
     @Override
     public String toString() {
-        return "Entry [value=" + value + ", getBox=" + box + "]";
+        return "Entry [value=" + value + ", box=" + box + "]";
     }
 
     @Override

@@ -61,7 +61,7 @@ public final class SplitterRStar implements Splitter {
     private static <T extends HasBox> float marginValueSum(List<Groups<T>> list) {
         float sum = 0;
         for (Groups<T> p : list)
-            sum += p.marginSum();
+            sum += p.getMarginSum();
         return sum;
     }
 

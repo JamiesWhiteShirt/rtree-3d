@@ -1,9 +1,6 @@
 package com.github.davidmoten.rtree3d;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
 import com.google.common.base.Preconditions;
-
-import java.util.Optional;
 
 /**
  * Configures an RTree prior to instantiation of an {@link RTree}.
@@ -14,7 +11,6 @@ public final class Context {
     private final int minChildren;
     private final Splitter splitter;
     private final Selector selector;
-    private final Optional<Box> bounds;
 
     /**
      * Constructor.
@@ -28,43 +24,32 @@ public final class Context {
      * @param splitter
      *            algorithm to split the children across two new nodes
      */
-    public Context(int minChildren, int maxChildren, Selector selector, Splitter splitter,
-            Optional<Box> bounds) {
+    public Context(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
         Preconditions.checkNotNull(splitter);
         Preconditions.checkNotNull(selector);
         Preconditions.checkArgument(maxChildren > 2);
         Preconditions.checkArgument(minChildren >= 1);
         Preconditions.checkArgument(minChildren < maxChildren);
-        Preconditions.checkNotNull(bounds);
         this.selector = selector;
         this.maxChildren = maxChildren;
         this.minChildren = minChildren;
         this.splitter = splitter;
-        this.bounds = bounds;
     }
 
-    public Context(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
-        this(minChildren, maxChildren, selector, splitter, Optional.empty());
-    }
-
-    public int maxChildren() {
+    public int getMaxChildren() {
         return maxChildren;
     }
 
-    public int minChildren() {
+    public int getMinChildren() {
         return minChildren;
     }
 
-    public Splitter splitter() {
+    public Splitter getSplitter() {
         return splitter;
     }
 
-    public Selector selector() {
+    public Selector getSelector() {
         return selector;
-    }
-
-    public Optional<Box> bounds() {
-        return bounds;
     }
 
 }

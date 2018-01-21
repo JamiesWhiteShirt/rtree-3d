@@ -11,7 +11,7 @@ public class EntryTest {
 
     @Test
     public void testValue() {
-        assertEquals(1, (int) Entry.entry(1, Box.create(0, 0, 0, 0, 0, 0)).value());
+        assertEquals(1, (int) Entry.entry(1, Box.create(0, 0, 0, 0, 0, 0)).getValue());
     }
 
     @Test

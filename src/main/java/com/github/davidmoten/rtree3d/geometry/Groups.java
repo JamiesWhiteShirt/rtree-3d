@@ -14,30 +14,30 @@ public final class Groups<T extends HasBox> {
     private final Group<T> group2;
     // these non-final variable mean that this class is not thread-safe
     // because access to them is not synchronized
-    private float areaSum = -1;
+    private float volumeSum = -1;
     private final float marginSum;
 
     public Groups(Group<T> group1, Group<T> group2) {
         this.group1 = group1;
         this.group2 = group2;
-        this.marginSum = group1.box().surfaceArea() + group2.box().surfaceArea();
+        this.marginSum = group1.getBox().surfaceArea() + group2.getBox().surfaceArea();
     }
 
-    public Group<T> group1() {
+    public Group<T> getGroup1() {
         return group1;
     }
 
-    public Group<T> group2() {
+    public Group<T> getGroup2() {
         return group2;
     }
 
-    public float volumeSum() {
-        if (areaSum == -1)
-            areaSum = group1.box().volume() + group2.box().volume();
-        return areaSum;
+    public float getVolumeSum() {
+        if (volumeSum == -1)
+            volumeSum = group1.getBox().volume() + group2.getBox().volume();
+        return volumeSum;
     }
 
-    public float marginSum() {
+    public float getMarginSum() {
         return marginSum;
     }
 
