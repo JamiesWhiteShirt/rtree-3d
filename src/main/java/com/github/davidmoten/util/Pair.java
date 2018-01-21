@@ -10,11 +10,11 @@ public final class Pair<T> {
         this.value2 = value2;
     }
 
-    public T value1() {
+    public T getValue1() {
         return value1;
     }
 
-    public T value2() {
+    public T getValue2() {
         return value2;
     }
 

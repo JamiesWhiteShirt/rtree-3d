@@ -21,8 +21,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r2 = r(100);
         final HasBoxDummy r3 = r(3);
         final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3));
-        assertEquals(r1, pair.value1());
-        assertEquals(r2, pair.value2());
+        assertEquals(r1, pair.getValue1());
+        assertEquals(r2, pair.getValue2());
     }
 
     @Test
@@ -30,8 +30,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r1 = r(1);
         final HasBoxDummy r2 = r(2);
         final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2));
-        assertEquals(r1, pair.value1());
-        assertEquals(r2, pair.value2());
+        assertEquals(r1, pair.getValue1());
+        assertEquals(r2, pair.getValue2());
     }
 
     @Test
@@ -41,8 +41,8 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(3);
         final HasBoxDummy r4 = r(4);
         final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3, r4));
-        assertEquals(r2, pair.value1());
-        assertEquals(r4, pair.value2());
+        assertEquals(r2, pair.getValue1());
+        assertEquals(r4, pair.getValue2());
     }
 
     @Test

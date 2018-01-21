@@ -14,8 +14,8 @@ public final class Groups<T extends HasBox> {
     private final Group<T> group2;
     // these non-final variable mean that this class is not thread-safe
     // because access to them is not synchronized
-    private float volumeSum = -1;
-    private final float marginSum;
+    private int volumeSum = -1;
+    private final int marginSum;
 
     public Groups(Group<T> group1, Group<T> group2) {
         this.group1 = group1;
@@ -31,13 +31,13 @@ public final class Groups<T extends HasBox> {
         return group2;
     }
 
-    public float getVolumeSum() {
+    public int getVolumeSum() {
         if (volumeSum == -1)
             volumeSum = group1.getBox().volume() + group2.getBox().volume();
         return volumeSum;
     }
 
-    public float getMarginSum() {
+    public int getMarginSum() {
         return marginSum;
     }
 

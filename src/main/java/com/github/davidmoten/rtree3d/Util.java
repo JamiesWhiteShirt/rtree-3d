@@ -40,12 +40,12 @@ public final class Util {
      */
     public static Box mbb(Collection<? extends HasBox> items) {
         Preconditions.checkArgument(!items.isEmpty());
-        float minX1 = Float.MAX_VALUE;
-        float minY1 = Float.MAX_VALUE;
-        float minZ1 = Float.MAX_VALUE;
-        float maxX2 = -Float.MAX_VALUE;
-        float maxY2 = -Float.MAX_VALUE;
-        float maxZ2 = -Float.MAX_VALUE;
+        int minX1 = Integer.MAX_VALUE;
+        int minY1 = Integer.MAX_VALUE;
+        int minZ1 = Integer.MAX_VALUE;
+        int maxX2 = -Integer.MAX_VALUE;
+        int maxY2 = -Integer.MAX_VALUE;
+        int maxZ2 = -Integer.MAX_VALUE;
         for (final HasBox item : items) {
             Box r = item.getBox();
             if (r.x1() < minX1)

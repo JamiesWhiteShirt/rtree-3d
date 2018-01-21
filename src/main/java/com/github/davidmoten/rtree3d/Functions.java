@@ -16,13 +16,13 @@ public final class Functions {
         // prevent instantiation
     }
 
-    public static Function<Groups<?>, Double> overlapListPair = pair -> (double) pair.getGroup1().getBox().intersectionVolume(pair.getGroup2().getBox());
+    public static Function<Groups<?>, Integer> overlapListPair = pair -> pair.getGroup1().getBox().intersectionVolume(pair.getGroup2().getBox());
 
-    public static Function<HasBox, Double> overlapVolume(final Box r,
+    public static Function<HasBox, Integer> overlapVolume(final Box r,
             final List<? extends HasBox> list) {
         return g -> {
             Box gPlusR = g.getBox().add(r);
-            double m = 0;
+            int m = 0;
             for (HasBox other : list) {
                 if (other != g) {
                     m += gPlusR.intersectionVolume(other.getBox());
@@ -32,8 +32,8 @@ public final class Functions {
         };
     }
 
-    public static <T extends HasBox> Function<T, Double> volumeIncrease(final Box r) {
-        return g -> (double) (g.getBox().add(r).volume() - g.getBox().volume());
+    public static <T extends HasBox> Function<T, Integer> volumeIncrease(final Box r) {
+        return g -> g.getBox().add(r).volume() - g.getBox().volume();
     }
 
 }

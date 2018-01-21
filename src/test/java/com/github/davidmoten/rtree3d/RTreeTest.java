@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 public class RTreeTest {
 
     private static final double PRECISION = 0.000001;
+    private static final Random random = new Random();
 
     @Test
     public void testInstantiation() {
@@ -95,7 +96,7 @@ public class RTreeTest {
     }
 
     static Entry<Object> randomEntry() {
-        return entry(new Object(), random());
+        return entry(new Object(), randomBox());
     }
 
     @Test
@@ -386,9 +387,9 @@ public class RTreeTest {
 
     @Test
     public void testStandardRTreeSearch() {
-        Box r = box(13.0, 23.0, 50.0, 80.0);
-        Box[] points = { point(59.0, 91.0), point(86.0, 14.0), point(36.0, 60.0),
-                point(57.0, 36.0), point(14.0, 37.0) };
+        Box r = box(13, 23, 50, 80);
+        Box[] points = { point(59, 91), point(86, 14), point(36, 60),
+                point(57, 36), point(14, 37) };
 
         RTree<Integer> tree = RTree.create();
         for (int i = 0; i < points.length; i++) {
@@ -404,9 +405,9 @@ public class RTreeTest {
 
     @Test
     public void testStandardRTreeSearch2() {
-        Box r = box(10.0, 10.0, 50.0, 50.0);
-        Box[] points = { point(28.0, 19.0), point(29.0, 4.0), point(10.0, 63.0),
-                point(34.0, 85.0), point(62.0, 45.0) };
+        Box r = box(10, 10, 50, 50);
+        Box[] points = { point(28, 19), point(29, 4), point(10, 63),
+                point(34, 85), point(62, 45) };
 
         RTree<Integer> tree = RTree.create();
         for (int i = 0; i < points.length; i++) {
@@ -427,11 +428,11 @@ public class RTreeTest {
         RTree<Integer> tree2 = RTree.star().create();
 
         Box[] testRects = { box(0, 0, 0, 0), box(0, 0, 100, 100), box(0, 0, 10, 10),
-                box(0.12, 0.25, 50.356, 50.756), box(1, 0.252, 50, 69.23),
-                box(13.12, 23.123, 50.45, 80.9), box(10, 10, 50, 50) };
+                box(0, 0, 50, 51), box(1, 0, 50, 69),
+                box(13, 23, 50, 81), box(10, 10, 50, 50) };
 
         for (int i = 1; i <= 10000; i++) {
-            Box point = nextPoint();
+            Box point = randomPoint();
             // System.out.println("point(" + point.x() + "," + point.y() +
             // "),");
             tree1 = tree1.add(i, point);
@@ -452,7 +453,7 @@ public class RTreeTest {
         }
     }
 
-    private static Box box(double x1, double y1, double x2, double y2) {
+    private static Box box(int x1, int y1, int x2, int y2) {
         return Box.create(x1, y1, 0, x2, y2, 1);
     }
 
@@ -493,18 +494,12 @@ public class RTreeTest {
         assertEquals(Box.create(1, 1, 0, 2, 2, 0), r);
     }
 
-    private static Box point(double x, double y) {
+    private static Box point(int x, int y) {
         return Box.create(x, y, 0, x, y, 0);
     }
 
-    private static Box nextPoint() {
-
-        double randomX = Math.round(Math.random() * 100);
-
-        double randomY = Math.round(Math.random() * 100);
-
-        return point(randomX, randomY);
-
+    private static Box randomPoint() {
+        return point(random.nextInt(100), random.nextInt(100));
     }
 
     static Entry<Object> e(int n) {
@@ -519,11 +514,11 @@ public class RTreeTest {
         return box(n, n, n + 1, n + 1);
     }
 
-    private static Box r(double n, double m) {
+    private static Box r(int n, int m) {
         return box(n, m, n + 1, m + 1);
     }
 
-    static Box random() {
-        return r(Math.random() * 1000, Math.random() * 1000);
+    private static Box randomBox() {
+        return r(random.nextInt(1000), random.nextInt(1000));
     }
 }

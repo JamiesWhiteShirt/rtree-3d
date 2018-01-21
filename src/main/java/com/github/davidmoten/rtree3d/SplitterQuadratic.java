@@ -29,12 +29,12 @@ public final class SplitterQuadratic implements Splitter {
         // worst combination to have in the same node is now e1,e2.
 
         // establish a group around e1 and another group around e2
-        final List<T> group1 = Lists.newArrayList(worstCombination.value1());
-        final List<T> group2 = Lists.newArrayList(worstCombination.value2());
+        final List<T> group1 = Lists.newArrayList(worstCombination.getValue1());
+        final List<T> group2 = Lists.newArrayList(worstCombination.getValue2());
 
         final List<T> remaining = new ArrayList<T>(items);
-        remaining.remove(worstCombination.value1());
-        remaining.remove(worstCombination.value2());
+        remaining.remove(worstCombination.getValue1());
+        remaining.remove(worstCombination.getValue2());
 
         final int minGroupSize = items.size() / 2;
 

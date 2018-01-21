@@ -22,7 +22,7 @@ public final class Comparators {
     /**
      * Compares the sum of the areas of two ListPairs.
      */
-    public static final Comparator<Groups<?>> volumePairComparator = (p1, p2) -> Float.compare(p1.getVolumeSum(), p2.getVolumeSum());
+    public static final Comparator<Groups<?>> volumePairComparator = Comparator.comparingInt(Groups::getVolumeSum);
 
     /**
      * Returns a {@link Comparator} that is a normal Double comparator for the
@@ -47,7 +47,7 @@ public final class Comparators {
     }
 
     public static Comparator<HasBox> volumeComparator(final Box r) {
-        return (g1, g2) -> Float.compare(g1.getBox().add(r).volume(), g2.getBox().add(r).volume());
+        return Comparator.comparingInt(g -> g.getBox().add(r).volume());
     }
 
     public static <T> Comparator<T> compose(final Comparator<T>... comparators) {

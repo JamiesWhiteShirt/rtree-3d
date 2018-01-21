@@ -18,8 +18,8 @@ public class Utilities {
         try {
             while ((line = br.readLine()) != null) {
                 String[] items = line.split(" ");
-                double x = Double.parseDouble(items[0]);
-                double y = Double.parseDouble(items[1]);
+                int x = (int) Double.parseDouble(items[0]);
+                int y = (int) Double.parseDouble(items[1]);
                 list.add(Entry.entry(new Object(), Box.create(x, y, 0, x + 1, y + 1, 1)));
             }
             br.close();

@@ -74,7 +74,7 @@ public class BoxTest {
     @Test
     public void testIntersectsNoRectangleContainsCornerOfAnother() {
         Box a = box(10, 10, 50, 50);
-        Box b = box(28.0, 4.0, 34.0, 85.0);
+        Box b = box(28, 4, 34, 85);
         assertTrue(a.intersects(b));
         assertTrue(b.intersects(a));
     }
@@ -87,7 +87,7 @@ public class BoxTest {
         assertTrue(b.intersects(a));
     }
     
-    private static Box box(double x1, double y1, double x2, double y2) {
+    private static Box box(int x1, int y1, int x2, int y2) {
         return Box.create(x1, y1, 0, x2, y2, 1);
     }
     

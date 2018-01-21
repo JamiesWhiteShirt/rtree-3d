@@ -26,7 +26,7 @@ public class SplitterRStarTest {
         assertEquals(2, pairs.size());
     }
     
-    private static HasBoxDummy point(double x, double y) {
+    private static HasBoxDummy point(int x, int y) {
         return new HasBoxDummy(Box.create(x, y, 0, x, y, 0));
     }
 }

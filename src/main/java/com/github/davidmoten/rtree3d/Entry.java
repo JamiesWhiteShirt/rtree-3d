@@ -1,9 +1,7 @@
 package com.github.davidmoten.rtree3d;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.util.ObjectsHelper;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 /**
@@ -71,12 +69,10 @@ public final class Entry<T> implements HasBox {
 
     @Override
     public boolean equals(Object obj) {
-        @SuppressWarnings("rawtypes")
-        Optional<Entry> other = ObjectsHelper.asClass(obj, Entry.class);
-        if (other.isPresent()) {
-            return Objects.equal(value, other.get().value)
-                    && Objects.equal(box, other.get().box);
-        } else
-            return false;
+        if (obj instanceof Entry) {
+            Entry o = (Entry) obj;
+            return box.equals(o.box) && value.equals(o.value);
+        }
+        return false;
     }
 }

@@ -18,8 +18,8 @@ public class GreekEarthquakes {
             for (String line; (line = reader.readLine()) != null;) {
                 if (line.trim().length() > 0) {
                     String[] items = line.split(" ");
-                    double lat = Double.parseDouble(items[0]);
-                    double lon = Double.parseDouble(items[1]);
+                    int lat = (int) Double.parseDouble(items[0]);
+                    int lon = (int) Double.parseDouble(items[1]);
                     result.add(Entry.entry(new Object(), Box.create(lat, lon, 0, lat, lon, 0)));
                 }
             }

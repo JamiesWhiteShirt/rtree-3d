@@ -55,11 +55,11 @@ public final class SplitterRStar implements Splitter {
 
     private static <T extends HasBox> Comparator<SortType> marginSumComparator(
             final Map<SortType, List<Groups<T>>> map) {
-        return Comparator.comparing(sortType -> (double) marginValueSum(map.get(sortType)));
+        return Comparator.comparing(sortType -> marginValueSum(map.get(sortType)));
     }
 
-    private static <T extends HasBox> float marginValueSum(List<Groups<T>> list) {
-        float sum = 0;
+    private static <T extends HasBox> int marginValueSum(List<Groups<T>> list) {
+        int sum = 0;
         for (Groups<T> p : list)
             sum += p.getMarginSum();
         return sum;
@@ -84,16 +84,16 @@ public final class SplitterRStar implements Splitter {
         return list;
     }
 
-    private static Comparator<HasBox> INCREASING_X_LOWER = (n1, n2) -> Float.compare(n1.getBox().x1(), n2.getBox().x1());
+    private static Comparator<HasBox> INCREASING_X_LOWER = Comparator.comparingInt(n -> n.getBox().x1());
 
-    private static Comparator<HasBox> INCREASING_X_UPPER = (n1, n2) -> Float.compare(n1.getBox().x2(), n2.getBox().x2());
+    private static Comparator<HasBox> INCREASING_X_UPPER = Comparator.comparingInt(n -> n.getBox().x2());
 
-    private static Comparator<HasBox> INCREASING_Y_LOWER = (n1, n2) -> Float.compare(n1.getBox().y1(), n2.getBox().y1());
+    private static Comparator<HasBox> INCREASING_Y_LOWER = Comparator.comparingInt(n -> n.getBox().y1());
 
-    private static Comparator<HasBox> INCREASING_Y_UPPER = (n1, n2) -> Float.compare(n1.getBox().y2(), n2.getBox().y2());
+    private static Comparator<HasBox> INCREASING_Y_UPPER = Comparator.comparingInt(n -> n.getBox().y2());
 
-    private static Comparator<HasBox> INCREASING_Z_LOWER = (n1, n2) -> Float.compare(n1.getBox().z1(), n2.getBox().z1());
+    private static Comparator<HasBox> INCREASING_Z_LOWER = Comparator.comparingInt(n -> n.getBox().z1());
 
-    private static Comparator<HasBox> INCREASING_Z_UPPER = (n1, n2) -> Float.compare(n1.getBox().z2(), n2.getBox().z2());
+    private static Comparator<HasBox> INCREASING_Z_UPPER = Comparator.comparingInt(n -> n.getBox().z2());
 
 }
