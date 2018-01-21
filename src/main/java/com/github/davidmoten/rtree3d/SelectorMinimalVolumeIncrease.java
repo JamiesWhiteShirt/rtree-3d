@@ -1,7 +1,5 @@
 package com.github.davidmoten.rtree3d;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-
 import static com.github.davidmoten.rtree3d.Comparators.compose;
 import static com.github.davidmoten.rtree3d.Comparators.volumeComparator;
 import static com.github.davidmoten.rtree3d.Comparators.volumeIncreaseComparator;

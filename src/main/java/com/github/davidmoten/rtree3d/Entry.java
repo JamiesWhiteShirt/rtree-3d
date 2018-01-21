@@ -1,6 +1,5 @@
 package com.github.davidmoten.rtree3d;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 

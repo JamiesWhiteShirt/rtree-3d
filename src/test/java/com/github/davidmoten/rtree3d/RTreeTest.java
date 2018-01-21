@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 

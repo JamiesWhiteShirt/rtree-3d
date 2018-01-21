@@ -2,8 +2,6 @@ package com.github.davidmoten.rtree3d;
 
 import java.util.List;
 
-import com.github.davidmoten.rtree3d.geometry.Groups;
-
 public interface Splitter {
 
     /**

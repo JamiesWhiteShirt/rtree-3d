@@ -2,13 +2,10 @@ package com.github.davidmoten.rtree3d;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
-
-import com.github.davidmoten.rtree3d.geometry.Box;
 
 public class LeafTest {
 

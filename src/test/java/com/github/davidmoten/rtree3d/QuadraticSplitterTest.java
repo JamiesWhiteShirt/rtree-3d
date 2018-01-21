@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.github.davidmoten.util.Pair;
 import com.google.common.collect.Sets;
 
@@ -51,7 +49,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r2 = r(2);
         final List<HasBoxDummy> list = Collections.singletonList(r1);
         final List<HasBoxDummy> group = Collections.singletonList(r2);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group));
         assertEquals(r1, r);
     }
 
@@ -62,7 +60,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(10);
         final List<HasBoxDummy> list = Collections.singletonList(r1);
         final List<HasBoxDummy> group = Arrays.asList(r2, r3);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group));
         assertEquals(r1, r);
     }
 
@@ -73,7 +71,7 @@ public class QuadraticSplitterTest {
         final HasBoxDummy r3 = r(10);
         final List<HasBoxDummy> list = Arrays.asList(r1, r2);
         final List<HasBoxDummy> group = Collections.singletonList(r3);
-        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbb(group));
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group));
         assertEquals(r2, r);
     }
 

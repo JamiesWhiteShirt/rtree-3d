@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Groups;
-
 final class Leaf<T> implements Node<T> {
 
     private final List<Entry<T>> entries;

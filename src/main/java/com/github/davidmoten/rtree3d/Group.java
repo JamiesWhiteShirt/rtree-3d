@@ -1,7 +1,4 @@
-package com.github.davidmoten.rtree3d.geometry;
-
-import com.github.davidmoten.rtree3d.HasBox;
-import com.github.davidmoten.rtree3d.Util;
+package com.github.davidmoten.rtree3d;
 
 import java.util.List;
 

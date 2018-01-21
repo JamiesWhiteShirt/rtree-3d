@@ -3,9 +3,6 @@ package com.github.davidmoten.rtree3d;
 import java.util.Comparator;
 import java.util.List;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Groups;
-
 /**
  * Utility functions asociated with {@link Comparator}s, especially for use with
  * {@link Selector}s and {@link Splitter}s.
@@ -47,7 +44,7 @@ public final class Comparators {
     }
 
     public static Comparator<HasBox> volumeComparator(final Box r) {
-        return Comparator.comparingInt(g -> g.getBox().add(r).volume());
+        return Comparator.comparingInt(g -> g.getBox().add(r).getVolume());
     }
 
     public static <T> Comparator<T> compose(final Comparator<T>... comparators) {

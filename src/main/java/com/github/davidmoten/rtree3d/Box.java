@@ -1,4 +1,4 @@
-package com.github.davidmoten.rtree3d.geometry;
+package com.github.davidmoten.rtree3d;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -42,7 +42,7 @@ public final class Box {
         return z2;
     }
 
-    public int volume() {
+    public int getVolume() {
         return (x2 - x1) * (y2 - y1) * (z2 - z1);
     }
 
@@ -97,7 +97,7 @@ public final class Box {
             return 0;
         else
             return create(Math.max(x1, r.x1), Math.max(y1, r.y1), Math.max(z1, r.z1),
-                    Math.min(x2, r.x2), Math.min(y2, r.y2), Math.min(z2, r.z2)).volume();
+                    Math.min(x2, r.x2), Math.min(y2, r.y2), Math.min(z2, r.z2)).getVolume();
     }
 
     public int surfaceArea() {

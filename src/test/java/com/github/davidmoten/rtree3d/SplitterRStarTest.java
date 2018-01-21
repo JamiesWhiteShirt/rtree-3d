@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
 import org.junit.Test;
 
-import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.google.common.collect.Lists;
 
 public class SplitterRStarTest {

@@ -1,7 +1,5 @@
 package com.github.davidmoten.rtree3d;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;

@@ -3,9 +3,6 @@ package com.github.davidmoten.rtree3d;
 import java.util.List;
 import java.util.function.Function;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Groups;
-
 /**
  * Utility functions for making {@link Selector}s and {@link Splitter}s.
  *
@@ -33,7 +30,7 @@ public final class Functions {
     }
 
     public static <T extends HasBox> Function<T, Integer> volumeIncrease(final Box r) {
-        return g -> g.getBox().add(r).volume() - g.getBox().volume();
+        return g -> g.getBox().add(r).getVolume() - g.getBox().getVolume();
     }
 
 }

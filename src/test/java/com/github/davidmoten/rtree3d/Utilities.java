@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-
 public class Utilities {
 
     static List<Entry<Object>> entries1000() {

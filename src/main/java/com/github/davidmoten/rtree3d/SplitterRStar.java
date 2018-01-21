@@ -1,15 +1,8 @@
 package com.github.davidmoten.rtree3d;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.ToIntFunction;
 
-import com.github.davidmoten.rtree3d.geometry.Group;
-import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
@@ -29,13 +22,10 @@ public final class SplitterRStar implements Splitter {
         // sort nodes into increasing x, calculate min overlap where both groups
         // have more than minChildren
 
-        Map<SortType, List<Groups<T>>> map = new HashMap<SortType, List<Groups<T>>>(5, 1.0f);
-        map.put(SortType.X_LOWER, getPairs(minSize, sort(items, INCREASING_X_LOWER)));
-        map.put(SortType.X_UPPER, getPairs(minSize, sort(items, INCREASING_X_UPPER)));
-        map.put(SortType.Y_LOWER, getPairs(minSize, sort(items, INCREASING_Y_LOWER)));
-        map.put(SortType.Y_UPPER, getPairs(minSize, sort(items, INCREASING_Y_UPPER)));
-        map.put(SortType.Z_LOWER, getPairs(minSize, sort(items, INCREASING_Z_LOWER)));
-        map.put(SortType.Z_UPPER, getPairs(minSize, sort(items, INCREASING_Z_UPPER)));
+        Map<SortType, List<Groups<T>>> map = new EnumMap<>(SortType.class);
+        for (SortType sortType : SortType.values()) {
+            map.put(sortType, getPairs(minSize, sort(items, sortType.comparator)));
+        }
 
         // compute S the sum of all margin-values of the lists above
         // the list with the least S is then used to find minimum overlap
@@ -47,7 +37,18 @@ public final class SplitterRStar implements Splitter {
     }
 
     private enum SortType {
-        X_LOWER, X_UPPER, Y_LOWER, Y_UPPER, Z_LOWER, Z_UPPER;
+        X1(item -> item.getBox().x1()),
+        X2(item -> item.getBox().x2()),
+        Y1(item -> item.getBox().y1()),
+        Y2(item -> item.getBox().y2()),
+        Z1(item -> item.getBox().z1()),
+        Z2(item -> item.getBox().z2());
+
+        final Comparator<HasBox> comparator;
+
+        SortType(ToIntFunction<HasBox> keyAccessor) {
+            this.comparator = Comparator.comparingInt(keyAccessor);
+        }
     }
 
     private static final List<SortType> sortTypes = Collections
@@ -83,17 +84,5 @@ public final class SplitterRStar implements Splitter {
         Collections.sort(list, comparator);
         return list;
     }
-
-    private static Comparator<HasBox> INCREASING_X_LOWER = Comparator.comparingInt(n -> n.getBox().x1());
-
-    private static Comparator<HasBox> INCREASING_X_UPPER = Comparator.comparingInt(n -> n.getBox().x2());
-
-    private static Comparator<HasBox> INCREASING_Y_LOWER = Comparator.comparingInt(n -> n.getBox().y1());
-
-    private static Comparator<HasBox> INCREASING_Y_UPPER = Comparator.comparingInt(n -> n.getBox().y2());
-
-    private static Comparator<HasBox> INCREASING_Z_LOWER = Comparator.comparingInt(n -> n.getBox().z1());
-
-    private static Comparator<HasBox> INCREASING_Z_UPPER = Comparator.comparingInt(n -> n.getBox().z2());
 
 }

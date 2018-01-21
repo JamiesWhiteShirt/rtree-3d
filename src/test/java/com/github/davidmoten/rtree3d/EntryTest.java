@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
 import org.junit.Test;
 
 public class EntryTest {

@@ -1,6 +1,4 @@
-package com.github.davidmoten.rtree3d.geometry;
-
-import com.github.davidmoten.rtree3d.HasBox;
+package com.github.davidmoten.rtree3d;
 
 /**
  *
@@ -33,7 +31,7 @@ public final class Groups<T extends HasBox> {
 
     public int getVolumeSum() {
         if (volumeSum == -1)
-            volumeSum = group1.getBox().volume() + group2.getBox().volume();
+            volumeSum = group1.getBox().getVolume() + group2.getBox().getVolume();
         return volumeSum;
     }
 

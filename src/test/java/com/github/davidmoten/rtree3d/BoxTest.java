@@ -1,7 +1,8 @@
-package com.github.davidmoten.rtree3d.geometry;
+package com.github.davidmoten.rtree3d;
 
 import static org.junit.Assert.*;
 
+import com.github.davidmoten.rtree3d.Box;
 import org.junit.Test;
 
 public class BoxTest {

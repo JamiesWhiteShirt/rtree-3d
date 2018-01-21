@@ -6,8 +6,6 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-
 public class UtilTest {
 
     @Test

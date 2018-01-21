@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.google.common.base.Preconditions;
 
 final class Branch<T> implements Node<T> {

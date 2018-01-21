@@ -2,11 +2,7 @@ package com.github.davidmoten.rtree3d;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Group;
-import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.github.davidmoten.util.Pair;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -32,7 +28,7 @@ public final class SplitterQuadratic implements Splitter {
         final List<T> group1 = Lists.newArrayList(worstCombination.getValue1());
         final List<T> group2 = Lists.newArrayList(worstCombination.getValue2());
 
-        final List<T> remaining = new ArrayList<T>(items);
+        final List<T> remaining = new ArrayList<>(items);
         remaining.remove(worstCombination.getValue1());
         remaining.remove(worstCombination.getValue2());
 
@@ -48,12 +44,12 @@ public final class SplitterQuadratic implements Splitter {
 
     private <T extends HasBox> void assignRemaining(final List<T> group1,
             final List<T> group2, final List<T> remaining, final int minGroupSize) {
-        final Box mbr1 = Util.mbb(group1);
-        final Box mbr2 = Util.mbb(group2);
-        final T item1 = getBestCandidateForGroup(remaining, group1, mbr1);
-        final T item2 = getBestCandidateForGroup(remaining, group2, mbr2);
-        final boolean volume1LessThanVolume2 = item1.getBox().add(mbr1).volume() <= item2
-                .getBox().add(mbr2).volume();
+        final Box mbb1 = Util.mbb(group1);
+        final Box mbb2 = Util.mbb(group2);
+        final T item1 = getBestCandidateForGroup(remaining, mbb1);
+        final T item2 = getBestCandidateForGroup(remaining, mbb2);
+        final boolean volume1LessThanVolume2 = item1.getBox().add(mbb1).getVolume() <= item2
+                .getBox().add(mbb2).getVolume();
 
         if (volume1LessThanVolume2 && (group2.size() + remaining.size() - 1 >= minGroupSize)
                 || !volume1LessThanVolume2 && (group1.size() + remaining.size() == minGroupSize)) {
@@ -66,44 +62,37 @@ public final class SplitterQuadratic implements Splitter {
     }
 
     @VisibleForTesting
-    static <T extends HasBox> T getBestCandidateForGroup(List<T> list, List<T> group,
-            Box groupMbr) {
-        Optional<T> minEntry = Optional.empty();
-        Optional<Double> minVolume = Optional.empty();
+    static <T extends HasBox> T getBestCandidateForGroup(List<T> list, Box groupMbb) {
+        T minEntry = null;
+        int minVolume = Integer.MAX_VALUE;
         for (final T entry : list) {
-            final double volume = groupMbr.add(entry.getBox()).volume();
-            if (!minVolume.isPresent() || volume < minVolume.get()) {
-                minVolume = Optional.of(volume);
-                minEntry = Optional.of(entry);
+            final int volume = groupMbb.add(entry.getBox()).getVolume();
+            if (volume < minVolume) {
+                minVolume = volume;
+                minEntry = entry;
             }
         }
-        return minEntry.get();
+        return minEntry;
     }
 
     @VisibleForTesting
     static <T extends HasBox> Pair<T> worstCombination(List<T> items) {
-        Optional<T> e1 = Optional.empty();
-        Optional<T> e2 = Optional.empty();
-        {
-            Optional<Double> maxVolume = Optional.empty();
-            for (final T entry1 : items) {
-                for (final T entry2 : items) {
-                    if (entry1 != entry2) {
-                        final double volume = entry1.getBox().add(entry2.getBox())
-                                .volume();
-                        if (!maxVolume.isPresent() || volume > maxVolume.get()) {
-                            e1 = Optional.of(entry1);
-                            e2 = Optional.of(entry2);
-                            maxVolume = Optional.of(volume);
-                        }
+        T e1 = null;
+        T e2 = null;
+        int maxVolume = Integer.MIN_VALUE;
+        for (final T entry1 : items) {
+            for (final T entry2 : items) {
+                if (entry1 != entry2) {
+                    final int volume = entry1.getBox().add(entry2.getBox()).getVolume();
+                    if (volume > maxVolume) {
+                        e1 = entry1;
+                        e2 = entry2;
+                        maxVolume = volume;
                     }
                 }
             }
         }
-        if (e1.isPresent())
-            return new Pair<>(e1.get(), e2.get());
-        else
-            // all items are the same item
-            return new Pair<>(items.get(0), items.get(1));
+
+        return e1 != null ? new Pair<>(e1, e2) : new Pair<>(items.get(0), items.get(1));
     }
 }
