@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Configures an RTree prior to instantiation of an {@link RTree}.
  */
-public final class Context {
+public final class Configuration {
 
     private final int maxChildren;
     private final int minChildren;
@@ -24,7 +24,7 @@ public final class Context {
      * @param splitter
      *            algorithm to split the children across two new nodes
      */
-    public Context(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
+    public Configuration(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
         Preconditions.checkNotNull(splitter);
         Preconditions.checkNotNull(selector);
         Preconditions.checkArgument(maxChildren > 2);

@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 public final class RTree<T> {
 
     private final Node<T> root;
-    private final Context context;
+    private final Configuration configuration;
 
     /**
      * Current size in Entries of the RTree.
@@ -31,13 +31,13 @@ public final class RTree<T> {
      *            the root node of the tree if present
      * @param size
      *            known size of the tree
-     * @param context
+     * @param configuration
      *            options for the R-tree
      */
-    private RTree(Node<T> root, int size, Context context) {
+    private RTree(Node<T> root, int size, Configuration configuration) {
         this.root = root;
         this.size = size;
-        this.context = context;
+        this.configuration = configuration;
     }
 
     /**
@@ -55,12 +55,12 @@ public final class RTree<T> {
         return root != null ? root.countEntries() : 0;
     }
 
-    public static <T> RTree<T> create(Node<T> node, Context context) {
-        return new RTree<>(node, node != null ? node.countEntries() : 0, context);
+    public static <T> RTree<T> create(Node<T> node, Configuration configuration) {
+        return new RTree<>(node, node != null ? node.countEntries() : 0, configuration);
     }
 
-    public static <T> RTree<T> create(Context context) {
-        return create(null, context);
+    public static <T> RTree<T> create(Configuration configuration) {
+        return create(null, configuration);
     }
 
     /**
@@ -73,17 +73,17 @@ public final class RTree<T> {
     @SuppressWarnings("unchecked")
     public RTree<T> add(Entry<? extends T> entry) {
         if (root != null) {
-            List<Node<T>> nodes = root.add(entry, context);
+            List<Node<T>> nodes = root.add(entry, configuration);
             Node<T> node;
             if (nodes.size() == 1)
                 node = nodes.get(0);
             else {
                 node = new Branch<>(nodes);
             }
-            return new RTree<>(node, size + 1, context);
+            return new RTree<>(node, size + 1, configuration);
         } else
             return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry)),
-                    size + 1, context);
+                    size + 1, configuration);
     }
 
     /**
@@ -202,13 +202,13 @@ public final class RTree<T> {
      */
     public RTree<T> delete(Entry<? extends T> entry, boolean all) {
         if (root != null) {
-            NodeAndEntries<T> nodeAndEntries = root.delete(entry, all, context);
+            NodeAndEntries<T> nodeAndEntries = root.delete(entry, all, configuration);
             if (nodeAndEntries.getNode() == root)
                 return this;
             else
                 return new RTree<>(nodeAndEntries.getNode(),
                         size - nodeAndEntries.countDeleted() - nodeAndEntries.getEntriesToAdd().size(),
-                        context).add(nodeAndEntries.getEntriesToAdd());
+                        configuration).add(nodeAndEntries.getEntriesToAdd());
         } else
             return this;
     }
@@ -295,13 +295,13 @@ public final class RTree<T> {
     }
 
     /**
-     * Returns a {@link Context} containing the configuration of the RTree at
+     * Returns a {@link Configuration} containing the configuration of the RTree at
      * the time of instantiation.
      * 
      * @return the configuration of the RTree prior to instantiation
      */
-    public Context getContext() {
-        return context;
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     /**

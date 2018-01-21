@@ -8,9 +8,9 @@ import java.util.function.Predicate;
 
 interface Node<T> extends HasBox {
 
-    List<Node<T>> add(Entry<? extends T> entry, Context context);
+    List<Node<T>> add(Entry<? extends T> entry, Configuration configuration);
 
-    NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context);
+    NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Configuration configuration);
 
     void search(Predicate<Box> condition,
             Consumer<? super Entry<T>> consumer);

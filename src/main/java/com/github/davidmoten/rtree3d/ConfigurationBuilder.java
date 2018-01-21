@@ -1,6 +1,6 @@
 package com.github.davidmoten.rtree3d;
 
-public class ContextBuilder {
+public class ConfigurationBuilder {
     /**
      * Benchmarks show that this is a good choice for up to O(10,000) entries
      * when using Quadratic splitter (Guttman).
@@ -25,7 +25,7 @@ public class ContextBuilder {
     private Selector selector = new SelectorMinimalVolumeIncrease();
     private boolean star = false;
 
-    public ContextBuilder() {
+    public ConfigurationBuilder() {
     }
 
     /**
@@ -38,7 +38,7 @@ public class ContextBuilder {
      *            redistribution of its children.
      * @return builder
      */
-    public ContextBuilder minChildren(int minChildren) {
+    public ConfigurationBuilder minChildren(int minChildren) {
         this.minChildren = minChildren;
         return this;
     }
@@ -50,7 +50,7 @@ public class ContextBuilder {
      *            max number of children in R-tree node.
      * @return builder
      */
-    public ContextBuilder maxChildren(int maxChildren) {
+    public ConfigurationBuilder maxChildren(int maxChildren) {
         this.maxChildren = maxChildren;
         return this;
     }
@@ -62,7 +62,7 @@ public class ContextBuilder {
      *            node splitting method to use
      * @return builder
      */
-    public ContextBuilder splitter(Splitter splitter) {
+    public ConfigurationBuilder splitter(Splitter splitter) {
         this.splitter = splitter;
         return this;
     }
@@ -75,7 +75,7 @@ public class ContextBuilder {
      *            selects the branch to follow when inserting or searching
      * @return builder
      */
-    public ContextBuilder selector(Selector selector) {
+    public ConfigurationBuilder selector(Selector selector) {
         this.selector = selector;
         return this;
     }
@@ -86,7 +86,7 @@ public class ContextBuilder {
      *
      * @return builder
      */
-    public ContextBuilder star() {
+    public ConfigurationBuilder star() {
         selector = new SelectorRStar();
         splitter = new SplitterRStar();
         star = true;
@@ -94,16 +94,16 @@ public class ContextBuilder {
     }
 
     /**
-     * Builds the {@link Context}.
+     * Builds the {@link Configuration}.
      *
-     * @return Context
+     * @return Configuration
      */
-    public Context build() {
+    public Configuration build() {
         if (maxChildren == null)
             maxChildren = star ? MAX_CHILDREN_DEFAULT_STAR : MAX_CHILDREN_DEFAULT_GUTTMAN;
         if (minChildren == null)
             minChildren = (int) Math.round(maxChildren * DEFAULT_FILLING_FACTOR);
-        return new Context(minChildren, maxChildren, selector, splitter);
+        return new Configuration(minChildren, maxChildren, selector, splitter);
     }
 
 }

@@ -61,15 +61,15 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry, Context context) {
-        final Node<T> child = context.getSelector().select(entry.getBox(), children);
-        List<Node<T>> list = child.add(entry, context);
+    public List<Node<T>> add(Entry<? extends T> entry, Configuration configuration) {
+        final Node<T> child = configuration.getSelector().select(entry.getBox(), children);
+        List<Node<T>> list = child.add(entry, configuration);
         List<? extends Node<T>> children2 = Util.replace(children, child, list);
-        if (children2.size() <= context.getMaxChildren())
+        if (children2.size() <= configuration.getMaxChildren())
             return Collections.singletonList(new Branch<>(children2));
         else {
-            Groups<? extends Node<T>> pair = context.getSplitter().split(children2,
-                    context.getMinChildren());
+            Groups<? extends Node<T>> pair = configuration.getSplitter().split(children2,
+                    configuration.getMinChildren());
             return makeNonLeaves(pair);
         }
     }
@@ -82,7 +82,7 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context) {
+    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Configuration configuration) {
         // the result of performing a delete of the given entry from this node
         // will be that zero or more entries will be needed to be added back to
         // the root of the tree (because num entries of their node fell below
@@ -98,7 +98,7 @@ final class Branch<T> implements Node<T> {
 
         for (final Node<T> child : children) {
             if (entry.getBox().intersects(child.getBox())) {
-                final NodeAndEntries<T> result = child.delete(entry, all, context);
+                final NodeAndEntries<T> result = child.delete(entry, all, configuration);
                 if (result.getNode() != null) {
                     if (result.getNode() != child) {
                         // deletion occurred and child is above minChildren so

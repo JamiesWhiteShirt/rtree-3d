@@ -54,13 +54,13 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry, Context context) {
+    public List<Node<T>> add(Entry<? extends T> entry, Configuration configuration) {
         @SuppressWarnings("unchecked")
         final List<Entry<T>> entries2 = Util.add(entries, (Entry<T>) entry);
-        if (entries2.size() <= context.getMaxChildren())
+        if (entries2.size() <= configuration.getMaxChildren())
             return Collections.singletonList(new Leaf<>(entries2));
         else {
-            Groups<Entry<T>> pair = context.getSplitter().split(entries2, context.getMinChildren());
+            Groups<Entry<T>> pair = configuration.getSplitter().split(entries2, configuration.getMinChildren());
             return makeLeaves(pair);
         }
     }
@@ -73,7 +73,7 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context) {
+    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Configuration configuration) {
         if (!entries.contains(entry)) {
             return new NodeAndEntries<>(this, Collections.emptyList(), 0);
         } else {
@@ -84,7 +84,7 @@ final class Leaf<T> implements Node<T> {
             while (all && entries2.remove(entry))
                 numDeleted += 1;
 
-            if (entries2.size() >= context.getMinChildren()) {
+            if (entries2.size() >= configuration.getMinChildren()) {
                 Leaf<T> node = new Leaf<>(entries2);
                 return new NodeAndEntries<>(node, Collections.emptyList(), numDeleted);
             } else {
