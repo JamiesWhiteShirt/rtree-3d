@@ -14,16 +14,14 @@ final class Leaf<T> implements Node<T> {
 
     private final List<Entry<T>> entries;
     private final Box box;
-    private final Context context;
 
-    Leaf(List<Entry<T>> entries, Context context) {
-        this(entries, Util.mbr(entries), context);
+    Leaf(List<Entry<T>> entries) {
+        this(entries, Util.mbr(entries));
     }
     
-    Leaf(List<Entry<T>> entries, Box box, Context context) {
+    Leaf(List<Entry<T>> entries, Box box) {
         this.entries = entries;
         this.box = box;
-        this.context = context;
     }
 
     List<Entry<T>> entries() {
@@ -52,11 +50,11 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry) {
+    public List<Node<T>> add(Entry<? extends T> entry, Context context) {
         @SuppressWarnings("unchecked")
         final List<Entry<T>> entries2 = Util.add(entries, (Entry<T>) entry);
         if (entries2.size() <= context.maxChildren())
-            return Collections.singletonList(new Leaf<>(entries2, context));
+            return Collections.singletonList(new Leaf<>(entries2));
         else {
             Groups<Entry<T>> pair = context.splitter().split(entries2, context.minChildren());
             return makeLeaves(pair);
@@ -65,13 +63,13 @@ final class Leaf<T> implements Node<T> {
 
     private List<Node<T>> makeLeaves(Groups<Entry<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
-        list.add(new Leaf<>(pair.group1().entries(), context));
-        list.add(new Leaf<>(pair.group2().entries(), context));
+        list.add(new Leaf<>(pair.group1().entries()));
+        list.add(new Leaf<>(pair.group2().entries()));
         return list;
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all) {
+    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context) {
         if (!entries.contains(entry)) {
             return new NodeAndEntries<>(Optional.of(this), Collections.emptyList(), 0);
         } else {
@@ -83,7 +81,7 @@ final class Leaf<T> implements Node<T> {
                 numDeleted += 1;
 
             if (entries2.size() >= context.minChildren()) {
-                Leaf<T> node = new Leaf<>(entries2, context);
+                Leaf<T> node = new Leaf<>(entries2);
                 return new NodeAndEntries<>(Optional.of(node), Collections.emptyList(),
                         numDeleted);
             } else {

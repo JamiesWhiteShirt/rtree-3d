@@ -317,16 +317,16 @@ public final class RTree<T> {
     @SuppressWarnings("unchecked")
     public RTree<T> add(Entry<? extends T> entry) {
         if (root.isPresent()) {
-            List<Node<T>> nodes = root.get().add(entry);
+            List<Node<T>> nodes = root.get().add(entry, context);
             Node<T> node;
             if (nodes.size() == 1)
                 node = nodes.get(0);
             else {
-                node = new NonLeaf<>(nodes, context);
+                node = new NonLeaf<>(nodes);
             }
             return new RTree<>(node, size + 1, context);
         } else
-            return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry), context),
+            return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry)),
                     size + 1, context);
     }
 
@@ -446,7 +446,7 @@ public final class RTree<T> {
      */
     public RTree<T> delete(Entry<? extends T> entry, boolean all) {
         if (root.isPresent()) {
-            NodeAndEntries<T> nodeAndEntries = root.get().delete(entry, all);
+            NodeAndEntries<T> nodeAndEntries = root.get().delete(entry, all, context);
             if (nodeAndEntries.node().isPresent() && nodeAndEntries.node().get() == root.get())
                 return this;
             else

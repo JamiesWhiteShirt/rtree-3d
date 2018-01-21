@@ -8,9 +8,9 @@ import java.util.function.Function;
 
 interface Node<T> extends HasBox {
 
-    List<Node<T>> add(Entry<? extends T> entry);
+    List<Node<T>> add(Entry<? extends T> entry, Context context);
 
-    NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all);
+    NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context);
 
     void search(Function<Box, Boolean> condition,
             Consumer<? super Entry<T>> consumer);

@@ -15,17 +15,15 @@ final class NonLeaf<T> implements Node<T> {
 
     private final List<? extends Node<T>> children;
     private final Box box;
-    private final Context context;
 
-    NonLeaf(List<? extends Node<T>> children, Context context) {
-        this(children, Util.mbr(children), context);
+    NonLeaf(List<? extends Node<T>> children) {
+        this(children, Util.mbr(children));
     }
     
-    NonLeaf(List<? extends Node<T>> children, Box box, Context context) {
+    NonLeaf(List<? extends Node<T>> children, Box box) {
         Preconditions.checkArgument(!children.isEmpty());
         this.children = children;
         this.box = box;
-        this.context = context;
     }
 
     @Override
@@ -55,12 +53,12 @@ final class NonLeaf<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry) {
+    public List<Node<T>> add(Entry<? extends T> entry, Context context) {
         final Node<T> child = context.selector().select(entry.getBox(), children);
-        List<Node<T>> list = child.add(entry);
+        List<Node<T>> list = child.add(entry, context);
         List<? extends Node<T>> children2 = Util.replace(children, child, list);
         if (children2.size() <= context.maxChildren())
-            return Collections.singletonList(new NonLeaf<>(children2, context));
+            return Collections.singletonList(new NonLeaf<>(children2));
         else {
             Groups<? extends Node<T>> pair = context.splitter().split(children2,
                     context.minChildren());
@@ -70,13 +68,13 @@ final class NonLeaf<T> implements Node<T> {
 
     private List<Node<T>> makeNonLeaves(Groups<? extends Node<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
-        list.add(new NonLeaf<>(pair.group1().entries(), context));
-        list.add(new NonLeaf<>(pair.group2().entries(), context));
+        list.add(new NonLeaf<>(pair.group1().entries()));
+        list.add(new NonLeaf<>(pair.group2().entries()));
         return list;
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all) {
+    public NodeAndEntries<T> delete(Entry<? extends T> entry, boolean all, Context context) {
         // the result of performing a delete of the given entry from this node
         // will be that zero or more entries will be needed to be added back to
         // the root of the tree (because num entries of their node fell below
@@ -92,7 +90,7 @@ final class NonLeaf<T> implements Node<T> {
 
         for (final Node<T> child : children) {
             if (entry.getBox().intersects(child.getBox())) {
-                final NodeAndEntries<T> result = child.delete(entry, all);
+                final NodeAndEntries<T> result = child.delete(entry, all, context);
                 if (result.node().isPresent()) {
                     if (result.node().get() != child) {
                         // deletion occurred and child is above minChildren so
@@ -125,7 +123,7 @@ final class NonLeaf<T> implements Node<T> {
                 return new NodeAndEntries<>(Optional.empty(), addTheseEntries,
                         countDeleted);
             else {
-                NonLeaf<T> node = new NonLeaf<>(nodes, context);
+                NonLeaf<T> node = new NonLeaf<>(nodes);
                 return new NodeAndEntries<>(Optional.of(node), addTheseEntries, countDeleted);
             }
         }

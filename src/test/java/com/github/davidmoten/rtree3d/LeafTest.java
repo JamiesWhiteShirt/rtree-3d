@@ -12,12 +12,9 @@ import com.github.davidmoten.rtree3d.geometry.Box;
 
 public class LeafTest {
 
-    private static Context context = new Context(2, 4, new SelectorMinimalVolumeIncrease(),
-            new SplitterQuadratic());
-
     @Test(expected = IllegalArgumentException.class)
     public void testCannotHaveZeroChildren() {
-        new Leaf<>(Collections.emptyList(), context);
+        new Leaf<>(Collections.emptyList());
     }
 
     @Test
@@ -26,7 +23,7 @@ public class LeafTest {
         Box r2 = Box.create(1, 2, 0, 4, 6, 1);
         @SuppressWarnings("unchecked")
         Box r = new Leaf<>(Arrays.asList(Entry.entry(new Object(), r1),
-                Entry.entry(new Object(), r2)), context).getBox();
+                Entry.entry(new Object(), r2))).getBox();
         assertEquals(r1.add(r2), r);
     }
 }
