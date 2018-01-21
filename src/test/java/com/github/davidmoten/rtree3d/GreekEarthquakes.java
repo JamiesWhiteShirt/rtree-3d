@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import com.github.davidmoten.rtree3d.geometry.Geometries;
-import com.github.davidmoten.rtree3d.geometry.Point;
+import com.github.davidmoten.rtree3d.geometry.Box;
 
 public class GreekEarthquakes {
 
-    static List<Entry<Object, Point>> entriesList() {
-        List<Entry<Object, Point>> result = new ArrayList<>();
+    static List<Entry<Object>> entriesList() {
+        List<Entry<Object>> result = new ArrayList<>();
         try {
             GZIPInputStream inputStream = new GZIPInputStream(GreekEarthquakes.class
                     .getResourceAsStream("/greek-earthquakes-1964-2000.txt.gz"));
@@ -21,7 +20,7 @@ public class GreekEarthquakes {
                     String[] items = line.split(" ");
                     double lat = Double.parseDouble(items[0]);
                     double lon = Double.parseDouble(items[1]);
-                    result.add(Entry.entry(new Object(), Geometries.point(lat, lon, 0)));
+                    result.add(Entry.entry(new Object(), Box.create(lat, lon, 0, lat, lon, 0)));
                 }
             }
 

@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Geometry;
-import com.github.davidmoten.rtree3d.geometry.Point;
 import com.google.common.collect.Lists;
 
 /**
@@ -15,12 +13,10 @@ import com.google.common.collect.Lists;
  * 
  * @param <T>
  *            the entry value type
- * @param <S>
- *            the entry geometry type
  */
-public final class RTree<T, S extends Geometry> {
+public final class RTree<T> {
 
-    private final Optional<? extends Node<T, S>> root;
+    private final Optional<? extends Node<T>> root;
     private final Context context;
 
     /**
@@ -48,7 +44,7 @@ public final class RTree<T, S extends Geometry> {
      * @param context
      *            options for the R-tree
      */
-    private RTree(Optional<? extends Node<T, S>> root, int size, Context context) {
+    private RTree(Optional<? extends Node<T>> root, int size, Context context) {
         this.root = root;
         this.size = size;
         this.context = context;
@@ -62,7 +58,7 @@ public final class RTree<T, S extends Geometry> {
      * @param context
      *            options for the R-tree
      */
-    private RTree(Node<T, S> root, int size, Context context) {
+    private RTree(Node<T> root, int size, Context context) {
         this(Optional.of(root), size, context);
     }
 
@@ -86,7 +82,7 @@ public final class RTree<T, S extends Geometry> {
      *            the geometry type of the entries in the tree
      * @return a new RTree instance
      */
-    public static <T, S extends Geometry> RTree<T, S> create() {
+    public static <T> RTree<T> create() {
         return new Builder().create();
     }
 
@@ -101,26 +97,26 @@ public final class RTree<T, S extends Geometry> {
         return calculateDepth(root);
     }
 
-    private static <T, S extends Geometry> int calculateDepth(Optional<? extends Node<T, S>> root) {
+    private static <T> int calculateDepth(Optional<? extends Node<T>> root) {
         if (!root.isPresent())
             return 0;
         else
             return calculateDepth(root.get(), 0);
     }
 
-    private static <T, S extends Geometry> int calculateDepth(Node<T, S> node, int depth) {
+    private static <T> int calculateDepth(Node<T> node, int depth) {
         if (node instanceof Leaf)
             return depth + 1;
         else
-            return calculateDepth(((NonLeaf<T, S>) node).children().get(0), depth + 1);
+            return calculateDepth(((NonLeaf<T>) node).children().get(0), depth + 1);
     }
 
-    private static <T, S extends Geometry> int countEntries(Node<T, S> node) {
+    private static <T> int countEntries(Node<T> node) {
         if (node instanceof Leaf)
-            return ((Leaf<T, S>) node).count();
+            return node.count();
         else {
             int count = 0;
-            for (Node<T, S> child : ((NonLeaf<T, S>) node).children()) {
+            for (Node<T> child : ((NonLeaf<T>) node).children()) {
                 count += countEntries(child);
             }
             return count;
@@ -293,7 +289,7 @@ public final class RTree<T, S extends Geometry> {
          *            geometry type
          * @return RTree
          */
-        public <T, S extends Geometry> RTree<T, S> create() {
+        public <T> RTree<T> create() {
             if (!maxChildren.isPresent())
                 if (star)
                     maxChildren = Optional.of(MAX_CHILDREN_DEFAULT_STAR);
@@ -307,7 +303,7 @@ public final class RTree<T, S extends Geometry> {
 
     }
 
-    public static <T, S extends Geometry> RTree<T, S> create(Node<T, S> node, Context context) {
+    public static <T> RTree<T> create(Node<T> node, Context context) {
         return new RTree<>(node, countEntries(node), context);
     }
 
@@ -319,18 +315,18 @@ public final class RTree<T, S extends Geometry> {
      * @return a new immutable R-tree including the new entry
      */
     @SuppressWarnings("unchecked")
-    public RTree<T, S> add(Entry<? extends T, ? extends S> entry) {
+    public RTree<T> add(Entry<? extends T> entry) {
         if (root.isPresent()) {
-            List<Node<T, S>> nodes = root.get().add(entry);
-            Node<T, S> node;
+            List<Node<T>> nodes = root.get().add(entry);
+            Node<T> node;
             if (nodes.size() == 1)
                 node = nodes.get(0);
             else {
-                node = new NonLeaf<T, S>(nodes, context);
+                node = new NonLeaf<>(nodes, context);
             }
-            return new RTree<T, S>(node, size + 1, context);
+            return new RTree<>(node, size + 1, context);
         } else
-            return new RTree<T, S>(new Leaf<T, S>(Lists.newArrayList((Entry<T, S>) entry), context),
+            return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry), context),
                     size + 1, context);
     }
 
@@ -344,7 +340,7 @@ public final class RTree<T, S extends Geometry> {
      *            the geometry of the {@link Entry} to be added
      * @return a new immutable R-tree including the new entry
      */
-    public RTree<T, S> add(T value, S geometry) {
+    public RTree<T> add(T value, Box geometry) {
         return add(Entry.entry(value, geometry));
     }
 
@@ -356,9 +352,9 @@ public final class RTree<T, S extends Geometry> {
      *            entries to add
      * @return R-tree with entries added
      */
-    public RTree<T, S> add(Iterable<Entry<T, S>> entries) {
-        RTree<T, S> tree = this;
-        for (Entry<T, S> entry : entries)
+    public RTree<T> add(Iterable<Entry<T>> entries) {
+        RTree<T> tree = this;
+        for (Entry<T> entry : entries)
             tree = tree.add(entry);
         return tree;
     }
@@ -374,9 +370,9 @@ public final class RTree<T, S extends Geometry> {
      *            if false deletes one if exists else deletes all
      * @return R-tree with entries deleted
      */
-    public RTree<T, S> delete(Iterable<Entry<T, S>> entries, boolean all) {
-        RTree<T, S> tree = this;
-        for (Entry<T, S> entry : entries)
+    public RTree<T> delete(Iterable<Entry<T>> entries, boolean all) {
+        RTree<T> tree = this;
+        for (Entry<T> entry : entries)
             tree = tree.delete(entry, all);
         return tree;
     }
@@ -390,9 +386,9 @@ public final class RTree<T, S extends Geometry> {
      * @return R-tree with entries deleted up to one matching occurence per
      *         entry
      */
-    public RTree<T, S> delete(Iterable<Entry<T, S>> entries) {
-        RTree<T, S> tree = this;
-        for (Entry<T, S> entry : entries)
+    public RTree<T> delete(Iterable<Entry<T>> entries) {
+        RTree<T> tree = this;
+        for (Entry<T> entry : entries)
             tree = tree.delete(entry);
         return tree;
     }
@@ -406,7 +402,7 @@ public final class RTree<T, S extends Geometry> {
      * 
      * @param value
      *            the value of the {@link Entry} to be deleted
-     * @param geometry
+     * @param box
      *            the geometry of the {@link Entry} to be deleted
      * @param all
      *            if false deletes one if exists else deletes all
@@ -414,8 +410,8 @@ public final class RTree<T, S extends Geometry> {
      *         specified entry if it exists otherwise returns the original RTree
      *         object
      */
-    public RTree<T, S> delete(T value, S geometry, boolean all) {
-        return delete(Entry.entry(value, geometry), all);
+    public RTree<T> delete(T value, Box box, boolean all) {
+        return delete(Entry.entry(value, box), all);
     }
 
     /**
@@ -425,13 +421,13 @@ public final class RTree<T, S extends Geometry> {
      * 
      * @param value
      *            the value to be matched for deletion
-     * @param geometry
+     * @param box
      *            the geometry to be matched for deletion
      * @return an immutable RTree without one entry (if found) matching the
      *         given value and geometry
      */
-    public RTree<T, S> delete(T value, S geometry) {
-        return delete(Entry.entry(value, geometry), false);
+    public RTree<T> delete(T value, Box box) {
+        return delete(Entry.entry(value, box), false);
     }
 
     /**
@@ -448,9 +444,9 @@ public final class RTree<T, S extends Geometry> {
      * @return a new immutable R-tree without one instance of the specified
      *         entry
      */
-    public RTree<T, S> delete(Entry<? extends T, ? extends S> entry, boolean all) {
+    public RTree<T> delete(Entry<? extends T> entry, boolean all) {
         if (root.isPresent()) {
-            NodeAndEntries<T, S> nodeAndEntries = root.get().delete(entry, all);
+            NodeAndEntries<T> nodeAndEntries = root.get().delete(entry, all);
             if (nodeAndEntries.node().isPresent() && nodeAndEntries.node().get() == root.get())
                 return this;
             else
@@ -472,7 +468,7 @@ public final class RTree<T, S extends Geometry> {
      * @return a new immutable R-tree without one instance of the specified
      *         entry
      */
-    public RTree<T, S> delete(Entry<? extends T, ? extends S> entry) {
+    public RTree<T> delete(Entry<? extends T> entry) {
         return delete(entry, false);
     }
 
@@ -484,7 +480,7 @@ public final class RTree<T, S extends Geometry> {
      *            the rectangle to check intersection with
      * @return whether the geometry and the rectangle intersect
      */
-    public static Function<Geometry, Boolean> intersects(final Box r) {
+    public static Function<Box, Boolean> intersects(final Box r) {
         return g -> g.intersects(r);
     }
 
@@ -492,30 +488,25 @@ public final class RTree<T, S extends Geometry> {
      * Returns the always true predicate. See {@link RTree#entries()} for
      * example use.
      */
-    private static final Function<Geometry, Boolean> ALWAYS_TRUE = rectangle -> true;
+    private static final Function<Box, Boolean> ALWAYS_TRUE = rectangle -> true;
 
-    public List<Entry<T, S>> search(Box box) {
+    public List<Entry<T>> search(Box box) {
         return search(intersects(box));
     }
 
-    public List<Entry<T, S>> search(Function<Geometry, Boolean> condition) {
-        List<Entry<T, S>> entries = new ArrayList<>();
+    public List<Entry<T>> search(Function<Box, Boolean> condition) {
+        List<Entry<T>> entries = new ArrayList<>();
         if (root.isPresent()) {
             root.get().search(condition, entries::add);
         }
         return entries;
     }
 
-    public List<Entry<T, S>> entries() {
+    public List<Entry<T>> entries() {
         return search(ALWAYS_TRUE);
     }
 
-    private Box calculateMaxView(RTree<T, S> tree) {
-        return tree.entries().stream().map(Entry::geometry).map(Geometry::mbb).reduce(Box::add)
-                .orElse(Box.create(0, 0, 0, 0, 0, 0));
-    }
-
-    Optional<? extends Node<T, S>> root() {
+    Optional<? extends Node<T>> root() {
         return root;
     }
 
@@ -526,10 +517,7 @@ public final class RTree<T, S extends Geometry> {
      * @return minimum bounding rectangle of all entries in RTree
      */
     public Optional<Box> mbr() {
-        if (!root.isPresent())
-            return Optional.empty();
-        else
-            return Optional.of(root.get().geometry().mbb());
+        return root.map(HasBox::getBox);
     }
 
     /**
@@ -581,32 +569,30 @@ public final class RTree<T, S extends Geometry> {
     }
 
     public String asString(int maxDepth) {
-        if (!root.isPresent())
-            return "";
-        else
-            return asString(root.get(), "", 1, maxDepth);
+        return root.map(node -> asString(node, "", 1, maxDepth)).orElse("");
     }
 
-    private String asString(Node<T, S> node, String margin, int depth, int maxDepth) {
+    private String asString(Node<T> node, String margin, int depth, int maxDepth) {
         if (depth > maxDepth)
             return "";
         final String marginIncrement = "  ";
         StringBuilder s = new StringBuilder();
         if (node instanceof NonLeaf) {
             s.append(margin);
-            s.append("mbr=" + node.geometry());
+            s.append("mbr=");
+            s.append(node.getBox());
             s.append('\n');
-            NonLeaf<T, S> n = (NonLeaf<T, S>) node;
-            for (Node<T, S> child : n.children()) {
+            NonLeaf<T> n = (NonLeaf<T>) node;
+            for (Node<T> child : n.children()) {
                 s.append(asString(child, margin + marginIncrement, depth + 1, maxDepth));
             }
         } else {
-            Leaf<T, S> leaf = (Leaf<T, S>) node;
+            Leaf<T> leaf = (Leaf<T>) node;
             s.append(margin);
             s.append("mbr=");
-            s.append(leaf.geometry());
+            s.append(leaf.getBox());
             s.append('\n');
-            for (Entry<T, S> entry : leaf.entries()) {
+            for (Entry<T> entry : leaf.entries()) {
                 s.append(margin);
                 s.append(marginIncrement);
                 s.append("entry=");

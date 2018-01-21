@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.HasGeometry;
 import com.google.common.base.Preconditions;
 
 /**
@@ -39,7 +38,7 @@ public final class Util {
      *            items to bound
      * @return the minimum bounding rectangle containings items
      */
-    public static Box mbr(Collection<? extends HasGeometry> items) {
+    public static Box mbr(Collection<? extends HasBox> items) {
         Preconditions.checkArgument(!items.isEmpty());
         float minX1 = Float.MAX_VALUE;
         float minY1 = Float.MAX_VALUE;
@@ -47,8 +46,8 @@ public final class Util {
         float maxX2 = -Float.MAX_VALUE;
         float maxY2 = -Float.MAX_VALUE;
         float maxZ2 = -Float.MAX_VALUE;
-        for (final HasGeometry item : items) {
-            Box r = item.geometry().mbb();
+        for (final HasBox item : items) {
+            Box r = item.getBox();
             if (r.x1() < minX1)
                 minX1 = r.x1();
             if (r.y1() < minY1)

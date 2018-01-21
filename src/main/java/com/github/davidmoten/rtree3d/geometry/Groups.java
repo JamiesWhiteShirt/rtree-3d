@@ -1,6 +1,6 @@
 package com.github.davidmoten.rtree3d.geometry;
 
-import java.util.List;
+import com.github.davidmoten.rtree3d.HasBox;
 
 /**
  *
@@ -9,7 +9,7 @@ import java.util.List;
  * @param <T>
  *            list type
  */
-public final class ListPair<T extends HasGeometry> {
+public final class Groups<T extends HasBox> {
     private final Group<T> group1;
     private final Group<T> group2;
     // these non-final variable mean that this class is not thread-safe
@@ -17,10 +17,10 @@ public final class ListPair<T extends HasGeometry> {
     private float areaSum = -1;
     private final float marginSum;
 
-    public ListPair(List<T> list1, List<T> list2) {
-        this.group1 = new Group<T>(list1);
-        this.group2 = new Group<T>(list2);
-        this.marginSum = group1.geometry().mbb().surfaceArea() + group2.geometry().mbb().surfaceArea();
+    public Groups(Group<T> group1, Group<T> group2) {
+        this.group1 = group1;
+        this.group2 = group2;
+        this.marginSum = group1.box().surfaceArea() + group2.box().surfaceArea();
     }
 
     public Group<T> group1() {
@@ -33,7 +33,7 @@ public final class ListPair<T extends HasGeometry> {
 
     public float volumeSum() {
         if (areaSum == -1)
-            areaSum = group1.geometry().mbb().volume() + group2.geometry().mbb().volume();
+            areaSum = group1.box().volume() + group2.box().volume();
         return areaSum;
     }
 

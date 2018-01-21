@@ -1,7 +1,6 @@
 package com.github.davidmoten.rtree3d;
 
-import com.github.davidmoten.rtree3d.geometry.Geometry;
-import com.github.davidmoten.rtree3d.geometry.HasGeometry;
+import com.github.davidmoten.rtree3d.geometry.Box;
 import com.github.davidmoten.util.ObjectsHelper;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -13,22 +12,22 @@ import com.google.common.base.Preconditions;
  * @param <T>
  *            the type of Entry
  */
-public final class Entry<T, S extends Geometry> implements HasGeometry {
+public final class Entry<T> implements HasBox {
     private final T value;
-    private final S geometry;
+    private final Box box;
 
     /**
      * Constructor.
      * 
      * @param value
      *            the value of the entry
-     * @param geometry
-     *            the geometry of the value
+     * @param box
+     *            the getBox of the value
      */
-    public Entry(T value, S geometry) {
-        Preconditions.checkNotNull(geometry);
+    public Entry(T value, Box box) {
+        Preconditions.checkNotNull(box);
         this.value = value;
-        this.geometry = geometry;
+        this.box = box;
     }
 
     /**
@@ -36,16 +35,14 @@ public final class Entry<T, S extends Geometry> implements HasGeometry {
      * 
      * @param <T>
      *            type of value
-     * @param <S>
-     *            type of geometry
      * @param value
      *            object being given a spatial context
-     * @param geometry
-     *            geometry associated with the value
+     * @param box
+     *            getBox associated with the value
      * @return entry wrapping value and associated geometry
      */
-    public static <T, S extends Geometry> Entry<T, S> entry(T value, S geometry) {
-        return new Entry<T, S>(value, geometry);
+    public static <T> Entry<T> entry(T value, Box box) {
+        return new Entry<>(value, box);
     }
 
     /**
@@ -58,24 +55,18 @@ public final class Entry<T, S extends Geometry> implements HasGeometry {
     }
 
     @Override
-    public S geometry() {
-        return geometry;
+    public Box getBox() {
+        return box;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Entry [value=");
-        builder.append(value);
-        builder.append(", geometry=");
-        builder.append(geometry);
-        builder.append("]");
-        return builder.toString();
+        return "Entry [value=" + value + ", getBox=" + box + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value, geometry);
+        return Objects.hashCode(value, box);
     }
 
     @Override
@@ -84,9 +75,8 @@ public final class Entry<T, S extends Geometry> implements HasGeometry {
         Optional<Entry> other = ObjectsHelper.asClass(obj, Entry.class);
         if (other.isPresent()) {
             return Objects.equal(value, other.get().value)
-                    && Objects.equal(geometry, other.get().geometry);
+                    && Objects.equal(box, other.get().box);
         } else
             return false;
     }
-
 }

@@ -1,8 +1,8 @@
 package com.github.davidmoten.rtree3d;
 
-import java.util.List;
+import com.github.davidmoten.rtree3d.geometry.Box;
 
-import com.github.davidmoten.rtree3d.geometry.Geometry;
+import java.util.List;
 
 /**
  * The heuristic used on insert to select which node to add an Entry to.
@@ -16,14 +16,12 @@ public interface Selector {
      * 
      * @param <T>
      *            type of value of entry in tree
-     * @param <S>
-     *            type of geometry of entry in tree
-     * @param g
-     *            geometry
+     * @param box
+     *            box
      * @param nodes
      *            nodes to select from
      * @return one of the given nodes
      */
-    <T, S extends Geometry> Node<T, S> select(Geometry g, List<? extends Node<T, S>> nodes);
+    <T> Node<T> select(Box box, List<? extends Node<T>> nodes);
 
 }

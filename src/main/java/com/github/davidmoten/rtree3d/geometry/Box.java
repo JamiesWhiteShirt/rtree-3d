@@ -5,7 +5,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-public final class Box implements Geometry, HasGeometry {
+public final class Box {
     private final float x1, y1, x2, y2, z1, z2;
 
     private Box(float x1, float y1, float z1, float x2, float y2, float z2) {
@@ -61,82 +61,8 @@ public final class Box implements Geometry, HasGeometry {
         return new Box(x1, y1, z1, x2, y2, z2);
     }
 
-    public static Box createNormalized(Box b, float x1, float y1, float z1, float x2, float y2,
-            float z2) {
-        return new Box(b.normX(x1), b.normY(y1), b.normZ(z1), b.normX(x2), b.normY(y2),
-                b.normZ(z2));
-    }
-
-    @Override
     public boolean intersects(Box r) {
         return !(x1 > r.x2 || x2 < r.x1 || y1 > r.y2 || y2 < r.y1 || z1 > r.z2 || z2 < r.z1);
-    }
-
-    @Override
-    public double distance(Box r) {
-        if (intersects(r))
-            return 0;
-
-        double dx = 0.0;
-        if (x2 < r.x1)
-            dx = r.x1 - x2;
-        else if (x1 > r.x2)
-            dx = x1 - r.x2;
-
-        double dy = 0.0;
-        if (y2 < r.y1)
-            dy = r.y1 - y2;
-        else if (y1 > r.y2)
-            dy = y1 - r.y2;
-
-        double dz = 0.0;
-        if (z2 < r.z1)
-            dz = r.z1 - z2;
-        else if (z1 > r.z2)
-            dz = z1 - r.z2;
-
-        // if either is zero, the envelopes overlap either vertically or
-        // horizontally
-        if (dx == 0.0 && dz == 0)
-            return dy;
-        if (dy == 0.0 && dz == 0)
-            return dx;
-        if (dx == 0 && dy == 0)
-            return dz;
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
-
-    public float normX(float x) {
-        return (x - x1) / (x2 - x1);
-    }
-
-    public float normY(float y) {
-        return (y - y1) / (y2 - y1);
-    }
-
-    public float normZ(float z) {
-        return (z - z1) / (z2 - z1);
-    }
-
-    public Point normalize(Point point) {
-        return Point.create(normX(point.x()), normY(point.y()), normZ(point.z()));
-    }
-
-    public float invX(float x) {
-        return x * (x2 - x1) + x1;
-    }
-
-    public float invY(float y) {
-        return y * (y2 - y1) + y1;
-    }
-
-    public float invZ(float z) {
-        return z * (z2 - z1) + z1;
-    }
-
-    @Override
-    public Box mbb() {
-        return this;
     }
 
     @Override
@@ -185,10 +111,4 @@ public final class Box implements Geometry, HasGeometry {
     public float surfaceArea() {
         return 2 * ((x2 - x1) * (y2 - y1) + (y2 - y1) * (z2 - z1) + (x2 - x1) * (z2 - z1));
     }
-
-    @Override
-    public Geometry geometry() {
-        return this;
-    }
-
 }

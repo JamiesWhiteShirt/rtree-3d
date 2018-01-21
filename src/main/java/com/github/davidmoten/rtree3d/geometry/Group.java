@@ -1,26 +1,28 @@
 package com.github.davidmoten.rtree3d.geometry;
 
-import java.util.List;
-
+import com.github.davidmoten.rtree3d.HasBox;
 import com.github.davidmoten.rtree3d.Util;
 
-public class Group<T extends HasGeometry> implements HasGeometry {
+import java.util.List;
 
-    private final List<T> list;
-    private final Box mbr;
+public class Group<T extends HasBox> {
+    private final List<T> entries;
+    private final Box box;
 
-    public Group(List<T> list) {
-        this.list = list;
-        this.mbr = Util.mbr(list);
+    public static <T extends HasBox> Group<T> of(List<T> entries) {
+        return new Group<>(entries, Util.mbr(entries));
     }
 
-    public List<T> list() {
-        return list;
+    public Group(List<T> entries, Box box) {
+        this.entries = entries;
+        this.box = box;
     }
 
-    @Override
-    public Geometry geometry() {
-        return mbr;
+    public List<T> entries() {
+        return entries;
     }
 
+    public Box box() {
+        return box;
+    }
 }

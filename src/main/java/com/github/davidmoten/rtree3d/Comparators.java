@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Geometry;
-import com.github.davidmoten.rtree3d.geometry.HasGeometry;
-import com.github.davidmoten.rtree3d.geometry.ListPair;
+import com.github.davidmoten.rtree3d.geometry.Groups;
 
 /**
  * Utility functions asociated with {@link Comparator}s, especially for use with
@@ -20,26 +18,18 @@ public final class Comparators {
         // prevent instantiation
     }
 
-    public static final Comparator<ListPair<?>> overlapListPairComparator = toComparator(Functions.overlapListPair);
+    public static Comparator<Groups<?>> overlapListPairComparator = Comparator.comparing(Functions.overlapListPair);
 
     /**
      * Compares the sum of the areas of two ListPairs.
      */
-    public static final Comparator<ListPair<?>> volumePairComparator = new Comparator<ListPair<?>>() {
-
-        @Override
-        public int compare(ListPair<?> p1, ListPair<?> p2) {
-            return ((Float) p1.volumeSum()).compareTo(p2.volumeSum());
-        }
-    };
+    public static final Comparator<Groups<?>> volumePairComparator = (p1, p2) -> Float.compare(p1.volumeSum(), p2.volumeSum());
 
     /**
      * Returns a {@link Comparator} that is a normal Double comparator for the
      * total of the areas of overlap of the members of the list with the
      * rectangle r.
      * 
-     * @param <T>
-     *            type of geometry being compared
      * @param r
      *            rectangle
      * @param list
@@ -47,23 +37,18 @@ public final class Comparators {
      * @return the total of the areas of overlap of the geometries in the list
      *         with the rectangle r
      */
-    public static <T extends HasGeometry> Comparator<HasGeometry> overlapVolumeComparator(
-            final Box r, final List<T> list) {
-        return toComparator(Functions.overlapVolume(r, list));
+    public static Comparator<HasBox> overlapVolumeComparator(
+            final Box r, final List<? extends HasBox> list) {
+        return Comparator.comparing(Functions.overlapVolume(r, list));
     }
 
-    public static <T extends HasGeometry> Comparator<HasGeometry> volumeIncreaseComparator(
+    public static Comparator<HasBox> volumeIncreaseComparator(
             final Box r) {
-        return toComparator(Functions.volumeIncrease(r));
+        return Comparator.comparing(Functions.volumeIncrease(r));
     }
 
-    public static Comparator<HasGeometry> volumeComparator(final Box r) {
-        return (g1, g2) -> Float.compare(g1.geometry().mbb().add(r).volume(), g2.geometry().mbb()
-                .add(r).volume());
-    }
-
-    public static <R, T extends Comparable<T>> Comparator<R> toComparator(final Function<R, T> function) {
-        return Comparator.comparing(function);
+    public static Comparator<HasBox> volumeComparator(final Box r) {
+        return (g1, g2) -> Float.compare(g1.getBox().add(r).volume(), g2.getBox().add(r).volume());
     }
 
     public static <T> Comparator<T> compose(final Comparator<T>... comparators) {
@@ -76,27 +61,4 @@ public final class Comparators {
             return 0;
         };
     }
-
-    /**
-     * <p>
-     * Returns a comparator that can be used to sort entries returned by search
-     * methods. For example:
-     * </p>
-     * <p>
-     * <code>search(100).toSortedList(ascendingDistance(r))</code>
-     * </p>
-     * 
-     * @param <T>
-     *            the value type
-     * @param <S>
-     *            the entry type
-     * @param r
-     *            rectangle to measure distance to
-     * @return a comparator to sort by ascending distance from the rectangle
-     */
-    public static <T, S extends Geometry> Comparator<Entry<T, S>> ascendingDistance(
-            final Box r) {
-        return Comparator.comparingDouble(e -> e.geometry().distance(r));
-    }
-
 }

@@ -8,11 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.davidmoten.rtree3d.SplitterQuadratic;
-import com.github.davidmoten.rtree3d.Util;
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.HasGeometry;
-import com.github.davidmoten.rtree3d.geometry.ListPair;
+import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.github.davidmoten.util.Pair;
 import com.google.common.collect.Sets;
 
@@ -20,113 +17,113 @@ public class QuadraticSplitterTest {
 
     @Test
     public void testWorstCombinationOn3() {
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(100);
-        final Mbr r3 = r(3);
-        final Pair<Mbr> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(100);
+        final HasBoxDummy r3 = r(3);
+        final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3));
         assertEquals(r1, pair.value1());
         assertEquals(r2, pair.value2());
     }
 
     @Test
     public void testWorstCombinationOnTwoEntries() {
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Pair<Mbr> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2));
         assertEquals(r1, pair.value1());
         assertEquals(r2, pair.value2());
     }
 
     @Test
     public void testWorstCombinationOn4() {
-        final Mbr r1 = r(2);
-        final Mbr r2 = r(1);
-        final Mbr r3 = r(3);
-        final Mbr r4 = r(4);
-        final Pair<Mbr> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3, r4));
+        final HasBoxDummy r1 = r(2);
+        final HasBoxDummy r2 = r(1);
+        final HasBoxDummy r3 = r(3);
+        final HasBoxDummy r4 = r(4);
+        final Pair<HasBoxDummy> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3, r4));
         assertEquals(r2, pair.value1());
         assertEquals(r4, pair.value2());
     }
 
     @Test
     public void testGetBestCandidateForGroup1() {
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final List<Mbr> list = Arrays.asList(r1);
-        final List<Mbr> group = Arrays.asList(r2);
-        final Mbr r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final List<HasBoxDummy> list = Collections.singletonList(r1);
+        final List<HasBoxDummy> group = Collections.singletonList(r2);
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
         assertEquals(r1, r);
     }
 
     @Test
     public void testGetBestCandidateForGroup2() {
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Mbr r3 = r(10);
-        final List<Mbr> list = Arrays.asList(r1);
-        final List<Mbr> group = Arrays.asList(r2, r3);
-        final Mbr r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final HasBoxDummy r3 = r(10);
+        final List<HasBoxDummy> list = Collections.singletonList(r1);
+        final List<HasBoxDummy> group = Arrays.asList(r2, r3);
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
         assertEquals(r1, r);
     }
 
     @Test
     public void testGetBestCandidateForGroup3() {
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Mbr r3 = r(10);
-        final List<Mbr> list = Arrays.asList(r1, r2);
-        final List<Mbr> group = Arrays.asList(r3);
-        final Mbr r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final HasBoxDummy r3 = r(10);
+        final List<HasBoxDummy> list = Arrays.asList(r1, r2);
+        final List<HasBoxDummy> group = Collections.singletonList(r3);
+        final HasBoxDummy r = SplitterQuadratic.getBestCandidateForGroup(list, group, Util.mbr(group));
         assertEquals(r2, r);
     }
 
     @Test
     public void testSplit() {
         final SplitterQuadratic q = new SplitterQuadratic();
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Mbr r3 = r(100);
-        final Mbr r4 = r(101);
-        final ListPair<Mbr> pair = q.split(Arrays.asList(r1, r2, r3, r4), 2);
-        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().list()));
-        assertEquals(Sets.newHashSet(r3, r4), Sets.newHashSet(pair.group2().list()));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final HasBoxDummy r3 = r(100);
+        final HasBoxDummy r4 = r(101);
+        final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4), 2);
+        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().entries()));
+        assertEquals(Sets.newHashSet(r3, r4), Sets.newHashSet(pair.group2().entries()));
     }
 
     @Test
     public void testSplit2() {
         final SplitterQuadratic q = new SplitterQuadratic();
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Mbr r3 = r(100);
-        final Mbr r4 = r(101);
-        final Mbr r5 = r(103);
-        final ListPair<Mbr> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5), 2);
-        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().list()));
-        assertEquals(Sets.newHashSet(r3, r4, r5), Sets.newHashSet(pair.group2().list()));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final HasBoxDummy r3 = r(100);
+        final HasBoxDummy r4 = r(101);
+        final HasBoxDummy r5 = r(103);
+        final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5), 2);
+        assertEquals(Sets.newHashSet(r1, r2), Sets.newHashSet(pair.group1().entries()));
+        assertEquals(Sets.newHashSet(r3, r4, r5), Sets.newHashSet(pair.group2().entries()));
     }
 
     @Test
     public void testSplit3() {
         final SplitterQuadratic q = new SplitterQuadratic();
-        final Mbr r1 = r(1);
-        final Mbr r2 = r(2);
-        final Mbr r3 = r(100);
-        final Mbr r4 = r(101);
-        final Mbr r5 = r(103);
-        final Mbr r6 = r(104);
-        final ListPair<Mbr> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5, r6), 3);
-        assertEquals(Sets.newHashSet(r1, r2, r3), Sets.newHashSet(pair.group1().list()));
-        assertEquals(Sets.newHashSet(r4, r5, r6), Sets.newHashSet(pair.group2().list()));
+        final HasBoxDummy r1 = r(1);
+        final HasBoxDummy r2 = r(2);
+        final HasBoxDummy r3 = r(100);
+        final HasBoxDummy r4 = r(101);
+        final HasBoxDummy r5 = r(103);
+        final HasBoxDummy r6 = r(104);
+        final Groups<HasBoxDummy> pair = q.split(Arrays.asList(r1, r2, r3, r4, r5, r6), 3);
+        assertEquals(Sets.newHashSet(r1, r2, r3), Sets.newHashSet(pair.group1().entries()));
+        assertEquals(Sets.newHashSet(r4, r5, r6), Sets.newHashSet(pair.group2().entries()));
     }
 
     @Test(expected = RuntimeException.class)
     public void testExceptionForSplitEmptyList() {
         final SplitterQuadratic q = new SplitterQuadratic();    
-        q.split(Collections.<HasGeometry> emptyList(), 3);      
+        q.split(Collections.emptyList(), 3);
     }
     
-    private static Mbr r(int n) {
-        return new Mbr(Box.create(n, n, 0, n + 1, n + 1, 1));
+    private static HasBoxDummy r(int n) {
+        return new HasBoxDummy(Box.create(n, n, 0, n + 1, n + 1, 1));
     }
 
 }

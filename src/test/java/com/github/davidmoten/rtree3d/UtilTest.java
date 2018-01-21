@@ -7,9 +7,7 @@ import java.util.Collections;
 import org.junit.Test;
 
 import com.github.davidmoten.junit.Asserts;
-import com.github.davidmoten.rtree3d.Util;
 import com.github.davidmoten.rtree3d.geometry.Box;
-import com.github.davidmoten.rtree3d.geometry.Geometries;
 
 public class UtilTest {
 
@@ -20,8 +18,8 @@ public class UtilTest {
     
     @Test
     public void testMbrWithNegativeValues() {
-        Box r = Geometries.box(-2,-2, 0,-1,-1, 1);
-        Box mbr = Util.mbr(Collections.singleton(r));
+        Box r = Box.create(-2, -2, 0, -1, -1, 1);
+        Box mbr = Util.mbr(Collections.singleton(new HasBoxDummy(r)));
         assertEquals(r,mbr);
         System.out.println(r);
     }

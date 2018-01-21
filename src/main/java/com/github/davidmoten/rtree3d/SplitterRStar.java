@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.davidmoten.rtree3d.geometry.HasGeometry;
-import com.github.davidmoten.rtree3d.geometry.ListPair;
+import com.github.davidmoten.rtree3d.geometry.Group;
+import com.github.davidmoten.rtree3d.geometry.Groups;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 public final class SplitterRStar implements Splitter {
 
-    private final Comparator<ListPair<?>> comparator;
+    private final Comparator<Groups<?>> comparator;
 
     @SuppressWarnings("unchecked")
     public SplitterRStar() {
@@ -24,12 +24,12 @@ public final class SplitterRStar implements Splitter {
     }
 
     @Override
-    public <T extends HasGeometry> ListPair<T> split(List<T> items, int minSize) {
+    public <T extends HasBox> Groups<T> split(List<T> items, int minSize) {
         Preconditions.checkArgument(!items.isEmpty());
         // sort nodes into increasing x, calculate min overlap where both groups
         // have more than minChildren
 
-        Map<SortType, List<ListPair<T>>> map = new HashMap<SortType, List<ListPair<T>>>(5, 1.0f);
+        Map<SortType, List<Groups<T>>> map = new HashMap<SortType, List<Groups<T>>>(5, 1.0f);
         map.put(SortType.X_LOWER, getPairs(minSize, sort(items, INCREASING_X_LOWER)));
         map.put(SortType.X_UPPER, getPairs(minSize, sort(items, INCREASING_X_UPPER)));
         map.put(SortType.Y_LOWER, getPairs(minSize, sort(items, INCREASING_Y_LOWER)));
@@ -41,7 +41,7 @@ public final class SplitterRStar implements Splitter {
         // the list with the least S is then used to find minimum overlap
 
         SortType leastMarginSumSortType = Collections.min(sortTypes, marginSumComparator(map));
-        List<ListPair<T>> pairs = map.get(leastMarginSumSortType);
+        List<Groups<T>> pairs = map.get(leastMarginSumSortType);
 
         return Collections.min(pairs, comparator);
     }
@@ -53,47 +53,47 @@ public final class SplitterRStar implements Splitter {
     private static final List<SortType> sortTypes = Collections
             .unmodifiableList(Arrays.asList(SortType.values()));
 
-    private static <T extends HasGeometry> Comparator<SortType> marginSumComparator(
-            final Map<SortType, List<ListPair<T>>> map) {
-        return Comparators.toComparator(sortType -> (double) marginValueSum(map.get(sortType)));
+    private static <T extends HasBox> Comparator<SortType> marginSumComparator(
+            final Map<SortType, List<Groups<T>>> map) {
+        return Comparator.comparing(sortType -> (double) marginValueSum(map.get(sortType)));
     }
 
-    private static <T extends HasGeometry> float marginValueSum(List<ListPair<T>> list) {
+    private static <T extends HasBox> float marginValueSum(List<Groups<T>> list) {
         float sum = 0;
-        for (ListPair<T> p : list)
+        for (Groups<T> p : list)
             sum += p.marginSum();
         return sum;
     }
 
     @VisibleForTesting
-    static <T extends HasGeometry> List<ListPair<T>> getPairs(int minSize, List<T> list) {
-        List<ListPair<T>> pairs = new ArrayList<ListPair<T>>(list.size() - 2 * minSize + 1);
+    static <T extends HasBox> List<Groups<T>> getPairs(int minSize, List<T> list) {
+        List<Groups<T>> pairs = new ArrayList<Groups<T>>(list.size() - 2 * minSize + 1);
         for (int i = minSize; i < list.size() - minSize + 1; i++) {
             List<T> list1 = list.subList(0, i);
             List<T> list2 = list.subList(i, list.size());
-            ListPair<T> pair = new ListPair<T>(list1, list2);
+            Groups<T> pair = new Groups<>(Group.of(list1), Group.of(list2));
             pairs.add(pair);
         }
         return pairs;
     }
 
-    private static <T extends HasGeometry> List<T> sort(List<T> items,
-            Comparator<HasGeometry> comparator) {
-        ArrayList<T> list = new ArrayList<T>(items);
+    private static <T extends HasBox> List<T> sort(List<T> items,
+            Comparator<HasBox> comparator) {
+        ArrayList<T> list = new ArrayList<>(items);
         Collections.sort(list, comparator);
         return list;
     }
 
-    private static Comparator<HasGeometry> INCREASING_X_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().x1(), n2.geometry().mbb().x1());
+    private static Comparator<HasBox> INCREASING_X_LOWER = (n1, n2) -> Float.compare(n1.getBox().x1(), n2.getBox().x1());
 
-    private static Comparator<HasGeometry> INCREASING_X_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().x2(), n2.geometry().mbb().x2());
+    private static Comparator<HasBox> INCREASING_X_UPPER = (n1, n2) -> Float.compare(n1.getBox().x2(), n2.getBox().x2());
 
-    private static Comparator<HasGeometry> INCREASING_Y_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().y1(), n2.geometry().mbb().y1());
+    private static Comparator<HasBox> INCREASING_Y_LOWER = (n1, n2) -> Float.compare(n1.getBox().y1(), n2.getBox().y1());
 
-    private static Comparator<HasGeometry> INCREASING_Y_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().y2(), n2.geometry().mbb().y2());
+    private static Comparator<HasBox> INCREASING_Y_UPPER = (n1, n2) -> Float.compare(n1.getBox().y2(), n2.getBox().y2());
 
-    private static Comparator<HasGeometry> INCREASING_Z_LOWER = (n1, n2) -> Float.compare(n1.geometry().mbb().z1(), n2.geometry().mbb().z1());
+    private static Comparator<HasBox> INCREASING_Z_LOWER = (n1, n2) -> Float.compare(n1.getBox().z1(), n2.getBox().z1());
 
-    private static Comparator<HasGeometry> INCREASING_Z_UPPER = (n1, n2) -> Float.compare(n1.geometry().mbb().z2(), n2.geometry().mbb().z2());
+    private static Comparator<HasBox> INCREASING_Z_UPPER = (n1, n2) -> Float.compare(n1.getBox().z2(), n2.getBox().z2());
 
 }
