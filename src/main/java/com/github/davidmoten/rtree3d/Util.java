@@ -63,7 +63,7 @@ public final class Util {
         return result;
     }
 
-    static <T> List<? extends T> replace(List<? extends T> list, T element, List<T> replacements) {
+    static <T> List<T> replace(List<T> list, T element, List<T> replacements) {
         List<T> list2 = new ArrayList<>(list.size() + replacements.size());
         for (T node : list)
             if (node != element)

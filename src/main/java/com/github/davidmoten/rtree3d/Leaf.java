@@ -45,10 +45,10 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry, Configuration configuration) {
+    public List<Node<T>> add(Entry<T> entry, Configuration configuration) {
         if (!entries.contains(entry)) {
             @SuppressWarnings("unchecked")
-            final List<Entry<T>> entries2 = Util.add(entries, (Entry<T>) entry);
+            final List<Entry<T>> entries2 = Util.add(entries, entry);
             if (entries2.size() <= configuration.getMaxChildren()) {
                 return Collections.singletonList(new Leaf<>(entries2));
             } else {
@@ -68,12 +68,12 @@ final class Leaf<T> implements Node<T> {
     }
 
     @Override
-    public boolean contains(Entry<? extends T> entry) {
+    public boolean contains(Entry<T> entry) {
         return box.contains(entry.getBox()) && entries.contains(entry);
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, Configuration configuration) {
+    public NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration) {
         if (!entries.contains(entry)) {
             return new NodeAndEntries<>(this, Collections.emptyList(), 0);
         } else {

@@ -6,13 +6,13 @@ import java.util.function.Predicate;
 
 interface Node<T> {
 
-    List<Node<T>> add(Entry<? extends T> entry, Configuration configuration);
+    List<Node<T>> add(Entry<T> entry, Configuration configuration);
 
-    NodeAndEntries<T> delete(Entry<? extends T> entry, Configuration configuration);
+    NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration);
 
     void search(Predicate<Box> condition, Consumer<? super Entry<T>> consumer);
 
-    boolean contains(Entry<? extends T> entry);
+    boolean contains(Entry<T> entry);
 
     int calculateDepth();
 

@@ -12,15 +12,15 @@ import com.google.common.base.Preconditions;
 
 final class Branch<T> implements Node<T> {
 
-    private final List<? extends Node<T>> children;
+    private final List<Node<T>> children;
     private final Box box;
     private final int size;
 
-    Branch(List<? extends Node<T>> children) {
+    Branch(List<Node<T>> children) {
         this(children, Util.mbb(children.stream().map(Node::getBox).collect(Collectors.toList())));
     }
     
-    Branch(List<? extends Node<T>> children, Box box) {
+    Branch(List<Node<T>> children, Box box) {
         Preconditions.checkArgument(!children.isEmpty());
         this.children = children;
         this.box = box;
@@ -51,15 +51,15 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public List<Node<T>> add(Entry<? extends T> entry, Configuration configuration) {
+    public List<Node<T>> add(Entry<T> entry, Configuration configuration) {
         if (!contains(entry)) {
             final Node<T> child = configuration.getSelector().select(entry.getBox(), children);
             List<Node<T>> list = child.add(entry, configuration);
-            List<? extends Node<T>> children2 = Util.replace(children, child, list);
-            if (children2.size() <= configuration.getMaxChildren())
+            List<Node<T>> children2 = Util.replace(children, child, list);
+            if (children2.size() <= configuration.getMaxChildren()) {
                 return Collections.singletonList(new Branch<>(children2));
-            else {
-                Groups<? extends Node<T>> pair = configuration.getSplitter().split(children2,
+            } else {
+                Groups<Node<T>> pair = configuration.getSplitter().split(children2,
                     configuration.getMinChildren(), Node::getBox);
                 return makeNonLeaves(pair);
             }
@@ -68,7 +68,7 @@ final class Branch<T> implements Node<T> {
         }
     }
 
-    private List<Node<T>> makeNonLeaves(Groups<? extends Node<T>> pair) {
+    private List<Node<T>> makeNonLeaves(Groups<Node<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
         list.add(new Branch<>(pair.getGroup1().getEntries()));
         list.add(new Branch<>(pair.getGroup2().getEntries()));
@@ -76,7 +76,7 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public boolean contains(Entry<? extends T> entry) {
+    public boolean contains(Entry<T> entry) {
         if (!box.contains(entry.getBox())) return false;
 
         for (final Node<T> child : children) {
@@ -88,7 +88,7 @@ final class Branch<T> implements Node<T> {
     }
 
     @Override
-    public NodeAndEntries<T> delete(Entry<? extends T> entry, Configuration configuration) {
+    public NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration) {
         // the result of performing a delete of the given entry from this node
         // will be that zero or more entries will be needed to be added back to
         // the root of the tree (because num entries of their node fell below

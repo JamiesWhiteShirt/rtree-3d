@@ -58,7 +58,7 @@ public final class RTree<T> {
      * @return a new immutable R-tree including the new entry
      */
     @SuppressWarnings("unchecked")
-    public RTree<T> add(Entry<? extends T> entry) {
+    public RTree<T> add(Entry<T> entry) {
         if (root != null) {
             List<Node<T>> nodes = root.add(entry, configuration);
             Node<T> node;
@@ -148,7 +148,7 @@ public final class RTree<T> {
      * @return a new immutable R-tree without one instance of the specified
      *         entry
      */
-    public RTree<T> delete(Entry<? extends T> entry) {
+    public RTree<T> delete(Entry<T> entry) {
         if (root != null) {
             NodeAndEntries<T> nodeAndEntries = root.delete(entry, configuration);
             if (nodeAndEntries.getNode() == root)
@@ -193,7 +193,7 @@ public final class RTree<T> {
         return search(ALWAYS_TRUE);
     }
 
-    public boolean contains(Entry<? extends T> entry) {
+    public boolean contains(Entry<T> entry) {
         if (root != null) {
             return root.contains(entry);
         }
