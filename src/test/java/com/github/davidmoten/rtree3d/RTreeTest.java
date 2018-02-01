@@ -49,8 +49,13 @@ public class RTreeTest {
     }
 
     @Test
-    public void testPerformanceAndEntriesCount() {
+    public void testTreeWithNoDuplicateEntries() {
+        RTree<Object> tree = RTree.create(new ConfigurationBuilder().build()).add(e(1)).add(e(1));
+        assertEquals(1, tree.size());
+    }
 
+    @Test
+    public void testPerformanceAndEntriesCount() {
         long repeats = Long.parseLong(System.getProperty("r", "1"));
         long n = Long.parseLong(System.getProperty("n", "10000"));
         RTree<Object> tree = null;
@@ -106,9 +111,8 @@ public class RTreeTest {
         Entry<Object> entry2 = e2(1);
         tree = tree.add(entry).add(entry2);
 
-        tree = tree.delete(entry.getValue(), entry.getBox(), true);
-        List<Entry<Object>> entries = tree.getEntries();
-        assertTrue(entries.contains(entry2) && !entries.contains(entry));
+        tree = tree.delete(entry.getValue(), entry.getBox());
+        assertTrue(tree.contains(entry2) && !tree.contains(entry));
     }
 
     @Test
@@ -116,7 +120,7 @@ public class RTreeTest {
         RTree<Object> tree = RTree.create(new ConfigurationBuilder().build());
         tree = tree.add(createRandomEntries(5));
         List<Entry<Object>> entries = tree.getEntries();
-        RTree<Object> deletedTree = tree.delete(entries, true);
+        RTree<Object> deletedTree = tree.delete(entries);
         assertTrue(deletedTree.isEmpty());
     }
 
@@ -134,34 +138,8 @@ public class RTreeTest {
         Entry<Object> entry3 = e(3);
         tree = tree.add(entry1).add(entry2).add(entry3);
 
-        List<Entry<Object>> list = new ArrayList<>();
-        list.add(entry1);
-        list.add(entry3);
-        RTree<Object> deletedTree = tree.delete(list);
-        List<Entry<Object>> entries = deletedTree.getEntries();
-        assertTrue(
-                entries.contains(entry2) && !entries.contains(entry1) && !entries.contains(entry3));
-    }
-
-    @Test
-    public void testFullDeletion() {
-        RTree<Object> tree = RTree.create(new ConfigurationBuilder().maxChildren(4).build());
-        Entry<Object> entry = e(1);
-        tree = tree.add(entry).add(entry);
-        tree = tree.delete(entry, true);
-        assertTrue(tree.isEmpty());
-    }
-
-    @Test
-    public void testPartialDeletion() {
-        RTree<Object> tree = RTree.create(new ConfigurationBuilder().maxChildren(4).build());
-        Entry<Object> entry = e(1);
-        tree = tree.add(entry).add(entry);
-        tree = tree.delete(entry, false);
-        List<Entry<Object>> entries = tree.getEntries();
-        int countEntries = tree.getEntries().size();
-        assertTrue(countEntries == 1);
-        assertTrue(entries.get(0).equals(entry));
+        tree = tree.delete(Arrays.asList(entry1, entry3));
+        assertTrue(tree.contains(entry2) && !tree.contains(entry1) && !tree.contains(entry3));
     }
 
     @Test
@@ -207,14 +185,6 @@ public class RTreeTest {
     @Test
     public void testSizeIsFiveIfTreeHasFiveEntries() {
         assertEquals(5, create(3, 5).size());
-    }
-
-    @Test
-    public void testSizeAfterDelete() {
-        Entry<Object> entry = e(1);
-        RTree<Object> tree = create(3, 0).add(entry).add(entry).add(entry).delete(entry);
-        assertEquals(2, tree.size());
-
     }
 
     @SuppressWarnings("unchecked")
@@ -341,27 +311,11 @@ public class RTreeTest {
     }
 
     @Test
-    public void testDeleteOnlyDeleteOneIfThereAreMoreThanMaxChildren() {
-        Entry<Object> e1 = e(1);
-        int count = RTree.create(new ConfigurationBuilder().maxChildren(4).build()).add(e1).add(e1).add(e1).add(e1).add(e1).delete(e1)
-                .search(e1.getBox()).size();
-        assertEquals(4, count);
-    }
-
-    @Test
-    public void testDeleteAllIfThereAreMoreThanMaxChildren() {
-        Entry<Object> e1 = e(1);
-        int count = RTree.create(new ConfigurationBuilder().maxChildren(4).build()).add(e1).add(e1).add(e1).add(e1).add(e1)
-                .delete(e1, true).search(e1.getBox()).size();
-        assertEquals(0, count);
-    }
-
-    @Test
     public void testDeleteItemThatIsNotPresentDoesNothing() {
         Entry<Object> e1 = e(1);
         Entry<Object> e2 = e(2);
         RTree<Object> tree = RTree.create(new ConfigurationBuilder().build()).add(e1);
-        assertTrue(tree == tree.delete(e2));
+        assertEquals(tree, tree.delete(e2));
     }
 
     @Test

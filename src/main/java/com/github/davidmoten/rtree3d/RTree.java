@@ -19,23 +19,15 @@ public final class RTree<T> {
     private final Configuration configuration;
 
     /**
-     * Current size in Entries of the RTree.
-     */
-    private final int size;
-
-    /**
      * Constructor.
      * 
      * @param root
      *            the root node of the tree if present
-     * @param size
-     *            known size of the tree
      * @param configuration
      *            options for the R-tree
      */
-    private RTree(Node<T> root, int size, Configuration configuration) {
+    private RTree(Node<T> root, Configuration configuration) {
         this.root = root;
-        this.size = size;
         this.configuration = configuration;
     }
 
@@ -50,12 +42,8 @@ public final class RTree<T> {
         return root != null ? root.calculateDepth() : 0;
     }
 
-    public int countEntries() {
-        return root != null ? root.countEntries() : 0;
-    }
-
     public static <T> RTree<T> create(Node<T> node, Configuration configuration) {
-        return new RTree<>(node, node != null ? node.countEntries() : 0, configuration);
+        return new RTree<>(node, configuration);
     }
 
     public static <T> RTree<T> create(Configuration configuration) {
@@ -79,10 +67,10 @@ public final class RTree<T> {
             else {
                 node = new Branch<>(nodes);
             }
-            return new RTree<>(node, size + 1, configuration);
-        } else
-            return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry)),
-                    size + 1, configuration);
+            return new RTree<>(node, configuration);
+        } else {
+            return new RTree<>(new Leaf<>(Lists.newArrayList((Entry<T>) entry)), configuration);
+        }
     }
 
     /**
@@ -115,24 +103,6 @@ public final class RTree<T> {
     }
 
     /**
-     * Returns a new R-tree with the given entries deleted. If <code>all</code>
-     * is false deletes only one if exists. If <code>all</code> is true deletes
-     * all matching entries.
-     * 
-     * @param entries
-     *            entries to delete
-     * @param all
-     *            if false deletes one if exists else deletes all
-     * @return R-tree with entries deleted
-     */
-    public RTree<T> delete(Iterable<Entry<T>> entries, boolean all) {
-        RTree<T> tree = this;
-        for (Entry<T> entry : entries)
-            tree = tree.delete(entry, all);
-        return tree;
-    }
-
-    /**
      * Returns a new R-tree with the given entries deleted but only one matching
      * occurence of each entry is deleted.
      * 
@@ -159,57 +129,12 @@ public final class RTree<T> {
      *            the value of the {@link Entry} to be deleted
      * @param box
      *            the geometry of the {@link Entry} to be deleted
-     * @param all
-     *            if false deletes one if exists else deletes all
      * @return a new immutable R-tree without one or many instances of the
      *         specified entry if it exists otherwise returns the original RTree
      *         object
      */
-    public RTree<T> delete(T value, Box box, boolean all) {
-        return delete(Entry.entry(value, box), all);
-    }
-
-    /**
-     * Deletes maximum one entry matching the given value and geometry. This
-     * method has no effect if the entry is not present. The entry must match on
-     * both value and geometry to be deleted.
-     * 
-     * @param value
-     *            the value to be matched for deletion
-     * @param box
-     *            the geometry to be matched for deletion
-     * @return an immutable RTree without one entry (if found) matching the
-     *         given value and geometry
-     */
     public RTree<T> delete(T value, Box box) {
-        return delete(Entry.entry(value, box), false);
-    }
-
-    /**
-     * Deletes one or all matching entries depending on the value of
-     * <code>all</code>. If multiple copies of the entry are in the R-tree only
-     * one will be deleted if all is false otherwise all matching entries will
-     * be deleted. The entry must match on both value and geometry to be
-     * deleted.
-     * 
-     * @param entry
-     *            the {@link Entry} to be deleted
-     * @param all
-     *            if true deletes all matches otherwise deletes first found
-     * @return a new immutable R-tree without one instance of the specified
-     *         entry
-     */
-    public RTree<T> delete(Entry<? extends T> entry, boolean all) {
-        if (root != null) {
-            NodeAndEntries<T> nodeAndEntries = root.delete(entry, all, configuration);
-            if (nodeAndEntries.getNode() == root)
-                return this;
-            else
-                return new RTree<>(nodeAndEntries.getNode(),
-                        size - nodeAndEntries.countDeleted() - nodeAndEntries.getEntriesToAdd().size(),
-                        configuration).add(nodeAndEntries.getEntriesToAdd());
-        } else
-            return this;
+        return delete(Entry.entry(value, box));
     }
 
     /**
@@ -224,7 +149,14 @@ public final class RTree<T> {
      *         entry
      */
     public RTree<T> delete(Entry<? extends T> entry) {
-        return delete(entry, false);
+        if (root != null) {
+            NodeAndEntries<T> nodeAndEntries = root.delete(entry, configuration);
+            if (nodeAndEntries.getNode() == root)
+                return this;
+            else
+                return new RTree<>(nodeAndEntries.getNode(), configuration).add(nodeAndEntries.getEntriesToAdd());
+        } else
+            return this;
     }
 
     /**
@@ -261,8 +193,11 @@ public final class RTree<T> {
         return search(ALWAYS_TRUE);
     }
 
-    Node<T> getRoot() {
-        return root;
+    public boolean contains(Entry<? extends T> entry) {
+        if (root != null) {
+            return root.contains(entry);
+        }
+        return false;
     }
 
     /**
@@ -281,7 +216,7 @@ public final class RTree<T> {
      * @return is R-tree empty
      */
     public boolean isEmpty() {
-        return size == 0;
+        return root == null;
     }
 
     /**
@@ -290,7 +225,7 @@ public final class RTree<T> {
      * @return the number of entries
      */
     public int size() {
-        return size;
+        return root != null ? root.size() : 0;
     }
 
     /**

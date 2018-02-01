@@ -59,6 +59,10 @@ public final class Box {
         return !(x1 > r.x2 || x2 < r.x1 || y1 > r.y2 || y2 < r.y1 || z1 > r.z2 || z2 < r.z1);
     }
 
+    public boolean contains(Box r) {
+        return x1 <= r.x1 && x2 >= r.x2 && y1 <= r.y1 && y2 >= r.y2 && z1 <= r.z1 && z2 >= r.z2;
+    }
+
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
