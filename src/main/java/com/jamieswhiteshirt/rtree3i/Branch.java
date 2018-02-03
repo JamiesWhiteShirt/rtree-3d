@@ -30,23 +30,15 @@ final class Branch<T> implements Node<T> {
         this.size = size;
     }
 
-    @Override
-    public void search(Predicate<Box> criterion, Consumer<? super Entry<T>> consumer) {
-        if (!criterion.test(box))
-            return;
-
-        for (final Node<T> child : children) {
-            child.search(criterion, consumer);
-        }
-    }
-
-    @Override
-    public int calculateDepth() {
-        return children.get(0).calculateDepth() + 1;
-    }
-
     List<? extends Node<T>> children() {
         return children;
+    }
+
+    private List<Node<T>> makeNonLeaves(Groups<Node<T>> pair) {
+        List<Node<T>> list = new ArrayList<>();
+        list.add(new Branch<>(pair.getGroup1().getEntries()));
+        list.add(new Branch<>(pair.getGroup2().getEntries()));
+        return list;
     }
 
     @Override
@@ -67,28 +59,9 @@ final class Branch<T> implements Node<T> {
         }
     }
 
-    private List<Node<T>> makeNonLeaves(Groups<Node<T>> pair) {
-        List<Node<T>> list = new ArrayList<>();
-        list.add(new Branch<>(pair.getGroup1().getEntries()));
-        list.add(new Branch<>(pair.getGroup2().getEntries()));
-        return list;
-    }
-
     @Override
-    public boolean contains(Entry<T> entry) {
-        if (!box.contains(entry.getBox())) return false;
-
-        for (final Node<T> child : children) {
-            if (child.contains(entry)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration) {
-        // the result of performing a delete of the given entry from this node
+    public NodeAndEntries<T> remove(Entry<T> entry, Configuration configuration) {
+        // the result of performing a remove of the given entry from this node
         // will be that zero or more entries will be needed to be added back to
         // the root of the tree (because num entries of their node fell below
         // minChildren),
@@ -103,7 +76,7 @@ final class Branch<T> implements Node<T> {
 
         for (final Node<T> child : children) {
             if (entry.getBox().intersects(child.getBox())) {
-                final NodeAndEntries<T> result = child.delete(entry, configuration);
+                final NodeAndEntries<T> result = child.remove(entry, configuration);
                 if (result.getNode() != null) {
                     if (result.getNode() != child) {
                         // deletion occurred and child is above minChildren so
@@ -135,6 +108,56 @@ final class Branch<T> implements Node<T> {
                 return new NodeAndEntries<>(node, addTheseEntries, countDeleted);
             }
         }
+    }
+
+    @Override
+    public void forEach(Predicate<? super Box> criterion, Consumer<? super Entry<T>> consumer) {
+        if (criterion.test(box)) {
+            for (final Node<T> child : children) {
+                child.forEach(criterion, consumer);
+            }
+        }
+    }
+
+    @Override
+    public boolean any(Predicate<? super Box> condition, Predicate<? super Entry<T>> test) {
+        if (condition.test(box)) {
+            for (final Node<T> child: children) {
+                if (child.any(condition, test)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean all(Predicate<? super Box> condition, Predicate<? super Entry<T>> test) {
+        if (condition.test(box)) {
+            for (final Node<T> child: children) {
+                if (!child.all(condition, test)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean contains(Entry<T> entry) {
+        if (!box.contains(entry.getBox())) return false;
+
+        for (final Node<T> child : children) {
+            if (child.contains(entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int calculateDepth() {
+        return children.get(0).calculateDepth() + 1;
     }
 
     @Override

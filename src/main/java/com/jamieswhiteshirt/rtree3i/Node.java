@@ -8,9 +8,13 @@ interface Node<T> {
 
     List<Node<T>> add(Entry<T> entry, Configuration configuration);
 
-    NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration);
+    NodeAndEntries<T> remove(Entry<T> entry, Configuration configuration);
 
-    void search(Predicate<Box> condition, Consumer<? super Entry<T>> consumer);
+    void forEach(Predicate<? super Box> condition, Consumer<? super Entry<T>> consumer);
+
+    boolean any(Predicate<? super Box> condition, Predicate<? super Entry<T>> test);
+
+    boolean all(Predicate<? super Box> condition, Predicate<? super Entry<T>> test);
 
     boolean contains(Entry<T> entry);
 

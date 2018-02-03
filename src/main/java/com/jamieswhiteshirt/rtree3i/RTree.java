@@ -1,8 +1,10 @@
 package com.jamieswhiteshirt.rtree3i;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
@@ -77,13 +79,13 @@ public final class RTree<T> {
      * Returns an immutable copy of the RTree with the addition of an entry
      * comprised of the given value and Geometry.
      * 
-     * @param value
-     *            the value of the {@link Entry} to be added
      * @param box
      *            the box of the {@link Entry} to be added
+     * @param value
+     *            the value of the {@link Entry} to be added
      * @return a new immutable R-tree including the new entry
      */
-    public RTree<T> add(T value, Box box) {
+    public RTree<T> add(Box box, T value) {
         return add(Entry.entry(value, box));
     }
 
@@ -97,8 +99,9 @@ public final class RTree<T> {
      */
     public RTree<T> add(Iterable<Entry<T>> entries) {
         RTree<T> tree = this;
-        for (Entry<T> entry : entries)
+        for (Entry<T> entry : entries) {
             tree = tree.add(entry);
+        }
         return tree;
     }
 
@@ -107,14 +110,15 @@ public final class RTree<T> {
      * occurence of each entry is deleted.
      * 
      * @param entries
-     *            entries to delete
+     *            entries to remove
      * @return R-tree with entries deleted up to one matching occurence per
      *         entry
      */
-    public RTree<T> delete(Iterable<Entry<T>> entries) {
+    public RTree<T> remove(Iterable<Entry<T>> entries) {
         RTree<T> tree = this;
-        for (Entry<T> entry : entries)
-            tree = tree.delete(entry);
+        for (Entry<T> entry : entries) {
+            tree = tree.remove(entry);
+        }
         return tree;
     }
 
@@ -125,16 +129,16 @@ public final class RTree<T> {
      * not present. The entry must match on both value and geometry to be
      * deleted.
      * 
-     * @param value
-     *            the value of the {@link Entry} to be deleted
      * @param box
      *            the geometry of the {@link Entry} to be deleted
+     * @param value
+     *            the value of the {@link Entry} to be deleted
      * @return a new immutable R-tree without one or many instances of the
      *         specified entry if it exists otherwise returns the original RTree
      *         object
      */
-    public RTree<T> delete(T value, Box box) {
-        return delete(Entry.entry(value, box));
+    public RTree<T> remove(Box box, T value) {
+        return remove(Entry.entry(value, box));
     }
 
     /**
@@ -148,9 +152,9 @@ public final class RTree<T> {
      * @return a new immutable R-tree without one instance of the specified
      *         entry
      */
-    public RTree<T> delete(Entry<T> entry) {
+    public RTree<T> remove(Entry<T> entry) {
         if (root != null) {
-            NodeAndEntries<T> nodeAndEntries = root.delete(entry, configuration);
+            NodeAndEntries<T> nodeAndEntries = root.remove(entry, configuration);
             if (nodeAndEntries.getNode() == root)
                 return this;
             else
@@ -177,27 +181,36 @@ public final class RTree<T> {
      */
     private static final Predicate<Box> ALWAYS_TRUE = box -> true;
 
-    public List<Entry<T>> search(Box box) {
+    public Collection<Entry<T>> search(Box box) {
         return search(intersects(box));
     }
 
-    public List<Entry<T>> search(Predicate<Box> condition) {
+    public Collection<Entry<T>> search(Predicate<Box> condition) {
         List<Entry<T>> entries = new ArrayList<>();
-        if (root != null) {
-            root.search(condition, entries::add);
-        }
+        forEach(condition, entries::add);
         return entries;
     }
 
-    public List<Entry<T>> getEntries() {
+    public void forEach(Predicate<Box> condition, Consumer<? super Entry<T>> consumer) {
+        if (root != null) {
+            root.forEach(condition, consumer);
+        }
+    }
+
+    public boolean any(Predicate<Box> condition, Predicate<? super Entry<T>> test) {
+        return root != null && root.any(condition, test);
+    }
+
+    public boolean all(Predicate<Box> condition, Predicate<? super Entry<T>> test) {
+        return root == null || root.all(condition, test);
+    }
+
+    public Collection<Entry<T>> getEntries() {
         return search(ALWAYS_TRUE);
     }
 
     public boolean contains(Entry<T> entry) {
-        if (root != null) {
-            return root.contains(entry);
-        }
-        return false;
+        return root != null && root.contains(entry);
     }
 
     /**

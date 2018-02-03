@@ -28,20 +28,11 @@ final class Leaf<T> implements Node<T> {
         return entries;
     }
 
-    @Override
-    public void search(Predicate<Box> condition, Consumer<? super Entry<T>> consumer) {
-        if (!condition.test(box))
-            return;
-
-        for (final Entry<T> entry : entries) {
-            if (condition.test(entry.getBox()))
-                consumer.accept(entry);
-        }
-    }
-
-    @Override
-    public int calculateDepth() {
-        return 1;
+    private List<Node<T>> makeLeaves(Groups<Entry<T>> pair) {
+        List<Node<T>> list = new ArrayList<>();
+        list.add(new Leaf<>(pair.getGroup1().getEntries()));
+        list.add(new Leaf<>(pair.getGroup2().getEntries()));
+        return list;
     }
 
     @Override
@@ -60,20 +51,8 @@ final class Leaf<T> implements Node<T> {
         }
     }
 
-    private List<Node<T>> makeLeaves(Groups<Entry<T>> pair) {
-        List<Node<T>> list = new ArrayList<>();
-        list.add(new Leaf<>(pair.getGroup1().getEntries()));
-        list.add(new Leaf<>(pair.getGroup2().getEntries()));
-        return list;
-    }
-
     @Override
-    public boolean contains(Entry<T> entry) {
-        return box.contains(entry.getBox()) && entries.contains(entry);
-    }
-
-    @Override
-    public NodeAndEntries<T> delete(Entry<T> entry, Configuration configuration) {
+    public NodeAndEntries<T> remove(Entry<T> entry, Configuration configuration) {
         if (!entries.contains(entry)) {
             return new NodeAndEntries<>(this, Collections.emptyList(), 0);
         } else {
@@ -87,6 +66,51 @@ final class Leaf<T> implements Node<T> {
                 return new NodeAndEntries<>(null, entries2, 1);
             }
         }
+    }
+
+    @Override
+    public void forEach(Predicate<? super Box> condition, Consumer<? super Entry<T>> consumer) {
+        if (condition.test(box)) {
+            for (final Entry<T> entry : entries) {
+                if (condition.test(entry.getBox())) {
+                    consumer.accept(entry);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean any(Predicate<? super Box> condition, Predicate<? super Entry<T>> test) {
+        if (condition.test(box)) {
+            for (Entry<T> entry : entries) {
+                if (test.test(entry)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean all(Predicate<? super Box> condition, Predicate<? super Entry<T>> test) {
+        if (condition.test(box)) {
+            for (Entry<T> entry : entries) {
+                if (!test.test(entry)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean contains(Entry<T> entry) {
+        return box.contains(entry.getBox()) && entries.contains(entry);
+    }
+
+    @Override
+    public int calculateDepth() {
+        return 1;
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.jamieswhiteshirt.rtree3i;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
+import java.util.Objects;
 
 /**
  * An entry in the R-tree which has a spatial representation.
@@ -10,21 +11,21 @@ import com.google.common.base.Preconditions;
  *            the type of Entry
  */
 public final class Entry<T> {
-    private final T value;
     private final Box box;
+    private final T value;
 
     /**
      * Constructor.
-     * 
-     * @param value
-     *            the value of the entry
+     *
      * @param box
      *            the getBox of the value
+     * @param value
+ *            the value of the entry
      */
-    public Entry(T value, Box box) {
+    public Entry(Box box, T value) {
         Preconditions.checkNotNull(box);
-        this.value = value;
         this.box = box;
+        this.value = value;
     }
 
     /**
@@ -39,20 +40,20 @@ public final class Entry<T> {
      * @return entry wrapping value and associated geometry
      */
     public static <T> Entry<T> entry(T value, Box box) {
-        return new Entry<>(value, box);
-    }
-
-    /**
-     * Returns the value wrapped by this {@link Entry}.
-     * 
-     * @return the entry value
-     */
-    public T getValue() {
-        return value;
+        return new Entry<>(box, value);
     }
 
     public Box getBox() {
         return box;
+    }
+
+    /**
+     * Returns the value wrapped by this {@link Entry}.
+     *
+     * @return the entry value
+     */
+    public T getValue() {
+        return value;
     }
 
     @Override
@@ -61,16 +62,17 @@ public final class Entry<T> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(value, box);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Entry<?> entry = (Entry<?>) o;
+        return Objects.equals(value, entry.value) &&
+            Objects.equals(box, entry.box);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Entry) {
-            Entry o = (Entry) obj;
-            return box.equals(o.box) && value.equals(o.value);
-        }
-        return false;
+    public int hashCode() {
+
+        return Objects.hash(value, box);
     }
 }
