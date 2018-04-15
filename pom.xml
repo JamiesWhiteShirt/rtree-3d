@@ -21,6 +21,7 @@
 		<scm.url>scm:git:https://github.com/JamiesWhiteShirt/rtree-31-lite.git</scm.url>
 
 		<compiler.version>3.1</compiler.version>
+		<jar.version>2.4</jar.version>
 		<source.version>2.4</source.version>
 		<javadoc.version>2.10.2</javadoc.version>
 		<gpg.version>1.6</gpg.version>
@@ -95,6 +96,17 @@
 				<configuration>
 					<source>${maven.compiler.target}</source>
 					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${jar.version}</version>
+                <configuration>
+                    <archive>
+						<manifestEntries>
+							<Maven-Artifact>${project.groupId}:${project.artifactId}:${project.version}</Maven-Artifact>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
