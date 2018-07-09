@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
  * @author dxm
  *
  */
-public final class Util {
+final class Util {
 
     private Util() {
         // prevent instantiation
@@ -25,7 +25,7 @@ public final class Util {
      *            items to bound
      * @return the minimum bounding box containings items
      */
-    public static Box mbb(Collection<Box> items) {
+    static Box mbb(Collection<Box> items) {
         Preconditions.checkArgument(!items.isEmpty());
         int minX1 = Integer.MAX_VALUE;
         int minY1 = Integer.MAX_VALUE;
@@ -51,7 +51,7 @@ public final class Util {
     }
 
     static <T> List<T> add(List<T> list, T element) {
-        final ArrayList<T> result = new ArrayList<>(list.size() + 2);
+        final ArrayList<T> result = new ArrayList<>(list.size() + 1);
         result.addAll(list);
         result.add(element);
         return result;
@@ -63,11 +63,21 @@ public final class Util {
         return result;
     }
 
-    static <T> List<T> replace(List<T> list, T element, List<T> replacements) {
-        List<T> list2 = new ArrayList<>(list.size() + replacements.size());
-        for (T node : list)
-            if (node != element)
+    static <T> List<T> replace(List<? extends T> list, T toReplace, T replacement) {
+        List<T> list2 = new ArrayList<>(list.size());
+        for (T element : list) {
+            list2.add(element != toReplace ? element : replacement);
+        }
+        return list2;
+    }
+
+    static <T> List<T> replace(List<T> list, T toReplace, List<T> replacements) {
+        List<T> list2 = new ArrayList<>(list.size() - 1 + replacements.size());
+        for (T node : list) {
+            if (node != toReplace) {
                 list2.add(node);
+            }
+        }
         list2.addAll(replacements);
         return list2;
     }

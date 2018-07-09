@@ -5,14 +5,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.jamieswhiteshirt.util.Pair;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public final class SplitterQuadratic implements Splitter {
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> keyAccessor) {
         Preconditions.checkArgument(items.size() >= 2);
@@ -63,7 +60,6 @@ public final class SplitterQuadratic implements Splitter {
         }
     }
 
-    @VisibleForTesting
     static <T> T getBestCandidateForGroup(List<T> list, Box groupMbb, Function<T, Box> key) {
         T minEntry = null;
         int minVolume = Integer.MAX_VALUE;
@@ -77,7 +73,6 @@ public final class SplitterQuadratic implements Splitter {
         return minEntry;
     }
 
-    @VisibleForTesting
     static <T> Pair<T> worstCombination(List<T> items, Function<T, Box> key) {
         T e1 = null;
         T e2 = null;

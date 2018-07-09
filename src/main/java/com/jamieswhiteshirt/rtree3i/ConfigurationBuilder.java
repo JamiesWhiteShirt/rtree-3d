@@ -1,6 +1,6 @@
 package com.jamieswhiteshirt.rtree3i;
 
-public class ConfigurationBuilder {
+public final class ConfigurationBuilder {
     /**
      * Benchmarks show that this is a good choice for up to O(10,000) entries
      * when using Quadratic splitter (Guttman).

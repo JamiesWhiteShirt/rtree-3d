@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import com.jamieswhiteshirt.util.Pair;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;

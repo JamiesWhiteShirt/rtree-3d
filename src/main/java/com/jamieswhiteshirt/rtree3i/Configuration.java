@@ -3,7 +3,7 @@ package com.jamieswhiteshirt.rtree3i;
 import com.google.common.base.Preconditions;
 
 /**
- * Configures an RTree prior to instantiation of an {@link RTree}.
+ * Configures an RTreeMultimap prior to instantiation of an {@link RTreeMultimap}.
  */
 public final class Configuration {
 

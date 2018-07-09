@@ -2,6 +2,7 @@ package com.jamieswhiteshirt.rtree3i;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,7 +25,13 @@ public class SplitterRStarTest {
         List<Groups<Box>> pairs = SplitterRStar.createPairs(minSize, list, Function.identity());
         assertEquals(2, pairs.size());
     }
-    
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSplitterRStarThrowsExceptionOnEmptyList() {
+        SplitterRStar spl = new SplitterRStar();
+        spl.split(Collections.emptyList(), 4, Function.identity());
+    }
+
     private static Box point(int x, int y) {
         return Box.create(x, y, 0, x, y, 0);
     }

@@ -8,7 +8,7 @@ import java.util.List;
  * @param <T>
  *            entry type
  */
-class NodeAndEntries<T> {
+final class NodeAndEntries<T> {
 
     private final Node<T> node;
     private final List<Entry<T>> entries;
@@ -16,7 +16,7 @@ class NodeAndEntries<T> {
 
     /**
      * Constructor.
-     * 
+     *
      * @param node
      *            absent = whole node was deleted present = either an unchanged
      *            node because of no removal or the newly created node without
@@ -27,22 +27,21 @@ class NodeAndEntries<T> {
      * @param countDeleted
      *            count of the number of entries removed
      */
-    NodeAndEntries(Node<T> node, List<Entry<T>> entries,
-                   int countDeleted) {
+    NodeAndEntries(Node<T> node, List<Entry<T>> entries, int countDeleted) {
         this.node = node;
         this.entries = entries;
         this.count = countDeleted;
     }
 
-    Node<T> getNode() {
+    public Node<T> getNode() {
         return node;
     }
 
-    List<Entry<T>> getEntriesToAdd() {
+    public List<Entry<T>> getEntriesToAdd() {
         return entries;
     }
 
-    int countDeleted() {
+    public int countDeleted() {
         return count;
     }
 

@@ -15,8 +15,7 @@ public final class Functions {
 
     public static Function<Groups<?>, Integer> overlapListPair = pair -> pair.getGroup1().getBox().intersectionVolume(pair.getGroup2().getBox());
 
-    public static Function<Box, Integer> overlapVolume(final Box r,
-            final List<Box> list) {
+    public static Function<Box, Integer> overlapVolume(final Box r, final List<Box> list) {
         return g -> {
             Box gPlusR = g.add(r);
             int m = 0;

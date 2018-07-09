@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 public final class SplitterRStar implements Splitter {
@@ -67,7 +66,6 @@ public final class SplitterRStar implements Splitter {
         return sum;
     }
 
-    @VisibleForTesting
     static <T> List<Groups<T>> createPairs(int minSize, List<T> list, Function<T, Box> key) {
         List<Groups<T>> pairs = new ArrayList<Groups<T>>(list.size() - 2 * minSize + 1);
         for (int i = minSize; i < list.size() - minSize + 1; i++) {

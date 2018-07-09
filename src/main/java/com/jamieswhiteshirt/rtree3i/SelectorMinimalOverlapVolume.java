@@ -13,7 +13,7 @@ public final class SelectorMinimalOverlapVolume implements Selector {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Node<T> select(Box box, List<? extends Node<T>> nodes) {
+    public <T> Node<T> select(Box box, List<Node<T>> nodes) {
         List<Box> boxes = nodes.stream().map(Node::getBox).collect(Collectors.toList());
         Comparator<Box> boxComparator = overlapVolumeComparator(box, boxes).thenComparing(volumeIncreaseComparator(box))
                 .thenComparing(volumeComparator(box));

@@ -33,13 +33,11 @@ public final class Comparators {
      * @return the total of the volumes of overlap of the geometries in the list
      *         with the box r
      */
-    public static Comparator<Box> overlapVolumeComparator(
-            final Box r, final List<Box> list) {
+    public static Comparator<Box> overlapVolumeComparator(final Box r, final List<Box> list) {
         return Comparator.comparing(Functions.overlapVolume(r, list));
     }
 
-    public static Comparator<Box> volumeIncreaseComparator(
-            final Box r) {
+    public static Comparator<Box> volumeIncreaseComparator(final Box r) {
         return Comparator.comparing(Functions.volumeIncrease(r));
     }
 

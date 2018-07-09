@@ -14,40 +14,51 @@ final class Leaf<T> implements Node<T> {
     private final List<Entry<T>> entries;
     private final Box box;
 
-    Leaf(List<Entry<T>> entries) {
-        this(entries, Util.mbb(entries.stream().map(Entry::getBox).collect(Collectors.toList())));
+    static <T> Leaf<T> containing(List<Entry<T>> entries) {
+        return new Leaf<>(entries, Util.mbb(entries.stream().map(Entry::getBox).collect(Collectors.toList())));
     }
-    
+
     Leaf(List<Entry<T>> entries, Box box) {
         Preconditions.checkArgument(!entries.isEmpty());
         this.entries = entries;
         this.box = box;
     }
 
-    List<Entry<T>> getEntries() {
-        return entries;
-    }
-
     private List<Node<T>> makeLeaves(Groups<Entry<T>> pair) {
         List<Node<T>> list = new ArrayList<>();
-        list.add(new Leaf<>(pair.getGroup1().getEntries()));
-        list.add(new Leaf<>(pair.getGroup2().getEntries()));
+        list.add(containing(pair.getGroup1().getEntries()));
+        list.add(containing(pair.getGroup2().getEntries()));
         return list;
     }
 
     @Override
-    public List<Node<T>> add(Entry<T> entry, Configuration configuration) {
+    public List<Node<T>> multimapPut(Entry<T> entry, Configuration configuration) {
         if (!entries.contains(entry)) {
-            @SuppressWarnings("unchecked")
             final List<Entry<T>> entries2 = Util.add(entries, entry);
             if (entries2.size() <= configuration.getMaxChildren()) {
-                return Collections.singletonList(new Leaf<>(entries2));
+                return Collections.singletonList(containing(entries2));
             } else {
                 Groups<Entry<T>> pair = configuration.getSplitter().split(entries2, configuration.getMinChildren(), Entry::getBox);
                 return makeLeaves(pair);
             }
         } else {
             return Collections.singletonList(this);
+        }
+    }
+
+    @Override
+    public List<Node<T>> mapPut(Entry<T> entry, Configuration configuration) {
+        for (Entry<T> existingEntry : entries) {
+            if (existingEntry.getBox().equals(entry.getBox())) {
+                return Collections.singletonList(containing(Util.replace(entries, existingEntry, entry)));
+            }
+        }
+        final List<Entry<T>> entries2 = Util.add(entries, entry);
+        if (entries2.size() <= configuration.getMaxChildren()) {
+            return Collections.singletonList(containing(entries2));
+        } else {
+            Groups<Entry<T>> pair = configuration.getSplitter().split(entries2, configuration.getMinChildren(), Entry::getBox);
+            return makeLeaves(pair);
         }
     }
 
@@ -60,12 +71,40 @@ final class Leaf<T> implements Node<T> {
             entries2.remove(entry);
 
             if (entries2.size() >= configuration.getMinChildren()) {
-                Leaf<T> node = entries2.isEmpty() ? null : new Leaf<>(entries2);
+                Leaf<T> node = entries2.isEmpty() ? null : containing(entries2);
                 return new NodeAndEntries<>(node, Collections.emptyList(), 1);
             } else {
                 return new NodeAndEntries<>(null, entries2, 1);
             }
         }
+    }
+
+    @Override
+    public NodeAndEntries<T> mapRemove(Box box, Configuration configuration) {
+        for (Entry<T> entry : entries) {
+            if (entry.getBox().equals(box)) {
+                final List<Entry<T>> entries2 = new ArrayList<>(entries);
+                entries2.remove(entry);
+
+                if (entries2.size() >= configuration.getMinChildren()) {
+                    Leaf<T> node = entries2.isEmpty() ? null : containing(entries2);
+                    return new NodeAndEntries<>(node, Collections.emptyList(), 1);
+                } else {
+                    return new NodeAndEntries<>(null, entries2, 1);
+                }
+            }
+        }
+        return new NodeAndEntries<>(this, Collections.emptyList(), 0);
+    }
+
+    @Override
+    public Entry<T> mapGet(Box box) {
+        for (Entry<T> entry : entries) {
+            if (entry.getBox().equals(box)) {
+                return entry;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -123,4 +162,26 @@ final class Leaf<T> implements Node<T> {
         return entries.size();
     }
 
+    @Override
+    public boolean isLeaf() {
+        return true;
+    }
+
+    @Override
+    public String asString(String margin) {
+        StringBuilder s = new StringBuilder();
+        s.append(margin);
+        s.append("mbb=");
+        s.append(getBox());
+        s.append('\n');
+        for (Entry<T> entry : entries) {
+            s.append(margin).append("  ").append(entry.toString());
+        }
+        return s.toString();
+    }
+
+    @Override
+    public String toString() {
+        return asString("");
+    }
 }

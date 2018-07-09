@@ -20,6 +20,6 @@ public interface Selector {
      *            nodes to select from
      * @return one of the given nodes
      */
-    <T> Node<T> select(Box box, List<? extends Node<T>> nodes);
+    <T> Node<T> select(Box box, List<Node<T>> nodes);
 
 }

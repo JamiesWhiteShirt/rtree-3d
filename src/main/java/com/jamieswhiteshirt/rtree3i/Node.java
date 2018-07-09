@@ -6,9 +6,15 @@ import java.util.function.Predicate;
 
 interface Node<T> {
 
-    List<Node<T>> add(Entry<T> entry, Configuration configuration);
+    List<Node<T>> multimapPut(Entry<T> entry, Configuration configuration);
+
+    List<Node<T>> mapPut(Entry<T> entry, Configuration configuration);
 
     NodeAndEntries<T> remove(Entry<T> entry, Configuration configuration);
+
+    NodeAndEntries<T> mapRemove(Box box, Configuration configuration);
+
+    Entry<T> mapGet(Box box);
 
     void forEach(Predicate<? super Box> condition, Consumer<? super Entry<T>> consumer);
 
@@ -23,5 +29,9 @@ interface Node<T> {
     Box getBox();
 
     int size();
+
+    boolean isLeaf();
+
+    String asString(String margin);
 
 }
