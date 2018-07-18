@@ -12,7 +12,7 @@ public final class SelectorMinimalVolumeIncrease implements Selector {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Node<T> select(Box box, List<Node<T>> nodes) {
+    public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {
         Comparator<Box> boxComparator = Comparators.volumeIncreaseComparator(box).thenComparing(Comparators.volumeComparator(box));
         return Collections.min(nodes, Comparator.comparing(Node::getBox, boxComparator));
     }

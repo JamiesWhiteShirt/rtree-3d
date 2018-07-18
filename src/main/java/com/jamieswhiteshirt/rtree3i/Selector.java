@@ -12,7 +12,9 @@ public interface Selector {
      * Returns the node from a list of nodes that an object with the given
      * geometry would be added to.
      * 
-     * @param <T>
+     * @param <K>
+     *            type of key of entry in tree
+     * @param <V>
      *            type of value of entry in tree
      * @param box
      *            box
@@ -20,6 +22,6 @@ public interface Selector {
      *            nodes to select from
      * @return one of the given nodes
      */
-    <T> Node<T> select(Box box, List<Node<T>> nodes);
+    <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes);
 
 }

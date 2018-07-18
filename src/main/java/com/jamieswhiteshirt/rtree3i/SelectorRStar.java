@@ -12,7 +12,7 @@ public final class SelectorRStar implements Selector {
     private static Selector volumeIncreaseSelector = new SelectorMinimalVolumeIncrease();
 
     @Override
-    public <T> Node<T> select(Box box, List<Node<T>> nodes) {
+    public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {
         boolean leafNodes = nodes.get(0).isLeaf();
         if (leafNodes)
             return overlapVolumeSelector.select(box, nodes);

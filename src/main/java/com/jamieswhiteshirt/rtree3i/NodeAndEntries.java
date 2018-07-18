@@ -5,13 +5,15 @@ import java.util.List;
 /**
  * Used for tracking deletions through recursive calls.
  * 
- * @param <T>
- *            entry type
+ * @param <K>
+ *     entry key type
+ * @param <V>
+ *     entry value type
  */
-final class NodeAndEntries<T> {
+final class NodeAndEntries<K, V> {
 
-    private final Node<T> node;
-    private final List<Entry<T>> entries;
+    private final Node<K, V> node;
+    private final List<EntryBox<K, V>> entries;
     private final int count;
 
     /**
@@ -27,17 +29,17 @@ final class NodeAndEntries<T> {
      * @param countDeleted
      *            count of the number of entries removed
      */
-    NodeAndEntries(Node<T> node, List<Entry<T>> entries, int countDeleted) {
+    NodeAndEntries(Node<K, V> node, List<EntryBox<K, V>> entries, int countDeleted) {
         this.node = node;
         this.entries = entries;
         this.count = countDeleted;
     }
 
-    public Node<T> getNode() {
+    public Node<K, V> getNode() {
         return node;
     }
 
-    public List<Entry<T>> getEntriesToAdd() {
+    public List<EntryBox<K, V>> getEntriesToAdd() {
         return entries;
     }
 

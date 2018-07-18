@@ -1,28 +1,31 @@
 package com.jamieswhiteshirt.rtree3i;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-interface Node<T> {
+interface Node<K, V> {
 
-    List<Node<T>> multimapPut(Entry<T> entry, Configuration configuration);
+    List<Node<K, V>> put(EntryBox<K, V> entryBox, Configuration configuration);
 
-    List<Node<T>> mapPut(Entry<T> entry, Configuration configuration);
+    NodeAndEntries<K, V> remove(EntryBox<K, V> entryBox, Configuration configuration);
 
-    NodeAndEntries<T> remove(Entry<T> entry, Configuration configuration);
+    NodeAndEntries<K, V> remove(Box box, K key, Configuration configuration);
 
-    NodeAndEntries<T> mapRemove(Box box, Configuration configuration);
+    Entry<K, V> get(Box box, K key);
 
-    Entry<T> mapGet(Box box);
+    void forEach(Predicate<? super Box> boxPredicate, Consumer<? super Entry<K, V>> consumer);
 
-    void forEach(Predicate<? super Box> condition, Consumer<? super Entry<T>> consumer);
+    boolean anyMatch(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate);
 
-    boolean any(Predicate<? super Box> condition, Predicate<? super Entry<T>> test);
+    boolean allMatch(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate);
 
-    boolean all(Predicate<? super Box> condition, Predicate<? super Entry<T>> test);
+    <T> T reduce(Predicate<? super Box> boxPredicate, T identity, BiFunction<T, Entry<K, V>, T> operator);
 
-    boolean contains(Entry<T> entry);
+    int count(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate);
+
+    boolean contains(EntryBox<K, V> entryBox);
 
     int calculateDepth();
 

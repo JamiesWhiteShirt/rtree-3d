@@ -3,6 +3,7 @@ package com.jamieswhiteshirt.rtree3i;
 import com.google.common.base.Preconditions;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public final class Box {
     private final int x1, y1, x2, y2, z1, z2;
@@ -62,6 +63,10 @@ public final class Box {
 
     public boolean contains(Box r) {
         return x1 <= r.x1 && x2 >= r.x2 && y1 <= r.y1 && y2 >= r.y2 && z1 <= r.z1 && z2 >= r.z2;
+    }
+
+    public boolean containedBy(Box r) {
+        return r.x1 <= x1 && r.x2 >= x2 && r.y1 <= y1 && r.y2 >= y2 && r.z1 <= z1 && r.z2 >= z2;
     }
 
     public int intersectionVolume(Box r) {

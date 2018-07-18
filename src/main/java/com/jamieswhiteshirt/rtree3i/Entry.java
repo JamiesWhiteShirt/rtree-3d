@@ -6,45 +6,41 @@ import java.util.Objects;
 
 /**
  * An entry in the R-tree which has a spatial representation.
- * 
- * @param <T>
- *            the type of Entry
+ *
+ * @param <K>
+ *     the key type
+ * @param <V>
+ *     the value type
  */
-public final class Entry<T> {
-    private final Box box;
-    private final T value;
+public final class Entry<K, V> {
+    private final K key;
+    private final V value;
 
-    /**
-     * Constructor.
-     *
-     * @param box
-     *            the getBox of the value
-     * @param value
- *            the value of the entry
-     */
-    public Entry(Box box, T value) {
-        Preconditions.checkNotNull(box);
-        this.box = box;
+    private Entry(K key, V value) {
+        Preconditions.checkNotNull(key);
+        this.key = key;
         this.value = value;
     }
 
     /**
-     * Factory method.
-     * 
-     * @param <T>
-     *            type of value
-     * @param value
-     *            object being given a spatial context
-     * @param box
-     *            getBox associated with the value
-     * @return entry wrapping value and associated geometry
+     * Returns an entry with the specified key and value.
+     * @param key key of the entry
+     * @param value value of the entry
+     * @param <K> key type
+     * @param <V> value type
+     * @return an entry with the specified key and value
      */
-    public static <T> Entry<T> entry(T value, Box box) {
-        return new Entry<>(box, value);
+    public static <K, V> Entry<K, V> of(K key, V value) {
+        return new Entry<>(key, value);
     }
 
-    public Box getBox() {
-        return box;
+    /**
+     * Returns the key of this {@link Entry}.
+     *
+     * @return the entry key
+     */
+    public K getKey() {
+        return key;
     }
 
     /**
@@ -52,27 +48,29 @@ public final class Entry<T> {
      *
      * @return the entry value
      */
-    public T getValue() {
+    public V getValue() {
         return value;
     }
 
     @Override
     public String toString() {
-        return "Entry [value=" + value + ", box=" + box + "]";
+        return "Entry{" +
+            "key=" + key +
+            ", value=" + value +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Entry<?> entry = (Entry<?>) o;
-        return Objects.equals(value, entry.value) &&
-            Objects.equals(box, entry.box);
+        Entry<?, ?> entry = (Entry<?, ?>) o;
+        return Objects.equals(key, entry.key) &&
+            Objects.equals(value, entry.value);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(value, box);
+        return Objects.hash(key, value);
     }
 }

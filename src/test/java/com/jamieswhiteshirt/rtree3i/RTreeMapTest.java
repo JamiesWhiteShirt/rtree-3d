@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -14,42 +15,42 @@ public class RTreeMapTest {
 
     @Test
     public void testInstantiation() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
-        assertTrue(tree.getEntries().isEmpty());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        assertTrue(tree.entries().isEmpty());
     }
 
     @Test
     public void testSearchEmptyTree() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
-        assertTrue(tree.search(r(1)).isEmpty());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        assertTrue(tree.entries(r(1)::intersects).isEmpty());
     }
 
     @Test
     public void testGetOnOneItem() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
-        Entry<Object> entry = e(1);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        Entry<Box, Object> entry = e(1);
         tree = tree.put(entry);
         assertEquals(entry.getValue(), tree.get(r(1)));
     }
 
     @Test
     public void testTreeWithOneItemIsNotEmpty() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1));
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1));
         assertFalse(tree.isEmpty());
     }
 
     @Test
     public void testTreeWithNoDuplicateEntries() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1)).put(e(1));
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1)).put(e(1));
         assertEquals(1, tree.size());
     }
 
     @Test
     public void testTreeWithUniqueKey() {
         Box b = r(0);
-        Entry<Integer> e1 = Entry.entry(0, b);
-        Entry<Integer> e2 = Entry.entry(1, b);
-        RTreeMap<Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().build()).put(e1).put(e2);
+        Entry<Box, Integer> e1 = Entry.of(b, 0);
+        Entry<Box, Integer> e2 = Entry.of(b, 1);
+        RTreeMap<Box, Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().build()).put(e1).put(e2);
         assertEquals(tree.get(b), e2.getValue());
         assertEquals(1, tree.size());
     }
@@ -57,35 +58,35 @@ public class RTreeMapTest {
     @Test
     public void testTreeWithRemovedItem() {
         Box b = r(0);
-        Entry<Integer> e1 = Entry.entry(0, b);
-        RTreeMap<Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().build()).put(e1).remove(b);
+        Entry<Box, Integer> e1 = Entry.of(b, 0);
+        RTreeMap<Box, Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().build()).put(e1).remove(b);
         assertEquals(tree.get(b), null);
         assertEquals(0, tree.size());
     }
 
     @Test
     public void testDeleteWithGeometry() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build());
-        Entry<Object> entry = e(1);
-        Entry<Object> entry2 = e2(1);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build());
+        Entry<Box, Object> entry = e(1);
+        Entry<Box, Object> entry2 = e2(1);
         tree = tree.put(entry).put(entry2);
 
-        tree = tree.remove(entry.getBox(), entry.getValue());
+        tree = tree.remove(entry);
         assertTrue(tree.contains(entry2) && !tree.contains(entry));
     }
 
     @Test
     public void testContext() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
         assertNotNull(tree.getConfiguration());
     }
 
     @Test
     public void testIterableDeletion() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
-        Entry<Object> entry1 = e(1);
-        Entry<Object> entry2 = e(2);
-        Entry<Object> entry3 = e(3);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        Entry<Box, Object> entry1 = e(1);
+        Entry<Box, Object> entry2 = e(2);
+        Entry<Box, Object> entry3 = e(3);
         tree = tree.put(entry1).put(entry2).put(entry3);
 
         tree = tree.removeAll(Arrays.asList(entry1, entry3));
@@ -94,31 +95,31 @@ public class RTreeMapTest {
 
     @Test
     public void testDepthWithMaxChildren3Entries1() {
-        RTreeMap<Object> tree = create(3, 1);
+        RTreeMap<Box, Object> tree = create(3, 1);
         assertEquals(1, tree.calculateDepth());
     }
 
     @Test
     public void testDepthWithMaxChildren3Entries2() {
-        RTreeMap<Object> tree = create(3, 2);
+        RTreeMap<Box, Object> tree = create(3, 2);
         assertEquals(1, tree.calculateDepth());
     }
 
     @Test
     public void testDepthWithMaxChildren3Entries3() {
-        RTreeMap<Object> tree = create(3, 3);
+        RTreeMap<Box, Object> tree = create(3, 3);
         assertEquals(1, tree.calculateDepth());
     }
 
     @Test
     public void testDepthWithMaxChildren3Entries4() {
-        RTreeMap<Object> tree = create(3, 4);
+        RTreeMap<Box, Object> tree = create(3, 4);
         assertEquals(2, tree.calculateDepth());
     }
 
     @Test
     public void testDepthWithMaxChildren3Entries10() {
-        RTreeMap<Object> tree = create(3, 10);
+        RTreeMap<Box, Object> tree = create(3, 10);
         assertEquals(3, tree.calculateDepth());
     }
 
@@ -140,7 +141,7 @@ public class RTreeMapTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testDeletionThatRemovesAllNodesChildren() {
-        RTreeMap<Object> tree = create(3, 8);
+        RTreeMap<Box, Object> tree = create(3, 8);
         tree = tree.put(e(10));
         // node children are now 1,2 and 3,4
         assertEquals(3, tree.calculateDepth());
@@ -148,26 +149,26 @@ public class RTreeMapTest {
         // node children are now 1,2 and 3
         assertEquals(3, tree.calculateDepth());
         assertEquals(Sets.newHashSet(e(1), e(2), e(3), e(4), e(5), e(6), e(7), e(8)),
-                Sets.newHashSet(tree.getEntries()));
+                tree.entries().collect(Collectors.toSet()));
     }
 
     @Test
     public void testDeleteOfEntryThatDoesNotExistFromTreeOfOneEntry() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1));
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e(1));
         tree = tree.remove(e(2));
-        assertEquals(Lists.newArrayList(e(1)), tree.getEntries());
+        assertEquals(Lists.newArrayList(e(1)), tree.entries().collect(Collectors.toList()));
     }
 
     @Test
     public void testDeleteFromEmptyTree() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
         tree = tree.remove(e(2));
-        assertEquals(0, tree.getEntries().size());
+        assertEquals(0, tree.entries().count());
     }
 
     @Test
     public void testBuilder1() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().minChildren(1).maxChildren(4)
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().minChildren(1).maxChildren(4)
                 .selector(new SelectorMinimalVolumeIncrease()).splitter(new SplitterQuadratic())
                 .build());
         testBuiltTree(tree);
@@ -175,13 +176,13 @@ public class RTreeMapTest {
 
     @Test
     public void testDeletionOfEntryThatDoesNotExistFromNonLeaf() {
-        RTreeMap<Object> tree = create(3, 100).remove(e(1000));
-        assertEquals(100, tree.getEntries().size());
+        RTreeMap<Box, Object> tree = create(3, 100).remove(e(1000));
+        assertEquals(100, tree.entries().count());
     }
 
     @Test
     public void testBuilder2() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder()
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder()
                 .selector(new SelectorMinimalVolumeIncrease())
                 .minChildren(1).maxChildren(4).splitter(new SplitterQuadratic()).build());
         testBuiltTree(tree);
@@ -189,7 +190,7 @@ public class RTreeMapTest {
 
     @Test
     public void testBuilder3() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4)
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4)
                 .selector(new SelectorMinimalVolumeIncrease()).minChildren(1)
                 .splitter(new SplitterQuadratic()).build());
         testBuiltTree(tree);
@@ -197,21 +198,21 @@ public class RTreeMapTest {
 
     @Test
     public void testBuilder4() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder()
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder()
                 .splitter(new SplitterQuadratic()).maxChildren(4)
                 .selector(new SelectorMinimalVolumeIncrease()).minChildren(1).build());
         testBuiltTree(tree);
     }
 
-    private void testBuiltTree(RTreeMap<Object> tree) {
+    private void testBuiltTree(RTreeMap<Box, Object> tree) {
         for (int i = 1; i <= 1000; i++) {
             tree = tree.put(point(i, i), i);
         }
-        assertEquals(1000, tree.getEntries().size());
+        assertEquals(1000, tree.entries().count());
     }
 
-    private static RTreeMap<Object> create(int maxChildren, int n) {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(maxChildren).build());
+    private static RTreeMap<Box, Object> create(int maxChildren, int n) {
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(maxChildren).build());
         for (int i = 1; i <= n; i++)
             tree = tree.put(e(i));
         return tree;
@@ -219,48 +220,48 @@ public class RTreeMapTest {
 
     @Test
     public void testDeleteOneFromOne() {
-        Entry<Object> e1 = e(1);
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build()).put(e1).remove(e1);
-        assertEquals(0, tree.getEntries().size());
+        Entry<Box, Object> e1 = e(1);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build()).put(e1).remove(e1);
+        assertEquals(0, tree.entries().count());
     }
 
     @Test
     public void testDeleteOneFromTreeWithDepthGreaterThanOne() {
-        Entry<Object> e1 = e(1);
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build()).put(e1).put(e(2))
+        Entry<Box, Object> e1 = e(1);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4).build()).put(e1).put(e(2))
                 .put(e(3)).put(e(4)).put(e(5)).put(e(6)).put(e(7)).put(e(8)).put(e(9)).put(e(10))
                 .remove(e1);
-        assertEquals(9, tree.getEntries().size());
-        assertFalse(tree.getEntries().contains(e1));
+        assertEquals(9, tree.entries().count());
+        assertFalse(tree.contains(e1));
     }
 
     @Test
     public void testDeleteItemThatIsNotPresentDoesNothing() {
-        Entry<Object> e1 = e(1);
-        Entry<Object> e2 = e(2);
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e1);
+        Entry<Box, Object> e1 = e(1);
+        Entry<Box, Object> e2 = e(2);
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build()).put(e1);
         assertEquals(tree, tree.remove(e2));
     }
 
     @Test
     public void testExampleOnReadMe() {
-        RTreeMap<String> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(5).build());
-        tree = tree.put(Entry.entry("DAVE", point(10, 20))).put(Entry.entry("FRED", point(12, 25)))
-                .put(Entry.entry("MARY", point(97, 125)));
+        RTreeMap<Box, String> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(5).build());
+        tree = tree.put(Entry.of(point(10, 20), "DAVE")).put(Entry.of(point(12, 25), "FRED"))
+                .put(Entry.of(point(97, 125), "MARY"));
     }
 
     @Test
     public void testAddOverload() {
-        RTreeMap<Object> tree = create(3, 0);
+        RTreeMap<Box, Object> tree = create(3, 0);
         tree = tree.put(point(1, 2), 123);
-        assertEquals(1, tree.getEntries().size());
+        assertEquals(1, tree.entries().count());
     }
 
     @Test
     public void testDeleteOverload() {
-        RTreeMap<Object> tree = create(3, 0);
+        RTreeMap<Box, Object> tree = create(3, 0);
         tree = tree.put(point(1, 2), 123).remove(point(1, 2), 123);
-        assertEquals(0, tree.getEntries().size());
+        assertEquals(0, tree.entries().count());
     }
 
     @Test
@@ -269,7 +270,7 @@ public class RTreeMapTest {
         Box[] points = { point(59, 91), point(86, 14), point(36, 60),
                 point(57, 36), point(14, 37) };
 
-        RTreeMap<Integer> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Integer> tree = RTreeMap.create(new ConfigurationBuilder().build());
         for (int i = 0; i < points.length; i++) {
             Box point = points[i];
             System.out.println("point(" + point.x1() + "," + point.y1() + "), value=" + (i + 1));
@@ -277,7 +278,7 @@ public class RTreeMapTest {
         }
         System.out.println(tree.toString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.search(r).stream().map(Entry::getValue).collect(Collectors.toSet());
+        Set<Integer> set = tree.values(r::intersects).collect(Collectors.toSet());
         assertEquals(new HashSet<>(asList(3, 5)), set);
     }
 
@@ -287,7 +288,7 @@ public class RTreeMapTest {
         Box[] points = { point(28, 19), point(29, 4), point(10, 63),
                 point(34, 85), point(62, 45) };
 
-        RTreeMap<Integer> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Integer> tree = RTreeMap.create(new ConfigurationBuilder().build());
         for (int i = 0; i < points.length; i++) {
             Box point = points[i];
             System.out.println("point(" + point.x1() + "," + point.y1() + "), value=" + (i + 1));
@@ -295,15 +296,15 @@ public class RTreeMapTest {
         }
         System.out.println(tree.toString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.search(r).stream().map(Entry::getValue).collect(Collectors.toSet());
+        Set<Integer> set = tree.values(r::intersects).collect(Collectors.toSet());
         assertEquals(new HashSet<>(Collections.singletonList(1)), set);
     }
 
     @Test
     public void testStarTreeReturnsSameAsStandardRTree() {
 
-        RTreeMap<Integer> tree1 = RTreeMap.create(new ConfigurationBuilder().build());
-        RTreeMap<Integer> tree2 = RTreeMap.create(new ConfigurationBuilder().star().build());
+        RTreeMap<Box, Integer> tree1 = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Integer> tree2 = RTreeMap.create(new ConfigurationBuilder().star().build());
 
         Box[] testRects = { box(0, 0, 0, 0), box(0, 0, 100, 100), box(0, 0, 10, 10),
                 box(0, 0, 50, 51), box(1, 0, 50, 69),
@@ -318,10 +319,9 @@ public class RTreeMapTest {
         }
 
         for (Box r : testRects) {
-            Set<Integer> res1 = tree1.search(r)
-                    .stream().map(Entry::getValue).collect(Collectors.toSet());
-            Set<Integer> res2 = tree2.search(r)
-                    .stream().map(Entry::getValue).collect(Collectors.toSet());
+            Predicate<Box> boxPredicate = r::intersects;
+            Set<Integer> res1 = tree1.values(boxPredicate).collect(Collectors.toSet());
+            Set<Integer> res2 = tree2.values(boxPredicate).collect(Collectors.toSet());
             // System.out.println("searchRect= rectangle(" + r.x1() + "," +
             // r.y1() + "," + r.x2() + "," + r.y2()+ ")");
             // System.out.println("res1.size=" + res1.size() + ",res2.size=" +
@@ -337,20 +337,20 @@ public class RTreeMapTest {
 
     @Test
     public void calculateDepthOfEmptyTree() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
         assertEquals(0, tree.calculateDepth());
     }
 
     @Test
     public void calculateStringOfEmptyTree() {
-        RTreeMap<Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
+        RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
         assertEquals("", tree.toString());
     }
 
     @Test
     public void testForMeiZhao() {
         for (int minChildren = 1; minChildren <= 2; minChildren++) {
-            RTreeMap<Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().maxChildren(3).minChildren(minChildren)
+            RTreeMap<Box, Integer> tree = RTreeMap.<Integer>create(new ConfigurationBuilder().maxChildren(3).minChildren(minChildren)
                     .build()).put(point(1, 9), 1).put(point(2, 10), 2)
                     .put(point(4, 8), 3).put(point(6, 7), 4).put(point(9, 10), 5)
                     .put(point(7, 5), 6).put(point(5, 6), 7).put(point(4, 3), 8).put(point(3, 2), 9)
@@ -376,12 +376,12 @@ public class RTreeMapTest {
         return Box.create(x, y, 0, x, y, 0);
     }
 
-    static Entry<Object> e(int n) {
-        return Entry. entry(n, r(n));
+    static Entry<Box, Object> e(int n) {
+        return Entry.of(r(n), n);
     }
 
-    static Entry<Object> e2(int n) {
-        return Entry. entry(n, r(n - 1));
+    static Entry<Box, Object> e2(int n) {
+        return Entry.of(r(n - 1), n);
     }
 
     private static Box r(int n) {
