@@ -9,7 +9,7 @@
 	<version>0.1-SNAPSHOT</version>
 
 	<name>${project.artifactId}</name>
-	<description>Lightweight immutable map and multimap, mapping 3D int boxes to arbitrary values, with a spatial index based on immutable R-Trees in Java</description>
+	<description>Immutable map applying a spatial index to keys based on R-Trees</description>
 	<packaging>jar</packaging>
 
 	<url>http://github.com/JamiesWhiteShirt/rtree-3i-lite</url>

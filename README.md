@@ -1,6 +1,6 @@
 # rtree-3i-lite
 
-Java implementation of a immutable map applying a spatial index to keys based on R-Trees. The R-Tree supports multiple branch size configurations and multiple selection and splitting heuristics.
+Java implementation of an immutable map applying a spatial index to keys based on R-Trees. The R-Tree supports multiple branch size configurations and multiple selection and splitting heuristics.
 
 Keys are spatially indexed using a function that maps keys to 3D int boxes (Box).
 
