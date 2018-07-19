@@ -7,16 +7,11 @@ public interface Splitter {
 
     /**
      * Splits a list of items into two lists of at least minSize.
-     * 
-     * @param <T>
-     *            entry type
-     * @param entries
-     *            list of items to split
-     * @param minSize
-     *            min size of each list
-     * @param keyAccessor
-     *            function to access keys
+     * @param <T> entry type
+     * @param entries list of items to split
+     * @param minSize min size of each list
+     * @param boxAccessor function to access boxes
      * @return two lists
      */
-    <T> Groups<T> split(List<T> entries, int minSize, Function<T, Box> keyAccessor);
+    <T> Groups<T> split(List<T> entries, int minSize, Function<T, Box> boxAccessor);
 }

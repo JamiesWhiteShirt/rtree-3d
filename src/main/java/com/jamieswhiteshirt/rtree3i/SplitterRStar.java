@@ -16,16 +16,16 @@ public final class SplitterRStar implements Splitter {
     }
 
     @Override
-    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> keyAccessor) {
+    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxAccessor) {
         Preconditions.checkArgument(!items.isEmpty());
         // sort nodes into increasing x, calculate min overlap where both groups
         // have more than minChildren
 
         Map<SortType, List<Groups<T>>> map = new EnumMap<>(SortType.class);
         for (SortType sortType : SortType.values()) {
-            ToIntFunction<T> accessor = item -> sortType.keyAccessor.applyAsInt(keyAccessor.apply(item));
+            ToIntFunction<T> accessor = item -> sortType.keyAccessor.applyAsInt(boxAccessor.apply(item));
             Comparator<T> comparator = Comparator.comparingInt(accessor);
-            map.put(sortType, createPairs(minSize, sort(items, comparator), keyAccessor));
+            map.put(sortType, createPairs(minSize, sort(items, comparator), boxAccessor));
         }
 
         // compute S the sum of all margin-values of the lists above

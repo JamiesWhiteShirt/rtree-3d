@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 public final class SplitterQuadratic implements Splitter {
 
     @Override
-    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> keyAccessor) {
+    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxAccessor) {
         Preconditions.checkArgument(items.size() >= 2);
 
         // according to
@@ -19,7 +19,7 @@ public final class SplitterQuadratic implements Splitter {
 
         // find the worst combination pairwise in the list and use them to start
         // the two groups
-        final Pair<T> worstCombination = worstCombination(items, keyAccessor);
+        final Pair<T> worstCombination = worstCombination(items, boxAccessor);
 
         // worst combination to have in the same node is now e1,e2.
 
@@ -36,9 +36,9 @@ public final class SplitterQuadratic implements Splitter {
         // now add the remainder to the groups using least mbb area increase
         // except in the case where minimumSize would be contradicted
         while (remaining.size() > 0) {
-            assignRemaining(group1, group2, remaining, minGroupSize, keyAccessor);
+            assignRemaining(group1, group2, remaining, minGroupSize, boxAccessor);
         }
-        return new Groups<>(Group.of(group1, keyAccessor), Group.of(group2, keyAccessor));
+        return new Groups<>(Group.of(group1, boxAccessor), Group.of(group2, boxAccessor));
     }
 
     private <T> void assignRemaining(final List<T> group1,

@@ -6,11 +6,9 @@ import java.util.List;
 
 /**
  * Uses minimal volume increase to select a node from a list.
- *
  */
 public final class SelectorMinimalVolumeIncrease implements Selector {
 
-    @SuppressWarnings("unchecked")
     @Override
     public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {
         Comparator<Box> boxComparator = Comparators.volumeIncreaseComparator(box).thenComparing(Comparators.volumeComparator(box));

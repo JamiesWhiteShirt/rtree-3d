@@ -3,8 +3,7 @@ package com.jamieswhiteshirt.rtree3i;
 import java.util.List;
 
 /**
- * Uses minimal overlap volume selector for leaf nodes and minimal volume increase
- * selector for non-leaf nodes.
+ * Uses minimal overlap volume selector for leaf nodes and minimal volume increase selector for non-leaf nodes.
  */
 public final class SelectorRStar implements Selector {
 

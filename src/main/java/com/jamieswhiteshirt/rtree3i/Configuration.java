@@ -3,7 +3,7 @@ package com.jamieswhiteshirt.rtree3i;
 import com.google.common.base.Preconditions;
 
 /**
- * Configures an RTreeMultimap prior to instantiation of an {@link RTreeMultimap}.
+ * Configures an RTreeMultimap prior to instantiation of an {@link RTreeMap}.
  */
 public final class Configuration {
 
@@ -14,15 +14,10 @@ public final class Configuration {
 
     /**
      * Constructor.
-     * 
-     * @param minChildren
-     *            minimum number of children per node (at least 1)
-     * @param maxChildren
-     *            max number of children per node (minimum is 3)
-     * @param selector
-     *            algorithm to select search path
-     * @param splitter
-     *            algorithm to split the children across two new nodes
+     * @param minChildren minimum number of children per node (at least 1)
+     * @param maxChildren max number of children per node (minimum is 3)
+     * @param selector algorithm to select search path
+     * @param splitter algorithm to split the children across two new nodes
      */
     public Configuration(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
         Preconditions.checkNotNull(splitter);

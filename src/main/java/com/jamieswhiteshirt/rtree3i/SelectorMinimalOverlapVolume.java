@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 public final class SelectorMinimalOverlapVolume implements Selector {
 
-    @SuppressWarnings("unchecked")
     @Override
     public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {
         List<Box> boxes = nodes.stream().map(Node::getBox).collect(Collectors.toList());
