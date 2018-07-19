@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class Box {
-    private final int x1, y1, x2, y2, z1, z2;
+    private final int x1, y1, z1, x2, y2, z2;
 
     private Box(int x1, int y1, int z1, int x2, int y2, int z2) {
         Preconditions.checkArgument(x2 >= x1);
@@ -14,9 +14,9 @@ public final class Box {
         Preconditions.checkArgument(z2 >= z1);
         this.x1 = x1;
         this.y1 = y1;
+        this.z1 = z1;
         this.x2 = x2;
         this.y2 = y2;
-        this.z1 = z1;
         this.z2 = z2;
     }
 
@@ -28,16 +28,16 @@ public final class Box {
         return y1;
     }
 
+    public int z1() {
+        return z1;
+    }
+
     public int x2() {
         return x2;
     }
 
     public int y2() {
         return y2;
-    }
-
-    public int z1() {
-        return z1;
     }
 
     public int z2() {
@@ -70,11 +70,12 @@ public final class Box {
     }
 
     public int intersectionVolume(Box r) {
-        if (!intersects(r))
+        if (!intersects(r)) {
             return 0;
-        else
+        } else {
             return create(Math.max(x1, r.x1), Math.max(y1, r.y1), Math.max(z1, r.z1),
-                    Math.min(x2, r.x2), Math.min(y2, r.y2), Math.min(z2, r.z2)).getVolume();
+                Math.min(x2, r.x2), Math.min(y2, r.y2), Math.min(z2, r.z2)).getVolume();
+        }
     }
 
     public int surfaceArea() {
@@ -88,15 +89,15 @@ public final class Box {
         Box box = (Box) o;
         return x1 == box.x1 &&
             y1 == box.y1 &&
+            z1 == box.z1 &&
             x2 == box.x2 &&
             y2 == box.y2 &&
-            z1 == box.z1 &&
             z2 == box.z2;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x1, y1, x2, y2, z1, z2);
+        return Objects.hash(x1, y1, z2, x2, y2, z2);
     }
 
     @Override
@@ -104,9 +105,9 @@ public final class Box {
         return "Box{" +
             "x1=" + x1 +
             ", y1=" + y1 +
+            ", z1=" + z1 +
             ", x2=" + x2 +
             ", y2=" + y2 +
-            ", z1=" + z1 +
             ", z2=" + z2 +
             '}';
     }
