@@ -28,7 +28,7 @@ public class EntryTest {
     @Test
     public void testInequality() {
         assertNotEquals(Entry.of(Box.create(0, 0, 0, 0, 0, 0), 1),
-                Entry.of(Box.create(0, 0, 0, 0, 0, 0), 1));
+                Entry.of(Box.create(0, 0, 0, 0, 0, 0), 2));
     }
 
     @Test
