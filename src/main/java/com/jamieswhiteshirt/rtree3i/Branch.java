@@ -37,26 +37,45 @@ final class Branch<K, V> implements Node<K, V> {
         return list;
     }
 
-    @Override
-    public List<Node<K, V>> put(EntryBox<K, V> entryBox, Configuration configuration) {
-        if (!contains(entryBox)) {
-            final Node<K, V> child = configuration.getSelector().select(entryBox.getBox(), children);
-            List<Node<K, V>> list = child.put(entryBox, configuration);
-            List<Node<K, V>> children2 = Util.replace(children, child, list);
-            if (children2.size() <= configuration.getMaxChildren()) {
-                return Collections.singletonList(containing(children2));
-            } else {
-                Groups<Node<K, V>> pair = configuration.getSplitter().split(children2,
-                    configuration.getMinChildren(), Node::getBox);
-                return makeNonLeaves(pair);
+    private Node<K, V> selectChildForPut(Box box, Configuration configuration) {
+        for (final Node<K, V> child : children) {
+            if (child.containsBucket(box)) {
+                return child;
             }
+        }
+        return configuration.getSelector().select(box, children);
+    }
+
+    @Override
+    public List<Node<K, V>> put(Box box, Entry<K, V> entry, Configuration configuration) {
+        final Node<K, V> child = selectChildForPut(box, configuration);
+        List<Node<K, V>> list = child.put(box, entry, configuration);
+        List<Node<K, V>> children2 = Util.replace(children, child, list);
+        if (children2.size() <= configuration.getMaxChildren()) {
+            return Collections.singletonList(containing(children2));
         } else {
-            return Collections.singletonList(this);
+            Groups<Node<K, V>> pair = configuration.getSplitter().split(children2,
+                configuration.getMinChildren(), Node::getBox);
+            return makeNonLeaves(pair);
         }
     }
 
     @Override
-    public NodeAndEntries<K, V> remove(EntryBox<K, V> entryBox, Configuration configuration) {
+    public List<Node<K, V>> putBucket(Bucket<K, V> bucket, Configuration configuration) {
+        final Node<K, V> child = selectChildForPut(bucket.getBox(), configuration);
+        List<Node<K, V>> list = child.putBucket(bucket, configuration);
+        List<Node<K, V>> children2 = Util.replace(children, child, list);
+        if (children2.size() <= configuration.getMaxChildren()) {
+            return Collections.singletonList(containing(children2));
+        } else {
+            Groups<Node<K, V>> pair = configuration.getSplitter().split(children2,
+                configuration.getMinChildren(), Node::getBox);
+            return makeNonLeaves(pair);
+        }
+    }
+
+    @Override
+    public NodeAndEntries<K, V> remove(Box box, Entry<K, V> entry, Configuration configuration) {
         // the result of performing a remove of the given entry from this node
         // will be that zero or more entries will be needed to be added back to
         // the root of the tree (because num entries of their node fell below
@@ -65,14 +84,14 @@ final class Branch<K, V> implements Node<K, V> {
         // zero or more nodes to be added as children to this node(because
         // entries have been deleted from them and they still have enough
         // members to be active)
-        List<EntryBox<K, V>> addTheseEntries = new ArrayList<>();
+        List<Bucket<K, V>> addTheseEntries = new ArrayList<>();
         List<Node<K, V>> removeTheseNodes = new ArrayList<>();
         List<Node<K, V>> addTheseNodes = new ArrayList<>();
         int countDeleted = 0;
 
         for (final Node<K, V> child : children) {
-            if (child.getBox().contains(entryBox.getBox())) {
-                final NodeAndEntries<K, V> result = child.remove(entryBox, configuration);
+            if (child.getBox().contains(box)) {
+                final NodeAndEntries<K, V> result = child.remove(box, entry, configuration);
                 if (result.getNode() != null) {
                     if (result.getNode() != child) {
                         // deletion occurred and child is above minChildren so
@@ -92,14 +111,14 @@ final class Branch<K, V> implements Node<K, V> {
                 }
             }
         }
-        if (removeTheseNodes.isEmpty())
+        if (removeTheseNodes.isEmpty()) {
             return new NodeAndEntries<>(this, Collections.emptyList(), 0);
-        else {
+        } else {
             List<Node<K, V>> nodes = Util.remove(children, removeTheseNodes);
             nodes.addAll(addTheseNodes);
-            if (nodes.size() == 0)
+            if (nodes.size() == 0) {
                 return new NodeAndEntries<>(null, addTheseEntries, countDeleted);
-            else {
+            } else {
                 Branch<K, V> node = containing(nodes);
                 return new NodeAndEntries<>(node, addTheseEntries, countDeleted);
             }
@@ -116,7 +135,7 @@ final class Branch<K, V> implements Node<K, V> {
         // zero or more nodes to be added as children to this node(because
         // entries have been deleted from them and they still have enough
         // members to be active)
-        List<EntryBox<K, V>> addTheseEntries = new ArrayList<>();
+        List<Bucket<K, V>> addTheseEntries = new ArrayList<>();
         List<Node<K, V>> removeTheseNodes = new ArrayList<>();
         List<Node<K, V>> addTheseNodes = new ArrayList<>();
         int countDeleted = 0;
@@ -143,14 +162,14 @@ final class Branch<K, V> implements Node<K, V> {
                 }
             }
         }
-        if (removeTheseNodes.isEmpty())
+        if (removeTheseNodes.isEmpty()) {
             return new NodeAndEntries<>(this, Collections.emptyList(), 0);
-        else {
+        } else {
             List<Node<K, V>> nodes = Util.remove(children, removeTheseNodes);
             nodes.addAll(addTheseNodes);
-            if (nodes.size() == 0)
+            if (nodes.size() == 0) {
                 return new NodeAndEntries<>(null, addTheseEntries, countDeleted);
-            else {
+            } else {
                 Branch<K, V> node = containing(nodes);
                 return new NodeAndEntries<>(node, addTheseEntries, countDeleted);
             }
@@ -169,10 +188,10 @@ final class Branch<K, V> implements Node<K, V> {
     }
 
     @Override
-    public void forEach(Predicate<? super Box> boxPredicate, Consumer<? super Entry<K, V>> consumer) {
+    public void forEach(Predicate<? super Box> boxPredicate, Consumer<? super Entry<K, V>> action) {
         if (boxPredicate.test(box)) {
             for (final Node<K, V> child : children) {
-                child.forEach(boxPredicate, consumer);
+                child.forEach(boxPredicate, action);
             }
         }
     }
@@ -227,11 +246,24 @@ final class Branch<K, V> implements Node<K, V> {
     }
 
     @Override
-    public boolean contains(EntryBox<K, V> entryBox) {
-        if (!this.box.contains(entryBox.getBox())) return false;
-        for (final Node<K, V> child : children) {
-            if (child.contains(entryBox)) {
-                return true;
+    public boolean contains(Box box, Entry<K, V> entry) {
+        if (this.box.contains(box)) {
+            for (final Node<K, V> child : children) {
+                if (child.contains(box, entry)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsBucket(Box box) {
+        if (this.box.contains(box)) {
+            for (final Node<K, V> child : children) {
+                if (child.containsBucket(box)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -108,7 +108,7 @@ public final class RTreeMap<K, V> {
     }
 
     public boolean contains(Entry<K, V> entry) {
-        return root != null && root.contains(EntryBox.of(keyBoxMapper, entry));
+        return root != null && root.contains(keyBoxMapper.apply(entry.getKey()), entry);
     }
 
     /**
@@ -118,9 +118,9 @@ public final class RTreeMap<K, V> {
      * @return a copy of the RTreeMap including the given entry
      */
     public RTreeMap<K, V> put(Entry<K, V> entry) {
-        EntryBox<K, V> entryBox = EntryBox.of(keyBoxMapper, entry);
+        Box box = keyBoxMapper.apply(entry.getKey());
         if (root != null) {
-            List<Node<K, V>> nodes = root.put(entryBox, configuration);
+            List<Node<K, V>> nodes = root.put(box, entry, configuration);
             Node<K, V> node;
             if (nodes.size() == 1)
                 node = nodes.get(0);
@@ -129,7 +129,7 @@ public final class RTreeMap<K, V> {
             }
             return new RTreeMap<>(node, configuration, keyBoxMapper);
         } else {
-            return new RTreeMap<>(Leaf.containing(entryBox), configuration, keyBoxMapper);
+            return new RTreeMap<>(Leaf.containing(Bucket.of(box, entry)), configuration, keyBoxMapper);
         }
     }
 
@@ -188,22 +188,21 @@ public final class RTreeMap<K, V> {
      */
     public RTreeMap<K, V> remove(Entry<K, V> entry) {
         if (root != null) {
-            EntryBox<K, V> removeEntryBox = EntryBox.of(keyBoxMapper, entry);
-            NodeAndEntries<K, V> nodeAndEntries = root.remove(removeEntryBox, configuration);
+            NodeAndEntries<K, V> nodeAndEntries = root.remove(keyBoxMapper.apply(entry.getKey()), entry, configuration);
             if (nodeAndEntries.getNode() == root) {
                 return this;
             } else {
                 Node<K, V> node = nodeAndEntries.getNode();
-                for (EntryBox<K, V> entryBox : nodeAndEntries.getEntriesToAdd()) {
+                for (Bucket<K, V> bucket : nodeAndEntries.getEntriesToAdd()) {
                     if (node != null) {
-                        List<Node<K, V>> nodes = node.put(entryBox, configuration);
+                        List<Node<K, V>> nodes = node.putBucket(bucket, configuration);
                         if (nodes.size() == 1) {
                             node = nodes.get(0);
                         } else {
                             node = Branch.containing(nodes);
                         }
                     } else {
-                        node = Leaf.containing(entryBox);
+                        node = Leaf.containing(bucket);
                     }
                 }
                 return new RTreeMap<>(node, configuration, keyBoxMapper);
@@ -224,16 +223,16 @@ public final class RTreeMap<K, V> {
                 return this;
             } else {
                 Node<K, V> node = nodeAndEntries.getNode();
-                for (EntryBox<K, V> entryBox : nodeAndEntries.getEntriesToAdd()) {
+                for (Bucket<K, V> bucket : nodeAndEntries.getEntriesToAdd()) {
                     if (node != null) {
-                        List<Node<K, V>> nodes = node.put(entryBox, configuration);
+                        List<Node<K, V>> nodes = node.putBucket(bucket, configuration);
                         if (nodes.size() == 1) {
                             node = nodes.get(0);
                         } else {
                             node = Branch.containing(nodes);
                         }
                     } else {
-                        node = Leaf.containing(entryBox);
+                        node = Leaf.containing(bucket);
                     }
                 }
                 return new RTreeMap<>(node, configuration, keyBoxMapper);

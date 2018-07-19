@@ -12,24 +12,24 @@ import java.util.stream.Collectors;
 
 final class Leaf<K, V> implements Node<K, V> {
 
-    private final List<EntryBox<K, V>> entryBoxes;
+    private final List<Bucket<K, V>> buckets;
     private final Box box;
 
-    static <K, V> Leaf<K, V> containing(List<EntryBox<K, V>> entryBoxes) {
-        return new Leaf<>(entryBoxes, Util.mbb(entryBoxes.stream().map(EntryBox::getBox).collect(Collectors.toList())));
+    static <K, V> Leaf<K, V> containing(List<Bucket<K, V>> buckets) {
+        return new Leaf<>(buckets, Util.mbb(buckets.stream().map(Bucket::getBox).collect(Collectors.toList())));
     }
 
-    static <K, V> Leaf<K, V> containing(EntryBox<K, V> entryBox) {
-        return new Leaf<>(Collections.singletonList(entryBox), entryBox.getBox());
+    static <K, V> Leaf<K, V> containing(Bucket<K, V> bucket) {
+        return new Leaf<>(Collections.singletonList(bucket), bucket.getBox());
     }
 
-    Leaf(List<EntryBox<K, V>> entryBoxes, Box box) {
-        Preconditions.checkArgument(!entryBoxes.isEmpty());
-        this.entryBoxes = entryBoxes;
+    Leaf(List<Bucket<K, V>> buckets, Box box) {
+        Preconditions.checkArgument(!buckets.isEmpty());
+        this.buckets = buckets;
         this.box = box;
     }
 
-    private List<Node<K, V>> makeLeaves(Groups<EntryBox<K, V>> pair) {
+    private List<Node<K, V>> makeLeaves(Groups<Bucket<K, V>> pair) {
         List<Node<K, V>> list = new ArrayList<>();
         list.add(containing(pair.getGroup1().getEntries()));
         list.add(containing(pair.getGroup2().getEntries()));
@@ -37,49 +37,78 @@ final class Leaf<K, V> implements Node<K, V> {
     }
 
     @Override
-    public List<Node<K, V>> put(EntryBox<K, V> entryBox, Configuration configuration) {
-        for (EntryBox<K, V> existingEntryBox : entryBoxes) {
-            if (existingEntryBox.getBox().equals(entryBox.getBox())
-                && existingEntryBox.getEntry().getKey().equals(entryBox.getEntry().getKey())) {
-                return Collections.singletonList(containing(Util.replace(entryBoxes, existingEntryBox, entryBox)));
+    public List<Node<K, V>> put(Box box, Entry<K, V> entry, Configuration configuration) {
+        for (Bucket<K, V> bucket : buckets) {
+            if (bucket.getBox().equals(box)) {
+                return Collections.singletonList(containing(Util.replace(buckets, bucket, bucket.put(entry))));
             }
         }
-        final List<EntryBox<K, V>> newLeafEntries = Util.add(entryBoxes, entryBox);
-        if (newLeafEntries.size() <= configuration.getMaxChildren()) {
-            return Collections.singletonList(containing(newLeafEntries));
+        Bucket<K, V> bucket = Bucket.of(box, entry);
+        final List<Bucket<K, V>> newBuckets = Util.add(buckets, bucket);
+        if (newBuckets.size() <= configuration.getMaxChildren()) {
+            return Collections.singletonList(containing(newBuckets));
         } else {
-            Groups<EntryBox<K, V>> pair = configuration.getSplitter().split(newLeafEntries, configuration.getMinChildren(), EntryBox::getBox);
+            Groups<Bucket<K, V>> pair = configuration.getSplitter().split(newBuckets, configuration.getMinChildren(), Bucket::getBox);
             return makeLeaves(pair);
         }
     }
 
     @Override
-    public NodeAndEntries<K, V> remove(EntryBox<K, V> entryBox, Configuration configuration) {
-        if (!entryBoxes.contains(entryBox)) {
-            return new NodeAndEntries<>(this, Collections.emptyList(), 0);
-        } else {
-            final List<EntryBox<K, V>> newEntryBoxes = Util.remove(entryBoxes, entryBox);
-
-            if (newEntryBoxes.size() >= configuration.getMinChildren()) {
-                Leaf<K, V> node = newEntryBoxes.isEmpty() ? null : containing(newEntryBoxes);
-                return new NodeAndEntries<>(node, Collections.emptyList(), 1);
-            } else {
-                return new NodeAndEntries<>(null, newEntryBoxes, 1);
+    public List<Node<K, V>> putBucket(Bucket<K, V> bucket, Configuration configuration) {
+        for (Bucket<K, V> existingBucket : buckets) {
+            if (existingBucket.getBox().equals(bucket.getBox())) {
+                return Collections.singletonList(containing(Util.replace(buckets, existingBucket, bucket)));
             }
+        }
+        final List<Bucket<K, V>> newBuckets = Util.add(buckets, bucket);
+        if (newBuckets.size() <= configuration.getMaxChildren()) {
+            return Collections.singletonList(containing(newBuckets));
+        } else {
+            Groups<Bucket<K, V>> pair = configuration.getSplitter().split(newBuckets, configuration.getMinChildren(), Bucket::getBox);
+            return makeLeaves(pair);
         }
     }
 
     @Override
-    public NodeAndEntries<K, V> remove(Box box, K key, Configuration configuration) {
-        for (EntryBox<K, V> entryBox : entryBoxes) {
-            if (entryBox.getBox().equals(box) && entryBox.getEntry().getKey().equals(key)) {
-                final List<EntryBox<K, V>> newEntryBoxes = Util.remove(entryBoxes, entryBox);
+    public NodeAndEntries<K, V> remove(Box box, Entry<K, V> entry, Configuration configuration) {
+        for (Bucket<K, V> bucket : buckets) {
+            if (bucket.getBox().equals(box)) {
+                Bucket<K, V> newBucket = bucket.remove(entry);
+                List<Bucket<K, V>> newBuckets;
+                if (newBucket == null) {
+                    newBuckets = Util.remove(buckets, bucket);
+                } else {
+                    newBuckets = Util.replace(buckets, bucket, newBucket);
+                }
 
-                if (newEntryBoxes.size() >= configuration.getMinChildren()) {
-                    Leaf<K, V> node = newEntryBoxes.isEmpty() ? null : containing(newEntryBoxes);
+                if (newBuckets.size() >= configuration.getMinChildren()) {
+                    Leaf<K, V> node = newBuckets.isEmpty() ? null : containing(newBuckets);
                     return new NodeAndEntries<>(node, Collections.emptyList(), 1);
                 } else {
-                    return new NodeAndEntries<>(null, newEntryBoxes, 1);
+                    return new NodeAndEntries<>(null, newBuckets, 1);
+                }
+            }
+        }
+        return new NodeAndEntries<>(this, Collections.emptyList(), 0);
+    }
+
+    @Override
+    public NodeAndEntries<K, V> remove(Box box, K key, Configuration configuration) {
+        for (Bucket<K, V> bucket : buckets) {
+            if (bucket.getBox().equals(box)) {
+                Bucket<K, V> newBucket = bucket.remove(key);
+                List<Bucket<K, V>> newBuckets;
+                if (newBucket == null) {
+                    newBuckets = Util.remove(buckets, bucket);
+                } else {
+                    newBuckets = Util.replace(buckets, bucket, newBucket);
+                }
+
+                if (newBuckets.size() >= configuration.getMinChildren()) {
+                    Leaf<K, V> node = newBuckets.isEmpty() ? null : containing(newBuckets);
+                    return new NodeAndEntries<>(node, Collections.emptyList(), 1);
+                } else {
+                    return new NodeAndEntries<>(null, newBuckets, 1);
                 }
             }
         }
@@ -88,20 +117,20 @@ final class Leaf<K, V> implements Node<K, V> {
 
     @Override
     public Entry<K, V> get(Box box, K key) {
-        for (EntryBox<K, V> entryBox : entryBoxes) {
-            if (entryBox.getBox().equals(box) && entryBox.getEntry().getKey().equals(key)) {
-                return entryBox.getEntry();
+        for (Bucket<K, V> bucket : buckets) {
+            if (bucket.getBox().equals(box)) {
+                return bucket.get(key);
             }
         }
         return null;
     }
 
     @Override
-    public void forEach(Predicate<? super Box> boxPredicate, Consumer<? super Entry<K, V>> consumer) {
+    public void forEach(Predicate<? super Box> boxPredicate, Consumer<? super Entry<K, V>> action) {
         if (boxPredicate.test(box)) {
-            for (final EntryBox<K, V> entryBox : entryBoxes) {
-                if (boxPredicate.test(entryBox.getBox())) {
-                    consumer.accept(entryBox.getEntry());
+            for (final Bucket<K, V> bucket : buckets) {
+                if (boxPredicate.test(bucket.getBox())) {
+                    bucket.forEach(action);
                 }
             }
         }
@@ -110,8 +139,8 @@ final class Leaf<K, V> implements Node<K, V> {
     @Override
     public boolean anyMatch(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate) {
         if (boxPredicate.test(box)) {
-            for (final EntryBox<K, V> entryBox : entryBoxes) {
-                if (boxPredicate.test(entryBox.getBox()) && entryPredicate.test(entryBox.getEntry())) {
+            for (final Bucket<K, V> bucket : buckets) {
+                if (boxPredicate.test(bucket.getBox()) && bucket.anyMatch(entryPredicate)) {
                     return true;
                 }
             }
@@ -122,8 +151,8 @@ final class Leaf<K, V> implements Node<K, V> {
     @Override
     public boolean allMatch(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate) {
         if (boxPredicate.test(box)) {
-            for (final EntryBox<K, V> entryBox : entryBoxes) {
-                if (!boxPredicate.test(entryBox.getBox()) && !entryPredicate.test(entryBox.getEntry())) {
+            for (final Bucket<K, V> bucket : buckets) {
+                if (!boxPredicate.test(bucket.getBox()) && !bucket.allMatch(entryPredicate)) {
                     return false;
                 }
             }
@@ -136,9 +165,9 @@ final class Leaf<K, V> implements Node<K, V> {
     public <T> T reduce(Predicate<? super Box> boxPredicate, T identity, BiFunction<T, Entry<K, V>, T> operator) {
         if (boxPredicate.test(box)) {
             T acc = identity;
-            for (final EntryBox<K, V> entryBox : entryBoxes) {
-                if (boxPredicate.test(entryBox.getBox())) {
-                    acc = operator.apply(acc, entryBox.getEntry());
+            for (final Bucket<K, V> bucket : buckets) {
+                if (boxPredicate.test(bucket.getBox())) {
+                    acc = bucket.reduce(acc, operator);
                 }
             }
             return acc;
@@ -150,9 +179,9 @@ final class Leaf<K, V> implements Node<K, V> {
     public int count(Predicate<? super Box> boxPredicate, Predicate<? super Entry<K, V>> entryPredicate) {
         if (boxPredicate.test(box)) {
             int count = 0;
-            for (final EntryBox<K, V> entryBox : entryBoxes) {
-                if (boxPredicate.test(entryBox.getBox()) && entryPredicate.test(entryBox.getEntry())) {
-                    count++;
+            for (final Bucket<K, V> bucket : buckets) {
+                if (boxPredicate.test(bucket.getBox())) {
+                    count += bucket.count(entryPredicate);
                 }
             }
             return count;
@@ -161,8 +190,25 @@ final class Leaf<K, V> implements Node<K, V> {
     }
 
     @Override
-    public boolean contains(EntryBox<K, V> entryBox) {
-        return entryBoxes.contains(entryBox);
+    public boolean contains(Box box, Entry<K, V> entry) {
+        if (this.box.contains(box)) {
+            for (final Bucket<K, V> bucket : buckets) {
+                if (bucket.getBox().equals(box)) {
+                    return bucket.contains(entry);
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsBucket(Box box) {
+        if (this.box.contains(box)) {
+            for (final Bucket<K, V> bucket : buckets) {
+                if (bucket.getBox().equals(box)) return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -177,7 +223,11 @@ final class Leaf<K, V> implements Node<K, V> {
 
     @Override
     public int size() {
-        return entryBoxes.size();
+        int size = 0;
+        for (final Bucket<K, V> bucket : buckets) {
+            size += bucket.size();
+        }
+        return size;
     }
 
     @Override
@@ -192,8 +242,8 @@ final class Leaf<K, V> implements Node<K, V> {
         s.append("mbb=");
         s.append(getBox());
         s.append('\n');
-        for (EntryBox<K, V> entryBox : entryBoxes) {
-            s.append(margin).append("  ").append(entryBox.toString());
+        for (Bucket<K, V> bucket : buckets) {
+            s.append(margin).append("  ").append(bucket.toString());
         }
         return s.toString();
     }
