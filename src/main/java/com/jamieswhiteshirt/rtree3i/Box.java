@@ -57,8 +57,12 @@ public final class Box {
         return new Box(x1, y1, z1, x2, y2, z2);
     }
 
-    public boolean intersects(Box r) {
-        return !(x1 > r.x2 || x2 < r.x1 || y1 > r.y2 || y2 < r.y1 || z1 > r.z2 || z2 < r.z1);
+    public boolean intersectsClosed(Box r) {
+        return x1 < r.x2 && x2 > r.x1 && y1 < r.y2 && y2 > r.y1 && z1 < r.z2 && z2 > r.z1;
+    }
+
+    public boolean intersectsOpen(Box r) {
+        return x1 <= r.x2 && x2 >= r.x1 && y1 <= r.y2 && y2 >= r.y1 && z1 <= r.z2 && z2 >= r.z1;
     }
 
     public boolean contains(Box r) {
@@ -70,7 +74,7 @@ public final class Box {
     }
 
     public int intersectionVolume(Box r) {
-        if (!intersects(r)) {
+        if (!intersectsClosed(r)) {
             return 0;
         } else {
             return create(Math.max(x1, r.x1), Math.max(y1, r.y1), Math.max(z1, r.z1),

@@ -64,27 +64,59 @@ public class BoxTest {
     }
 
     @Test
-    public void testIntersects() {
+    public void testIntersectsOpenWithOverlap() {
         Box a = box(14, 14, 86, 37);
         Box b = box(13, 23, 50, 80);
-        assertTrue(a.intersects(b));
-        assertTrue(b.intersects(a));
+        assertTrue(a.intersectsOpen(b));
+        assertTrue(b.intersectsOpen(a));
     }
 
     @Test
-    public void testIntersectsNoRectangleContainsCornerOfAnother() {
-        Box a = box(10, 10, 50, 50);
-        Box b = box(28, 4, 34, 85);
-        assertTrue(a.intersects(b));
-        assertTrue(b.intersects(a));
+    public void testIntersectsOpenWithoutOverlap() {
+        Box a = box(14, 14, 86, 37);
+        Box b = box(13, 37, 50, 80);
+        assertTrue(a.intersectsOpen(b));
+        assertTrue(b.intersectsOpen(a));
+    }
+
+    @Test
+    public void testIntersectsOpenDisjoint() {
+        Box a = box(14, 14, 86, 37);
+        Box b = box(13, 38, 50, 80);
+        assertFalse(a.intersectsOpen(b));
+        assertFalse(b.intersectsOpen(a));
+    }
+
+    @Test
+    public void testIntersectsClosedWithOverlap() {
+        Box a = box(14, 14, 86, 37);
+        Box b = box(13, 23, 50, 80);
+        assertTrue(a.intersectsClosed(b));
+        assertTrue(b.intersectsClosed(a));
+    }
+
+    @Test
+    public void testIntersectsClosedWithoutOverlap() {
+        Box a = box(14, 14, 86, 37);
+        Box b = box(13, 37, 50, 80);
+        assertFalse(a.intersectsClosed(b));
+        assertFalse(b.intersectsClosed(a));
+    }
+
+    @Test
+    public void testIntersectsClosedDisjoint() {
+        Box a = box(14, 14, 86, 37);
+        Box b = box(13, 38, 50, 80);
+        assertFalse(a.intersectsClosed(b));
+        assertFalse(b.intersectsClosed(a));
     }
 
     @Test
     public void testIntersectsOneRectangleContainsTheOther() {
         Box a = box(10, 10, 50, 50);
         Box b = box(20, 20, 40, 40);
-        assertTrue(a.intersects(b));
-        assertTrue(b.intersects(a));
+        assertTrue(a.contains(b));
+        assertTrue(b.containedBy(a));
     }
     
     private static Box box(int x1, int y1, int x2, int y2) {

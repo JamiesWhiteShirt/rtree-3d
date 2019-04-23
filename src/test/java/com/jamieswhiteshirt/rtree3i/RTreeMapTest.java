@@ -22,7 +22,7 @@ public class RTreeMapTest {
     @Test
     public void testSearchEmptyTree() {
         RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().build());
-        assertTrue(tree.entries(r(1)::intersects).isEmpty());
+        assertTrue(tree.entries(r(1)::intersectsOpen).isEmpty());
     }
 
     @Test
@@ -278,7 +278,7 @@ public class RTreeMapTest {
         }
         System.out.println(tree.toString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.values(r::intersects).collect(Collectors.toSet());
+        Set<Integer> set = tree.values(r::intersectsOpen).collect(Collectors.toSet());
         assertEquals(new HashSet<>(asList(3, 5)), set);
     }
 
@@ -296,7 +296,7 @@ public class RTreeMapTest {
         }
         System.out.println(tree.toString());
         System.out.println("searching " + r);
-        Set<Integer> set = tree.values(r::intersects).collect(Collectors.toSet());
+        Set<Integer> set = tree.values(r::intersectsOpen).collect(Collectors.toSet());
         assertEquals(new HashSet<>(Collections.singletonList(1)), set);
     }
 
@@ -319,7 +319,7 @@ public class RTreeMapTest {
         }
 
         for (Box r : testRects) {
-            Predicate<Box> boxPredicate = r::intersects;
+            Predicate<Box> boxPredicate = r::intersectsOpen;
             Set<Integer> res1 = tree1.values(boxPredicate).collect(Collectors.toSet());
             Set<Integer> res2 = tree2.values(boxPredicate).collect(Collectors.toSet());
             // System.out.println("searchRect= rectangle(" + r.x1() + "," +
