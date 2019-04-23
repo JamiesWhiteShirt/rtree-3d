@@ -97,7 +97,7 @@ public final class Box {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x1, y1, z2, x2, y2, z2);
+        return Objects.hash(x1, y1, z1, x2, y2, z2);
     }
 
     @Override
