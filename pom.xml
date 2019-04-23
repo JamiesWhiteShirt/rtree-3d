@@ -6,7 +6,7 @@
 
 	<groupId>com.jamieswhiteshirt</groupId>
 	<artifactId>rtree-3i-lite</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 
 	<name>${project.artifactId}</name>
 	<description>Immutable map applying a spatial index to keys based on R-Trees</description>
