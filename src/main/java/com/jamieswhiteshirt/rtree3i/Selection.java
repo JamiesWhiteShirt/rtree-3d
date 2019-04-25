@@ -2,7 +2,12 @@ package com.jamieswhiteshirt.rtree3i;
 
 import java.util.function.*;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
+/**
+ * A simplified {@link Stream} for R-tree operations.
+ * @param <T> the type of the stream elements
+ */
 public interface Selection<T> {
     /**
      * Returns a selection consisting of the elements of this selection that match the given predicate.

@@ -14,10 +14,10 @@ public final class Configuration {
 
     /**
      * Constructor.
-     * @param minChildren minimum number of children per node (at least 1)
-     * @param maxChildren max number of children per node (minimum is 3)
-     * @param selector algorithm to select search path
-     * @param splitter algorithm to split the children across two new nodes
+     * @param minChildren minimum number of children per node, at least 1
+     * @param maxChildren maximum number of children per node, at least 3
+     * @param selector algorithm to select search paths
+     * @param splitter algorithm to split children across two new nodes
      */
     public Configuration(int minChildren, int maxChildren, Selector selector, Splitter splitter) {
         Preconditions.checkNotNull(splitter);
@@ -31,18 +31,34 @@ public final class Configuration {
         this.splitter = splitter;
     }
 
+    /**
+     * Returns the maximum number of children per node.
+     * @return the maximum number of children per node
+     */
     public int getMaxChildren() {
         return maxChildren;
     }
 
+    /**
+     * Returns the minimum number of children per node.
+     * @return the minimum number of children per node
+     */
     public int getMinChildren() {
         return minChildren;
     }
 
+    /**
+     * Returns the algorithm to split children across two new nodes.
+     * @return the algorithm to split children across two new nodes
+     */
     public Splitter getSplitter() {
         return splitter;
     }
 
+    /**
+     * Returns the algorithm to select search paths.
+     * @return the algorithm to select search paths
+     */
     public Selector getSelector() {
         return selector;
     }

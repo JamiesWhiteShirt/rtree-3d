@@ -5,12 +5,10 @@ import com.google.common.base.Preconditions;
 import java.util.Objects;
 
 /**
- * An entry in the R-tree which has a spatial representation.
+ * An entry in an R-tree.
  *
- * @param <K>
- *     the key type
- * @param <V>
- *     the value type
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public final class Entry<K, V> {
     private final K key;

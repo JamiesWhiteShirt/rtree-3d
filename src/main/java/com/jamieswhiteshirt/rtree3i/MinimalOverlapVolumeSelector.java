@@ -9,7 +9,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class SelectorMinimalOverlapVolume implements Selector {
+/**
+ * A selector that selects the minimum node by {@link Comparators#overlapVolumeComparator},
+ * {@link Comparators#volumeComparator(Box)} then {@link Comparators#volumeIncreaseComparator(Box)}.
+ */
+public final class MinimalOverlapVolumeSelector implements Selector {
 
     @Override
     public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {

@@ -18,7 +18,7 @@ public class QuadraticSplitterTest {
         final Box r1 = r(1);
         final Box r2 = r(100);
         final Box r3 = r(3);
-        final Pair<Box> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3), Function.identity());
+        final Pair<Box> pair = QuadraticSplitter.worstCombination(Arrays.asList(r1, r2, r3), Function.identity());
         assertEquals(r1, pair.getValue1());
         assertEquals(r2, pair.getValue2());
     }
@@ -27,7 +27,7 @@ public class QuadraticSplitterTest {
     public void testWorstCombinationOnTwoEntries() {
         final Box r1 = r(1);
         final Box r2 = r(2);
-        final Pair<Box> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2), Function.identity());
+        final Pair<Box> pair = QuadraticSplitter.worstCombination(Arrays.asList(r1, r2), Function.identity());
         assertEquals(r1, pair.getValue1());
         assertEquals(r2, pair.getValue2());
     }
@@ -38,7 +38,7 @@ public class QuadraticSplitterTest {
         final Box r2 = r(1);
         final Box r3 = r(3);
         final Box r4 = r(4);
-        final Pair<Box> pair = SplitterQuadratic.worstCombination(Arrays.asList(r1, r2, r3, r4), Function.identity());
+        final Pair<Box> pair = QuadraticSplitter.worstCombination(Arrays.asList(r1, r2, r3, r4), Function.identity());
         assertEquals(r2, pair.getValue1());
         assertEquals(r4, pair.getValue2());
     }
@@ -49,7 +49,7 @@ public class QuadraticSplitterTest {
         final Box r2 = r(2);
         final List<Box> list = Collections.singletonList(r1);
         final List<Box> group = Collections.singletonList(r2);
-        final Box r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
+        final Box r = QuadraticSplitter.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
         assertEquals(r1, r);
     }
 
@@ -60,7 +60,7 @@ public class QuadraticSplitterTest {
         final Box r3 = r(10);
         final List<Box> list = Collections.singletonList(r1);
         final List<Box> group = Arrays.asList(r2, r3);
-        final Box r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
+        final Box r = QuadraticSplitter.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
         assertEquals(r1, r);
     }
 
@@ -71,13 +71,13 @@ public class QuadraticSplitterTest {
         final Box r3 = r(10);
         final List<Box> list = Arrays.asList(r1, r2);
         final List<Box> group = Collections.singletonList(r3);
-        final Box r = SplitterQuadratic.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
+        final Box r = QuadraticSplitter.getBestCandidateForGroup(list, Util.mbb(group), Function.identity());
         assertEquals(r2, r);
     }
 
     @Test
     public void testSplit() {
-        final SplitterQuadratic q = new SplitterQuadratic();
+        final QuadraticSplitter q = new QuadraticSplitter();
         final Box r1 = r(1);
         final Box r2 = r(2);
         final Box r3 = r(100);
@@ -89,7 +89,7 @@ public class QuadraticSplitterTest {
 
     @Test
     public void testSplit2() {
-        final SplitterQuadratic q = new SplitterQuadratic();
+        final QuadraticSplitter q = new QuadraticSplitter();
         final Box r1 = r(1);
         final Box r2 = r(2);
         final Box r3 = r(100);
@@ -102,7 +102,7 @@ public class QuadraticSplitterTest {
 
     @Test
     public void testSplit3() {
-        final SplitterQuadratic q = new SplitterQuadratic();
+        final QuadraticSplitter q = new QuadraticSplitter();
         final Box r1 = r(1);
         final Box r2 = r(2);
         final Box r3 = r(100);
@@ -116,7 +116,7 @@ public class QuadraticSplitterTest {
 
     @Test(expected = RuntimeException.class)
     public void testExceptionForSplitEmptyList() {
-        final SplitterQuadratic q = new SplitterQuadratic();    
+        final QuadraticSplitter q = new QuadraticSplitter();
         q.split(Collections.emptyList(), 3, Function.identity());
     }
     

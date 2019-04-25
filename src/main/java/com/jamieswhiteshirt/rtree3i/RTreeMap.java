@@ -243,7 +243,7 @@ public final class RTreeMap<K, V> {
 
     /**
      * Returns the value to which the specified key is mapped, or {@code null} if this RTreeMap contains no mapping for
-     * the key
+     * the key.
      * @param key the key whose associated value will be returned
      * @return the value to which the specified key is mapped, or {@code null} if this RTreeMap contains no mapping for
      *         the key
@@ -287,7 +287,6 @@ public final class RTreeMap<K, V> {
 
     /**
      * Returns the number of entries in the RTreeMap.
-     *
      * @return the number of entries
      */
     public int size() {
@@ -296,7 +295,6 @@ public final class RTreeMap<K, V> {
 
     /**
      * Returns a {@link Configuration} containing the configuration of the RTreeMap at the time of instantiation.
-     *
      * @return the configuration of the RTreeMap at the time of instantiation
      */
     public Configuration getConfiguration() {

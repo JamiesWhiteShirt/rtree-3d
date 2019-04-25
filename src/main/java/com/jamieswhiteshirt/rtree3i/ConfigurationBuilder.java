@@ -1,5 +1,8 @@
 package com.jamieswhiteshirt.rtree3i;
 
+/**
+ * A mutable configuration builder for {@link Configuration}.
+ */
 public final class ConfigurationBuilder {
     /**
      * Benchmarks show that this is a good choice for up to O(10,000) entries
@@ -21,21 +24,20 @@ public final class ConfigurationBuilder {
     private static final double DEFAULT_FILLING_FACTOR = 0.4;
     private Integer maxChildren = null;
     private Integer minChildren = null;
-    private Splitter splitter = new SplitterQuadratic();
-    private Selector selector = new SelectorMinimalVolumeIncrease();
+    private Splitter splitter = new QuadraticSplitter();
+    private Selector selector = new MinimalVolumeIncreaseSelector();
     private boolean star = false;
 
+    /**
+     * Constructs a configuration builder.
+     */
     public ConfigurationBuilder() {
     }
 
     /**
-     * When the number of children in an R-tree node drops below this number
-     * the node is deleted and the children are added on to the R-tree
-     * again.
-     *
-     * @param minChildren
-     *            less than this number of children in a node triggers a
-     *            redistribution of its children.
+     * Sets the minimum number of children in a node. When the number of children in a node drops below this number, the
+     * node is deleted and the children are added on to the R-tree again.
+     * @param minChildren the minimum number of children in a node
      * @return builder
      */
     public ConfigurationBuilder minChildren(int minChildren) {
@@ -44,10 +46,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets the max number of children in an R-tree node.
-     *
-     * @param maxChildren
-     *            max number of children in R-tree node.
+     * Sets the maximum number of children in a node.
+     * @param maxChildren the maximum number of children in a node
      * @return builder
      */
     public ConfigurationBuilder maxChildren(int maxChildren) {
@@ -56,10 +56,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets the {@link Splitter} to use when maxChildren is reached.
-     *
-     * @param splitter
-     *            node splitting method to use
+     * Sets the splitter to use when the number of children in a node exceeds the maximum number of children.
+     * @param splitter the node splitting algorithm
      * @return builder
      */
     public ConfigurationBuilder splitter(Splitter splitter) {
@@ -68,11 +66,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets the node {@link Selector} which decides which branches to follow
-     * when inserting or searching.
-     *
-     * @param selector
-     *            selects the branch to follow when inserting or searching
+     * Sets the selector which decides which branches to follow when inserting or searching.
+     * @param selector selects the branch to follow when inserting or searching
      * @return builder
      */
     public ConfigurationBuilder selector(Selector selector) {
@@ -81,22 +76,19 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets the splitter to {@link SplitterRStar} and selector to
-     * {@link SelectorRStar} and defaults to minChildren=10.
-     *
+     * Sets the splitter to {@link RStarSplitter} and selector to {@link RStarSelector} and defaults to minChildren=10.
      * @return builder
      */
     public ConfigurationBuilder star() {
-        selector = new SelectorRStar();
-        splitter = new SplitterRStar();
+        selector = new RStarSelector();
+        splitter = new RStarSplitter();
         star = true;
         return this;
     }
 
     /**
      * Builds the {@link Configuration}.
-     *
-     * @return Configuration
+     * @return the {@link Configuration}
      */
     public Configuration build() {
         if (maxChildren == null)

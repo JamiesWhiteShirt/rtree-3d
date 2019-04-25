@@ -3,7 +3,7 @@ package com.jamieswhiteshirt.rtree3i;
 import java.util.function.*;
 import java.util.stream.Collector;
 
-public class EmptySelection<T> implements Selection<T> {
+final class EmptySelection<T> implements Selection<T> {
     private static final Selection INSTANCE = new EmptySelection();
 
     public static <T> Selection<T> create() {

@@ -6,26 +6,31 @@ import java.util.function.ToIntFunction;
 
 import com.google.common.base.Preconditions;
 
-public final class SplitterRStar implements Splitter {
+/**
+ * An R*-tree splitter.
+ */
+public final class RStarSplitter implements Splitter {
 
     private final Comparator<Groups<?>> groupsComparator;
 
-    @SuppressWarnings("unchecked")
-    public SplitterRStar() {
-        this.groupsComparator = com.jamieswhiteshirt.rtree3i.Comparators.overlapListPairComparator.thenComparing(com.jamieswhiteshirt.rtree3i.Comparators.volumePairComparator);
+    /**
+     * Constructs an R*-tree splitter.
+     */
+    public RStarSplitter() {
+        this.groupsComparator = com.jamieswhiteshirt.rtree3i.Comparators.groupsVolumeComparator.thenComparing(com.jamieswhiteshirt.rtree3i.Comparators.groupsIntersectionVolumeComparator);
     }
 
     @Override
-    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxAccessor) {
+    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxMapper) {
         Preconditions.checkArgument(!items.isEmpty());
         // sort nodes into increasing x, calculate min overlap where both groups
         // have more than minChildren
 
         Map<SortType, List<Groups<T>>> map = new EnumMap<>(SortType.class);
         for (SortType sortType : SortType.values()) {
-            ToIntFunction<T> accessor = item -> sortType.keyAccessor.applyAsInt(boxAccessor.apply(item));
+            ToIntFunction<T> accessor = item -> sortType.keyAccessor.applyAsInt(boxMapper.apply(item));
             Comparator<T> comparator = Comparator.comparingInt(accessor);
-            map.put(sortType, createPairs(minSize, sort(items, comparator), boxAccessor));
+            map.put(sortType, createPairs(minSize, sort(items, comparator), boxMapper));
         }
 
         // compute S the sum of all margin-values of the lists above

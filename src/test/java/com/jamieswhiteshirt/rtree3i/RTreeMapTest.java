@@ -169,7 +169,7 @@ public class RTreeMapTest {
     @Test
     public void testBuilder1() {
         RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().minChildren(1).maxChildren(4)
-                .selector(new SelectorMinimalVolumeIncrease()).splitter(new SplitterQuadratic())
+                .selector(new MinimalVolumeIncreaseSelector()).splitter(new QuadraticSplitter())
                 .build());
         testBuiltTree(tree);
     }
@@ -183,24 +183,24 @@ public class RTreeMapTest {
     @Test
     public void testBuilder2() {
         RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder()
-                .selector(new SelectorMinimalVolumeIncrease())
-                .minChildren(1).maxChildren(4).splitter(new SplitterQuadratic()).build());
+                .selector(new MinimalVolumeIncreaseSelector())
+                .minChildren(1).maxChildren(4).splitter(new QuadraticSplitter()).build());
         testBuiltTree(tree);
     }
 
     @Test
     public void testBuilder3() {
         RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder().maxChildren(4)
-                .selector(new SelectorMinimalVolumeIncrease()).minChildren(1)
-                .splitter(new SplitterQuadratic()).build());
+                .selector(new MinimalVolumeIncreaseSelector()).minChildren(1)
+                .splitter(new QuadraticSplitter()).build());
         testBuiltTree(tree);
     }
 
     @Test
     public void testBuilder4() {
         RTreeMap<Box, Object> tree = RTreeMap.create(new ConfigurationBuilder()
-                .splitter(new SplitterQuadratic()).maxChildren(4)
-                .selector(new SelectorMinimalVolumeIncrease()).minChildren(1).build());
+                .splitter(new QuadraticSplitter()).maxChildren(4)
+                .selector(new MinimalVolumeIncreaseSelector()).minChildren(1).build());
         testBuiltTree(tree);
     }
 

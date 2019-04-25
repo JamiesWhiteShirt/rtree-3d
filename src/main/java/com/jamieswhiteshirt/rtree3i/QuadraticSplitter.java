@@ -8,10 +8,13 @@ import java.util.stream.Collectors;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public final class SplitterQuadratic implements Splitter {
+/**
+ * An O(n^4) time splitter with desirable results.
+ */
+public final class QuadraticSplitter implements Splitter {
 
     @Override
-    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxAccessor) {
+    public <T> Groups<T> split(List<T> items, int minSize, Function<T, Box> boxMapper) {
         Preconditions.checkArgument(items.size() >= 2);
 
         // according to
@@ -19,7 +22,7 @@ public final class SplitterQuadratic implements Splitter {
 
         // find the worst combination pairwise in the list and use them to start
         // the two groups
-        final Pair<T> worstCombination = worstCombination(items, boxAccessor);
+        final Pair<T> worstCombination = worstCombination(items, boxMapper);
 
         // worst combination to have in the same node is now e1,e2.
 
@@ -36,9 +39,9 @@ public final class SplitterQuadratic implements Splitter {
         // now add the remainder to the groups using least mbb area increase
         // except in the case where minimumSize would be contradicted
         while (remaining.size() > 0) {
-            assignRemaining(group1, group2, remaining, minGroupSize, boxAccessor);
+            assignRemaining(group1, group2, remaining, minGroupSize, boxMapper);
         }
-        return new Groups<>(Group.of(group1, boxAccessor), Group.of(group2, boxAccessor));
+        return new Groups<>(Group.of(group1, boxMapper), Group.of(group2, boxMapper));
     }
 
     private <T> void assignRemaining(final List<T> group1,

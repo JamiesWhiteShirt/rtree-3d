@@ -5,9 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Uses minimal volume increase to select a node from a list.
+ * A selector that selects the node which has the minimal amount of increase in volume on insertion.
  */
-public final class SelectorMinimalVolumeIncrease implements Selector {
+public final class MinimalVolumeIncreaseSelector implements Selector {
 
     @Override
     public <K, V> Node<K, V> select(Box box, List<Node<K, V>> nodes) {

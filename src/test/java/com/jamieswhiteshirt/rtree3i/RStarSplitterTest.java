@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class SplitterRStarTest {
+public class RStarSplitterTest {
 
     @Test
     public void testGetPairs() {
@@ -22,13 +22,13 @@ public class SplitterRStarTest {
         list.add(point(3, 3));
         list.add(point(4, 4));
         list.add(point(5, 5));
-        List<Groups<Box>> pairs = SplitterRStar.createPairs(minSize, list, Function.identity());
+        List<Groups<Box>> pairs = RStarSplitter.createPairs(minSize, list, Function.identity());
         assertEquals(2, pairs.size());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSplitterRStarThrowsExceptionOnEmptyList() {
-        SplitterRStar spl = new SplitterRStar();
+        RStarSplitter spl = new RStarSplitter();
         spl.split(Collections.emptyList(), 4, Function.identity());
     }
 
